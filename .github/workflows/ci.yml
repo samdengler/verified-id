@@ -21,7 +21,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .lake/build
-          key: lake-build-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml', '*.lean', 'Rules/**/*.lean', 'Review/**/*.lean', 'Status/**/*.lean') }}
+          key: lake-build-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml', '*.lean', 'Rules/**/*.lean', 'Review/**/*.lean', 'Status/**/*.lean', 'Oracle/**/*.lean', 'Exports/**/*.lean') }}
           restore-keys: lake-build-${{ runner.os }}-
       - uses: leanprover/lean-action@v1
         with: { use-mathlib-cache: true }
@@ -41,6 +41,14 @@ jobs:
       # Fails on any sorry not tagged @[open_question], a rule with no
       # @[source], or a malformed requirement, before anything renders.
       - run: lake exe status
+      # The data a product site reads, in build/one-id-data/.  Fails if the
+      # default scenario depends on a reading, a scenario disagrees with its
+      # example, or the oracle answers a request differently from the model's
+      # functions; then every decision replayed through the oracle executable.
+      - run: lake build Oracle oracle Exports oneid-facts
+      - run: lake exe oneid-facts
+      - run: python3 scripts/replay_one_id.py
+      - run: python3 scripts/export_one_id.py
       - run: python3 scripts/render_status.py
       # The survey, the blueprint, the model and the citations agree.
       - run: python3 scripts/check_survey.py
@@ -75,6 +83,9 @@ jobs:
       # their counts.
       - run: python3 scripts/render_progress.py
       - run: python3 scripts/render_home.py
+      # Verified Airline's One ID pages against build/one-id-data/; skips
+      # until the airline's repository has them, which CI does not check out.
+      - run: scripts/check-airline.sh
       - run: scripts/assemble-site.sh
       - uses: actions/upload-pages-artifact@v3
         with: { path: site }

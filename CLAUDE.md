@@ -39,6 +39,7 @@ IATA's One ID Technical Implementation Guide as a Lean model, with a survey of i
 | `blueprint/src/content.tex` and `blueprint/src/areas/*.tex`, without `\leanok`; nodes use `Counterexample:`, `Case to check:`, `Open point:`, `Lookup:`, `Blocks:`, `External:` and `Source:` paragraphs, which the progress page reads; a candidate carries its survey ID at the end of its title | `build/home/index.html` (`scripts/render_home.py`), the site root; `build/progress/index.html`, at `/progress/`, and `build/ranking.json` (`scripts/render_progress.py`, reading the graph through `scripts/graph_model.py`) |
 | `Review/Review/{Overview,Objects}.lean`, `Review/Review.lean`, `Review/Review/Status.lean`, `Review/review.css`, `Review/review.js` | `build/status.json`, `ears.csv`, `ears-criteria.csv`, `provenance.csv`, `assumptions.csv` (`lake exe status`) |
 | `docs/source-crosscheck.md`, `sources/README.md`, `scripts/` | `sources/outline.json` (committed) and `sources/one-id-tig-26.3.md` (ignored), both by `scripts/convert-source.sh` |
+| `Oracle/` (the oracle's JSON and `Oracle.rules`, the reading points each rule reads); `Exports/` (the scenarios, the settings and open theorems of each reading point, the identifier list) | `build/one-id-data/scenarios.json`, `readings.json`, `decisions.jsonl` and `build/one-id-identifiers.json` (`lake exe oneid-facts`); `build/one-id-data/model.json` (`scripts/export_one_id.py`) |
 | `docs/external-survey.md`, the survey of the clauses the guide cites in the public specifications; the list of documents in `scripts/external_sources.py` | `sources/external.json` (committed) and `sources/external/` (ignored), both by `scripts/fetch-sources.sh` |
 
 - A question is a lookup when reading a clause the guide cites would settle it, with nothing left for anyone to decide. Its blueprint node names the clause in a `Lookup:` paragraph and its survey row in the column "Answered by reading". A candidate with one shows as needs a source; an open theorem's node with one keeps open question and gains the same label. Do not mark a question where the guide contradicts itself, or one that mixes a lookup with a decision: split it into two entries. When the clause has been read, remove the paragraph: the question is then answered, or it is a decision.
@@ -57,6 +58,13 @@ IATA's One ID Technical Implementation Guide as a Lean model, with a survey of i
 - `scripts/build-site.sh` must pass before anything lands on `main`. It runs everything CI runs. Commit `.kiro/specs` whenever `scripts/render_status.py` changes it; CI and the pre-push hook fail if the committed specs are stale.
 - Turn the hook on once per clone with `git config core.hooksPath .githooks`. It runs `scripts/build-site.sh` before a push to `main`.
 - Commit straight to `main`. No pull requests, no merge commits. Push to `main` once a private remote exists.
+
+## The data a product site reads
+
+- `build/one-id-data/` is what a product site such as Verified Airline reads; the README describes each file. Its Lean stays in `Oracle/` and `Exports/`, in namespaces outside `Rules`, so the status counts and the specs do not include it.
+- The default scenario (`"default": true`) gives every check the same result under every reading setting. Never make it depend on a reading: give it inputs that avoid every undecided point. `lake exe oneid-facts` stops otherwise.
+- A scenario that reproduces a `@[case]` example names it, and `Exports.exampleChecks` recomputes the example's record from the scenario's inputs. Add a check there with a new one; the build stops on a scenario that disagrees.
+- Labels and questions come from docstrings, never typed in `Exports/`. A new reading point needs its encoder and decoder in `Oracle/Handle.lean`, its place in `Oracle.rules`, and an entry in `Exports.points` with its open theorems; the build checks each against the definitions.
 
 ## Areas and requirement IDs
 

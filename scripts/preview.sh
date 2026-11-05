@@ -4,9 +4,10 @@
 #
 #   scripts/preview.sh [port]
 #
-# Builds the model, the status, the review document, the blueprint web pages
-# and the progress page.  Skips the blueprint PDF, which scripts/build-site.sh
-# and CI build; a PDF from an earlier full build is included if present.
+# Builds the model, the status, the data in build/one-id-data/, the review
+# document, the blueprint web pages and the progress page.  Skips the
+# blueprint PDF, which scripts/build-site.sh and CI build; a PDF from an
+# earlier full build is included if present.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 if [ -d .venv ]; then PATH="$PWD/.venv/bin:$PATH"; fi
@@ -14,6 +15,9 @@ port="${1:-8000}"
 
 lake build
 lake exe status
+lake build Oracle oracle Exports oneid-facts
+lake exe oneid-facts
+python3 scripts/export_one_id.py
 python3 scripts/render_status.py
 python3 scripts/check_survey.py
 lake build Review

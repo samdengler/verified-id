@@ -18,6 +18,7 @@ The method and the tooling come from [verified-air](https://github.com/samdengle
 | See what the public specifications say in the clauses the guide cites, and where they differ from the guide | [`docs/external-survey.md`](docs/external-survey.md) |
 | Check the approved guide against the public copy | [`docs/source-crosscheck.md`](docs/source-crosscheck.md) |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per module |
+| Build a site on the model, or check an implementation against it | [The data a product site reads](#the-data-a-product-site-reads): the files in `build/one-id-data/` and `lake exe oracle` |
 | Review or change the model | [`Rules/OneId/`](Rules/OneId/), then [`CLAUDE.md`](CLAUDE.md) and the rest of this README |
 
 ## The method
@@ -99,12 +100,16 @@ People write the Lean files, the survey, the blueprint statements and the prose 
 | --- | --- | --- |
 | `lake build` | Checks every proof and every `#guard` | A proof is rejected, an example's value changes, or a rule names a source or an assumption that is not listed |
 | `lake exe status` | Computes each theorem's and criterion's status, each rule's fingerprint and provenance; writes `build/status.json` and the CSV exports | A theorem depends on `sorry` without `@[open_question]`, a rule has no `@[source]`, an EARS statement or criterion does not follow one EARS template, a rule lacks a story or criteria, or a `@[checks]` tag names a criterion no rule defines |
+| `lake exe oneid-facts` | Evaluates every scenario under every reading setting; writes `scenarios.json`, `readings.json` and `decisions.jsonl` to `build/one-id-data/` | The default scenario depends on a reading, a scenario disagrees with its example, the oracle answers a request differently from the model's functions, or a list in `Oracle/` or `Exports/` disagrees with the definitions it describes |
+| `scripts/replay_one_id.py` | Runs every decision through `lake exe oracle` | An answer differs from the recorded response |
+| `scripts/export_one_id.py` | Writes `build/one-id-data/model.json` from `build/status.json` | An open theorem has no question |
 | `scripts/render_status.py` | Writes the review chapters, the blueprint's `\leanok` markers and the requirement specs | The blueprint names a declaration the build does not report, or `Review/Review.lean` misses a requirement chapter |
 | `scripts/check_survey.py` | Checks the survey, the blueprint, the model and the citations against each other | A survey entry has no node and no requirement, a grade disagrees with the blueprint, a count disagrees with the rows, or a citation names a section the guide does not have |
 | `lake exe review-doc` | Renders the Verso review document | A chapter names a declaration that does not exist |
 | `leanblueprint web`, `checkdecls`, `pdf` | Renders the blueprint and its dependency graph | The blueprint names a Lean declaration that does not exist |
 | `scripts/render_progress.py` | Writes the progress page and `build/ranking.json` | A `\uses` names a label that does not exist, or a blueprint section is not in `AREA_ORDER` |
 | `scripts/render_home.py` | Writes the home page | The open question the page works through has been proven, or lost its example |
+| `scripts/check-airline.sh` | Runs Verified Airline's check of its One ID pages against `build/one-id-data/`, once that repository has them | The airline's check fails |
 
 `scripts/build-site.sh` runs all of them and assembles `site/`. It must pass before anything lands on `main`: the pre-push hook in `.githooks/` runs it, and `.github/workflows/ci.yml` runs the same steps.
 
@@ -118,8 +123,120 @@ People write the Lean files, the survey, the blueprint statements and the prose 
 | Blueprint, in leanblueprint: numbered statements, a dependency graph, a PDF | `blueprint/src/` | `/blueprint/` |
 | Requirement specs, criteria in EARS, in Kiro's layout | `.kiro/specs/` | `/specs/` |
 | Exports | `lake exe status` | `/ears.csv`, `/ears-criteria.csv`, `/provenance.csv`, `/assumptions.csv`, `/ranking.json`, `/status.json` |
+| The data a product site reads: scenarios, readings, decisions and the model's requirements | `lake exe oneid-facts`, `scripts/export_one_id.py` | `/one-id-data/` |
 
 The site is not published anywhere. The repository is private and has no remote, and GitHub Pages is not available for a private repository on this account's plan. Build it with `scripts/build-site.sh` and serve it with `python3 scripts/serve_site.py`, or do both with `scripts/preview.sh`.
+
+## The data a product site reads
+
+The build writes four files to `build/one-id-data/`, and the assembled site serves them at `/one-id-data/`. A product site, such as the One ID pages planned for [Verified Airline](https://github.com/samdengler/verified-airline), reads them instead of the Lean. Nothing in them is typed by hand: each result comes from the model's functions, each label from a Lean docstring, and each status from `build/status.json`. They cover the credential checks of §4.1. The presentation flows of §4.2 are in `model.json` as requirements and have no decisions yet.
+
+| File | Written by | What it holds |
+| --- | --- | --- |
+| `scenarios.json` | `lake exe oneid-facts` | Trips a site can show: the credentials, who each is about, the journey and the instant of the check |
+| `readings.json` | `lake exe oneid-facts` | Every undecided point the checks take as a parameter, with its settings, the checks that read it, and the open criteria and questions it bears on |
+| `decisions.jsonl` | `lake exe oneid-facts` | Each scenario under each reading setting, as an oracle request with the model's response. These are the conformance vectors |
+| `model.json` | `scripts/export_one_id.py` | Every requirement with its criteria and their statuses, the open questions, and the identifier constants |
+
+The tables and the boarding pass format every scenario uses are the invented stand-ins of [`Rules/OneId/Examples.lean`](Rules/OneId/Examples.lean). Each scenario says so, and a site that shows one must say so too.
+
+### The oracle
+
+`lake exe oracle` is the model behind JSON: one request per line on standard input, one response per line on standard output ([`Oracle/Handle.lean`](Oracle/Handle.lean)). It loads the compiled model into Lean's interpreter, as `lake exe status` does, so it does not link Mathlib. Every request names its rule, carries every input of the rule, and names its reading under `reading`:
+
+| `rule` | Other inputs | Reading points | `result` |
+| --- | --- | --- | --- |
+| `Photoid.violations` | `tables`, `credential` | the six points of `PhotoidReading` other than `passportRequired` | findings |
+| `Photoid.advisories` | `tables`, `source`, `credential` | none | advisories |
+| `Photoid.sourceFindings` | `source` | `PhotoidReading.passportRequired` | findings |
+| `Photoid.validityFindings` | `documentExpiry`, `credential` | `PhotoidValidityReading` | findings |
+| `BoardingPass.violations` | `resolution792`, `credential` | the two points of `BoardingPassReading` | findings |
+| `BoardingPass.validityFindings` | `journey`, `credential` | `ValidityReading.departure`, `ValidityReading.soonAfter` | findings |
+| `expired` | `credential`, `now` | `ExpiryReading.validAtEnd` | true or false |
+| `travelerMatch` | `resolution792`, `photoid`, `boardingPass` | `MatchReading` | true or false |
+
+The inputs are the Lean values as JSON:
+
+- An instant (`now`, `documentExpiry`, `validUntil` and the instants of a journey) is its epoch seconds, UTC.
+- A credential is an `Mdoc`: `{"docType", "validUntil", "nameSpaces": [{"name", "elements": [{"identifier", "value"}]}]}`. A value is one of the constructors of `Value`: `{"text": "SMITH"}`, `{"bytes": [1, 2, 3]}`, `{"flag": true}` or `{"other": "43"}`.
+- `tables` is a `PhotoidTables`: `{"base", "photoid", "dataGroups"}`, each `{"entries": [{"identifier", "presence", "encoding"}]}`, with `presence` one of `mandatory`, `optional`, `other` and `encoding` one of `text`, `bytes`, `flag`, `other`.
+- `source` is `passport` or `other`. `journey` is `{"scheduledDeparture", "actualDeparture", "completed"}`.
+- `resolution792` names a format. `Resolution792` holds functions, so it cannot travel as data. The only format is `exampleResolution792`, the invented stand-in.
+- `reading` is an object whose keys are the ids of the reading points in `readings.json`, each with its setting: `true` or `false`, a number of seconds, or the name of a constructor. It holds exactly the points the rule reads. `lake exe oneid-facts` checks the list of points against the definitions of the rules, so a point a rule does not read cannot change its answer.
+
+The response is `{"result": ...}`. A finding is the name of its constructor of `Finding` as `code`, with each argument under its Lean name: `{"code": "missingElement", "nameSpace": "org.iso.23220.1", "identifier": "portrait"}`. An advisory has the same form, from `Advisory`. A request the oracle cannot read, such as one that lacks an input or names a point its rule does not read, gets `{"failure": "..."}`.
+
+### `scenarios.json`
+
+```json
+{"generatedBy": "lake exe oneid-facts",
+ "standIns": {"invented": true,
+              "tables": {"lean": "Rules.OneId.exampleTables", "value": {"base": {"entries": [...]}, ...}},
+              "resolution792": {"lean": "Rules.OneId.exampleResolution792", "format": "exampleResolution792"}},
+ "scenarios": [
+  {"id": "accented-name",
+   "title": "José María García's passport name has accents and his boarding pass name does not",
+   "default": false,
+   "credentials": [{"role": "photoid", "about": "traveler 1", "mdoc": {...}},
+                   {"role": "boardingPass", "about": "traveler 1", "mdoc": {...}}],
+   "journey": {"scheduledDeparture": 1803895200, "actualDeparture": 1803895200, "completed": 1803902400},
+   "checkedAt": 1803889800,
+   "sourceDocument": {"kind": "passport", "expires": 1924992000},
+   "standIns": true,
+   "example": "Rules.OneId.ownBoardingPassRefused"}]}
+```
+
+`about` is the traveler the issuer issued the credential about, which a relying party does not see (decision 8). `journey` is null for a scenario without a boarding pass, and `sourceDocument`, the document a photoid was derived from, is null for one without a photoid. `example` names the `@[case]` example the scenario reproduces, and the build stops if the scenario's inputs give that example a different record. Exactly one scenario has `"default": true`, and it gives every check the same result under every reading setting. The build stops if it does not.
+
+### `readings.json`
+
+```json
+{"generatedBy": "lake exe oneid-facts",
+ "readings": [
+  {"id": "MatchReading",
+   "lean": "Rules.OneId.MatchReading",
+   "label": "What a relying party checks before it treats a photoid and a boarding pass as being about the same traveler.",
+   "description": "...",
+   "settings": [{"value": "notChecked", "label": "Nothing is checked: any photoid goes with any boarding pass.",
+                 "description": "...", "lean": "Rules.OneId.MatchReading.notChecked"},
+                {"value": "namesAgree", ...}],
+   "asWritten": "notChecked",
+   "checks": ["travelerMatch"],
+   "criteria": ["OID-107.1", "OID-107.2"],
+   "questions": [{"theorem": "Rules.OneId.matched_pair_same_traveler", "criteria": ["OID-107.1"],
+                  "question": "What ties a photoid and a boarding pass to one traveler: ...?",
+                  "examples": ["Rules.OneId.anotherTravelersBoardingPass", "Rules.OneId.twoTravelersWithOneName"]}]}]}
+```
+
+A point's `id` is its Lean name below `Rules.OneId`: a field of a reading structure, such as `PhotoidReading.portraitRequired`, or a reading type whose constructors are its settings, such as `MatchReading`. `label` is the first sentence of the docstring of that name, and `description` the whole docstring. A constructor setting takes its own docstring. A yes or no setting is labelled Yes or No, which answers a label that starts with "Whether", and a duration is written out. `asWritten` is the setting whose docstring says it is the guide as written, or null. `checks` lists the rules that read the point. `questions` lists the open theorems the point bears on, each with the last sentence of its docstring, which is its question, and the examples it quotes.
+
+### `decisions.jsonl`
+
+One line per scenario, check, credential and combination of the settings of the points the check reads:
+
+```json
+{"name": "accented-name travelerMatch MatchReading=namesAgree",
+ "scenario": "accented-name",
+ "request": {"rule": "travelerMatch", "reading": {"MatchReading": "namesAgree"},
+             "resolution792": "exampleResolution792", "photoid": {...}, "boardingPass": {...}},
+ "response": {"result": false}}
+```
+
+`request` is a complete oracle request, so a team with only a JSON reader can run each line through its own code and compare the answer with `response`. After the scenarios come six boundary vectors for `expired`: a boarding pass one second before, at and one second after the end of its validity, under both expiry readings. Their `scenario` is null. A site finds the decision for a scenario, a check and the reader's settings by `scenario`, `request.rule` and `request.reading`; for `expired`, the credential's `docType` says which credential it is.
+
+### `model.json`
+
+The same shape as the `model.json` that verified-air's `scripts/export_airline.py` writes for Verified Airline, so the same code can show it: `source`, `requirements` keyed by ID (each with its Lean `name`, its `ears` in Kiro's notation, `review`, and `criteria` with `id`, `status` and `ears`), and `openQuestions` keyed by criterion (each with its `theorem`, the start of its `question`, and `review`). It differs in five ways:
+
+- `source.repository` and `source.site` are null, since the repository has no remote and the site is not published.
+- Every `review` is null, since the review document is served only locally.
+- Each open question also has `example`, the first `@[case]` example its docstring quotes.
+- `identifiers` lists the document types, namespaces and data element identifiers, each with its Lean name, its value from the build, its docstring, and for a data element the namespace that holds it.
+- There is no `theorems.json` beside it. verified-air's lists a theorem for each fare fact; the scenarios here have no facts proven for every input.
+
+### Checking a site and an implementation
+
+`lake exe oneid-facts` stops, naming the case, if the default scenario depends on a reading, a scenario disagrees with its example, two decisions share a name, or the oracle's handler answers a request differently from the model's functions. It also stops if a list written beside the model disagrees with what it describes: the reading points of a rule with the definition of the rule, the points with the fields of the reading structures, the settings of a point with the constructors of its type, the open theorem of a point with its tag, its question and its `_of_` theorem, and the code of a finding with the name of its constructor. `scripts/replay_one_id.py` then runs every decision through `lake exe oracle`. `scripts/check-airline.sh` runs Verified Airline's own check of its One ID pages against these files, once that repository has a `model/one-id/` directory, and prints that it skipped until then.
 
 ## Building locally
 
@@ -208,3 +325,15 @@ Choices made where the request left room, in the order they came up.
 27. **Two regrades and three new entries.** C-73, the wallet's checks of an OpenID4VP request, went from vague to clear: the guide introduces the list with should, and the specification it makes mandatory requires the origin check and the signature and chain check of a wallet (OpenID4VP §A.2, §5.9.3). C-76 went from clear to vague: "matches the query" does not say whether a response with more than was asked is refused. C-105 (partial consent), C-106 (the same device key for both credentials) and C-107 are new.
 28. **Not modelled in this milestone.** Encryption and decryption; error structures and codes (C-66, C-79); that a nonce and a key are new for each request, which takes more than one request to see; the entropy of a nonce, which is taken as given; reader authentication in the mdoc profile and proximity (C-55, C-57, C-84, C-85); the trusted authorities query (C-71); feature detection and the choice of protocol (C-45, C-46); the end of a proximity session (C-91); the hand-off to the identity management system (C-67); and a response that lacks something requested.
 29. **The milestone tag waits for the critique.** The presentation rules are committed without `milestone/presentation-flows`. An independent reviewer compares every criterion with its theorems and the survey with the guide first, and the tag follows the fixes.
+30. **The model exports data for a product site** (package 1, at Sam's request). Verified Airline's repository will show One ID pages from the model, as it shows verified-air's fares. The build now writes the four files described in [The data a product site reads](#the-data-a-product-site-reads), and ports the test oracle that decision 2 left behind. Nothing under `Rules/` changed.
+    - The split follows verified-air's: an `Oracle` library with `lake exe oracle`, and an `Exports` library with `lake exe oneid-facts`, which plays the part of `airline-facts`. Both load the compiled model into Lean's interpreter. Their namespaces are outside `Rules`, so the status counts and the specs do not include them.
+    - The scope is the eight credential checks of milestone one. `model.json` lists every requirement, the presentation flows included, and the presentation flows have no decisions.
+    - A decision is made for every combination of the settings of the points its check reads. A site can then show any combination a reader picks, and the default trip is checked against all of them. A request carries only the points its rule reads, and the oracle refuses any other. The list of points for each rule is written in `Oracle.rules`, and `lake exe oneid-facts` compares it with the constants the rule's definition uses, following the definitions it calls, so a point that cannot change an answer is never asked for.
+    - "Soon after" has the settings 0 seconds, an hour and a day. The guide gives no limit, so any list is a sample; the examples use an hour and a day, and 0 is the guide's "on" departure.
+    - Labels come from docstrings. A yes or no point has no docstring for each setting, so its settings are labelled Yes and No, which answer the point's label, a sentence that starts with "Whether". The open theorems each point bears on are listed by hand in `Exports/Readings.lean`, since the names of the `_of_` theorems do not always name the point (`photoid_only_listed_of_closed`). The executable checks each link: the theorem is open and tagged, its docstring ends with a question, and its `_of_` theorem, where there is one, mentions the point. It also fails on an open theorem of a credential rule that no point names.
+    - The default trip, Alice Martin with her own boarding pass before a 10:00 departure, was built so that no undecided point matters: a portrait, no data the guide does not list, no data group 2, no recommended namespace, a passport that expires after the photoid, a flight on time, a boarding pass that ends at departure, and a check before departure. `CLAUDE.md` makes that a rule, and the build enforces it.
+    - The other eleven scenarios reproduce `@[case]` examples. The examples build their inputs inside their own definitions, so the scenarios rebuild them with the same builders, and the build recomputes each example's record from the scenario's inputs and compares it with the example's value. A pair of credentials and a photoid alone have no journey or instant in their examples; they take the default trip's.
+    - The codes of findings and advisories are the names of their constructors, and their fields the names of the arguments. The executable builds each constructor and checks the oracle's JSON for it, so a renamed constructor stops the build.
+    - The boundary vectors for `expired` use the boarding pass of the examples and belong to no scenario.
+    - `scripts/check-airline.sh` follows verified-air's script, except that it does not clone the airline's repository: it skips until a checkout next to this one has `model/one-id/`. The name of the check it then runs, `scripts/check_one_id.py --model <directory>`, is a guess, since the airline's repository has no One ID pages yet; change it when they exist.
+    - The files are copied into the assembled site at `/one-id-data/`. The site is still not published, so the airline's repository will take them from a local build.

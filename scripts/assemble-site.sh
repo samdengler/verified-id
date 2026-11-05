@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Assemble site/ from the build outputs, in the layout a static host serves:
 # the home page at the root, the progress page under progress/, the review
-# document under review/, the blueprint under blueprint/, and the specs and
-# exports beside them.
+# document under review/, the blueprint under blueprint/, the data a product
+# site reads under one-id-data/, and the specs and exports beside them.
 #
 #   scripts/assemble-site.sh
 #
@@ -36,3 +36,5 @@ optional blueprint/print/print.pdf site/blueprint/print.pdf
 cp -r .kiro/specs site/specs
 cp build/ears.md build/ears.csv build/ears-criteria.csv build/provenance.csv build/assumptions.csv \
   build/ranking.json build/status.json site/
+# The scenarios, readings, decisions and model.json a product site reads.
+cp -r build/one-id-data site/one-id-data

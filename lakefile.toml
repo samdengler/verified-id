@@ -45,3 +45,29 @@ srcDir = "Review"
 root = "Main"
 # It loads the document's modules when it runs; see Review/Main.lean.
 supportInterpreter = true
+
+# The credential checks behind a JSON interface, for checking implementations
+# in other languages.  The library holds the handler; the executable loads it
+# into Lean's interpreter (see Oracle/Main.lean).
+[[lean_lib]]
+name = "Oracle"
+roots = ["Oracle.Handle"]
+
+[[lean_exe]]
+name = "oracle"
+root = "Oracle.Main"
+supportInterpreter = true
+
+# The data a product site reads: scenarios, readings and the model's decision
+# for each, evaluated by the model's functions.  The executable loads the
+# library into Lean's interpreter (see Exports/Main.lean) and writes
+# build/one-id-data/.  The names are outside Rules, so the status counts and
+# the specs do not include them.
+[[lean_lib]]
+name = "Exports"
+roots = ["Exports.Scenarios", "Exports.Readings", "Exports.Decisions"]
+
+[[lean_exe]]
+name = "oneid-facts"
+root = "Exports.Main"
+supportInterpreter = true
