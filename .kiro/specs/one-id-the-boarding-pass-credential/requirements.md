@@ -9,7 +9,7 @@ one data element, a text string that follows IATA Resolution 792 (§4.1.2).
 The resolution is not available to this project, so the rules take what it
 decides as a parameter.
 
-These requirements are generated from the Lean model in [`Rules/OneId/BoardingPass.lean`](https://github.com/samdengler/verified-id/blob/main/Rules/OneId/BoardingPass.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet. *Sources* lists the sections of the guide each rule was written from, *External specifications* lists the specifications it relies on that this project has not read, and *Confirmation* says whether anyone outside the model has confirmed the rule as written.
+These requirements are generated from the Lean model in [`Rules/OneId/BoardingPass.lean`](https://github.com/samdengler/verified-id/blob/main/Rules/OneId/BoardingPass.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet. *Sources* lists the sections of the guide each rule was written from, *External specifications* lists the specifications it relies on and whether this project has read each, and *Confirmation* says whether anyone outside the model has confirmed the rule as written.
 
 ## Requirements
 
@@ -21,7 +21,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/BoardingPa
 
 **Sources:** [One ID Technical Implementation Guide 26.3, §4.1.2 Boarding pass](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard)
 
-**External specifications:** IATA Resolution 792 (BCBP), the resolution as a whole; IETF RFC 8949 (CBOR), text string (tstr); ISO/IEC 18013-5:2021, §6.3.1, §8.3.1, §8.3.2
+**External specifications:** IATA Resolution 792 (BCBP), the resolution as a whole (not read); IETF RFC 8949 (CBOR), text string (tstr) (read); ISO/IEC 18013-5:2021, §6.3.1, §8.3.1, §8.3.2 (not read)
 
 **Confirmation:** Not confirmed yet.
 

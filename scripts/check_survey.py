@@ -14,7 +14,14 @@ Run by scripts/build-site.sh after `lake exe status`.  It fails when:
     node has no Lookup: paragraph, or the other way round;
   - the counts in the survey's table differ from its rows;
   - the survey, the blueprint or a source key cites a section the guide does
-    not have (sources/outline.json).
+    not have (sources/outline.json);
+  - docs/external-survey.md, the survey, the blueprint or an assumption that
+    was read cites a clause that the fetched copy of the specification does
+    not have (sources/external.json);
+  - an assumption is marked read and no fetched document covers it, or the
+    other way round;
+  - the table of documents in docs/external-survey.md differs from
+    sources/external.json.
 
 The survey and the blueprint are both written by hand, so this is what keeps
 them from drifting apart.
@@ -38,6 +45,20 @@ ROW = re.compile(r"^\| ((?:C|G)-\d+) \|(.*)\|\s*$")
 # §4.2.1.2 and "Annex A" / "Annex B".
 SECTION = re.compile(r"§(\d+(?:\.\d+)*)")
 ANNEX = {"Annex A": "5", "Annex B": "6"}
+EXTERNAL = ROOT / "sources" / "external.json"
+EXTERNAL_SURVEY = ROOT / "docs" / "external-survey.md"
+BLUEPRINT = ROOT / "blueprint" / "src"
+# A clause of an external specification: §5.2, §A.3.2, §B.2.6.2.
+CLAUSE = re.compile(r"§((?:[A-Z]|\d+)(?:\.\d+)*)")
+CLAUSES = r"((?:\s*(?:,|;|and|to)?\s*§(?:[A-Z]|\d+)(?:\.\d+)*)+)"
+# How prose outside the external survey names a document before its clauses.
+NAMED = [
+    (re.compile(r"OpenID4VP(?:\s+1\.0)?" + CLAUSES), "openid4vp"),
+    (re.compile(r"HAIP(?:\s+1\.0)?" + CLAUSES), "haip"),
+    (re.compile(r"BCBP\s+(?:guide|Implementation\s+Guide,\s+seventh\s+edition,)" + CLAUSES), "iata-bcbp-guide"),
+    (re.compile(r"RFC\s+(\d{4})" + CLAUSES), None),
+]
+VERDICTS = ("Agrees", "Adds", "Differs")
 
 
 def survey_rows():
@@ -67,6 +88,85 @@ def cited(text):
     out = set(SECTION.findall(text))
     out |= {number for name, number in ANNEX.items() if name in text}
     return out
+
+
+def named_clauses(text):
+    """(document, clause) for each clause prose cites after naming its document."""
+    out = []
+    for pattern, doc in NAMED:
+        for m in pattern.finditer(text):
+            name = doc or "rfc" + m.group(1)
+            out += [(name, c) for c in CLAUSE.findall(m.group(m.lastindex))]
+    return out
+
+
+def check_external(status, errors):
+    """The external survey, the read assumptions and every named clause, against the fetched outlines."""
+    docs = {d["name"]: d for d in json.loads(EXTERNAL.read_text())["documents"]}
+    have = {name: {x["number"] for x in d["sections"]} for name, d in docs.items()}
+
+    def check(where, name, clause):
+        if name not in have:
+            errors.append(f"{where}: cites {name}, which sources/external.json does not record")
+        elif clause not in have[name]:
+            errors.append(f"{where}: cites §{clause} of {name}, which the fetched copy does not have")
+
+    # Assumptions: read status agrees with the fetched documents, and cited clauses exist.
+    covered = {k for d in docs.values() for k in d["assumptions"]}
+    for a in status["assumptions"]:
+        if a["read"]:
+            doc = docs.get(a["document"])
+            if not doc or a["key"] not in doc["assumptions"]:
+                errors.append(f"assumption {a['key']}: marked read from {a['document']!r}, and "
+                              "scripts/external_sources.py does not list it under that document")
+                continue
+            for c in CLAUSE.findall(a["clause"] + " " + a["statement"]):
+                check(f"assumption {a['key']}", a["document"], c)
+        elif a["key"] in covered:
+            errors.append(f"assumption {a['key']}: a fetched document covers it and it is marked not read")
+
+    # The external survey.
+    text = EXTERNAL_SURVEY.read_text()
+    listed, current, cited_rows = set(), [], 0
+    for line in text.splitlines():
+        m = re.match(r"^Documents?: (.*)$", line)
+        if m:
+            current = re.findall(r"`([^`]+)`", m.group(1))
+            continue
+        if line.startswith("## "):
+            current = []
+        if not line.startswith("| ") or set(line) <= set("|- "):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) == 4 and cells[0].startswith("`"):
+            key = cells[0].strip("`")
+            listed.add(key)
+            d = docs.get(key)
+            if not d:
+                errors.append(f"external survey: lists {key}, which sources/external.json does not record")
+            elif cells[3] != ", ".join(d["version_printed"]) or cells[2] != d["guide_names"]:
+                errors.append(f"external survey: the row for {key} differs from sources/external.json")
+        elif len(cells) == 5 and current and cells[0] != "Clause":
+            cited_rows += 1
+            if not cells[4].startswith(VERDICTS):
+                errors.append(f"external survey: the verdict {cells[4][:30]!r} is not one of {', '.join(VERDICTS)}")
+            rfc = re.match(r"RFC (\d{4})", cells[0])
+            doc = "rfc" + rfc.group(1) if rfc else current[0]
+            foreign = {(n, c) for n, c in named_clauses(cells[3] + " " + cells[4])}
+            for n, c in foreign:
+                check("external survey", n, c)
+            own = CLAUSE.findall(cells[0]) + [c for c in CLAUSE.findall(cells[3]) if not any(c == f[1] for f in foreign)]
+            for c in own:
+                check(f"external survey, {doc}", doc, c)
+    for key in docs:
+        if key not in listed:
+            errors.append(f"external survey: {key} was fetched and is not in the table of documents read")
+
+    # Clauses named in the survey and the blueprint.
+    for path in [SURVEY] + sorted((BLUEPRINT / "areas").glob("*.tex")) + [BLUEPRINT / "content.tex"]:
+        for name, clause in named_clauses(path.read_text()):
+            check(path.name, name, clause)
+    return len(docs), cited_rows
 
 
 def main():
@@ -128,12 +228,16 @@ def main():
             if number not in sections:
                 errors.append(f"source key {s['key']}: cites §{number}, which the guide's outline does not have")
 
+    fetched, cited_rows = check_external(status, errors)
+
     if errors:
         sys.exit("survey check failed:\n  " + "\n  ".join(errors))
     in_model = sum(1 for r in rules if "OID-" in r["model"])
     print(f"survey: {len(rules)} entries ({counts['Clear']} clear, {counts['Vague']} vague, {counts['Silent']} silent), "
           f"{in_model} in the model, {len(rules) - in_model} candidates; {len(rows) - len(rules)} candidate guarantees; "
           f"every citation is a section of the guide")
+    print(f"external survey: {cited_rows} cited clauses in {fetched} fetched specifications; every clause cited "
+          f"there, in the survey, in the blueprint and in the read assumptions is in the copy that was read")
 
 
 if __name__ == "__main__":

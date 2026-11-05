@@ -10,8 +10,9 @@
 
   Stated by the guide as a consequence of the ISO security model (C-26). To
   prove it the model needs the wallet to send no more than was requested and
-  consented, and the verifier to refuse a response that holds more. The mdoc
-  profile lists no such check (C-65).
+  consented, and the verifier to refuse a response that holds more. OpenID4VP
+  gives the first half for its profile (OpenID4VP §6.4) and does not give the
+  second (C-76). The mdoc profile lists no such check (C-65).
 
   Open point: Blocked until C-65 and C-12 are answered, and until the trust
   model says how a wallet knows whom it shares with (C-01, C-16).
@@ -29,11 +30,15 @@
   proximity.
 
   Device binding is stated in all three profiles (C-63, C-78, C-90). The
-  nonce check is stated only in the OpenID4VP profile (C-77). Proximity has
-  no nonce, so the guarantee must name the session there.
+  nonce check is stated only in the OpenID4VP profile (C-77), where the
+  session transcript ties a response to the verifier's origin, the nonce and
+  the verifier's encryption key (OpenID4VP §B.2.6.2), and the nonce is fresh
+  for every request (C-72). Proximity has no nonce, so the guarantee must
+  name the session there.
 
-  Open point: Blocked until C-65 and C-72 are answered, and resting on
-  issuance (C-03) for what the device key is bound to.
+  Open point: Blocked until C-65 is looked up and the entropy of the nonce is
+  decided (C-72), and resting on issuance (C-03) for what the device key is
+  bound to.
 
   Source:
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
@@ -42,7 +47,7 @@
 
 \begin{theorem}[A photoid and a boarding pass presented together are one traveler's (G-03)]
   \label{thm:g03}
-  \uses{thm:matched-pair-same-traveler, thm:same-traveler-matches, def:c53, def:c19, def:c42, def:c93, def:c94, def:c01, def:c02, def:c03}
+  \uses{thm:matched-pair-same-traveler, thm:same-traveler-matches, def:c53, def:c19, def:c42, def:c93, def:c94, def:c01, def:c02, def:c03, def:c104}
   A photoid and a boarding pass presented together refer to the same
   traveler, under a defined matching rule.
 
@@ -51,8 +56,9 @@
   two credentials' content can tell who each was issued about, so the
   guarantee also needs a rule about issuance.
 
-  Open point: Blocked until the matching rule is decided (C-41) and issuance
-  says what ties a credential to its traveler (C-03).
+  Open point: Blocked until the matching rule is decided (C-41), issuance says
+  what ties a credential to its traveler (C-03), and a boarding pass for an
+  adult with an infant is settled (C-104).
 
   Source:
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One

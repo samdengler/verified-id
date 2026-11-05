@@ -235,6 +235,7 @@ def page(show, m):
     status = json.loads(STATUS.read_text())
     assumptions = status["assumptions"]
     relied = sum(1 for a in assumptions if a["usedBy"])
+    were_read = sum(1 for a in assumptions if a["read"])
     confirmed = status["provenance"]["confirmed"]
     guide = next(s["url"] for s in status["sources"] if s["key"].startswith("tig-"))
     deps = sum(1 for n in m.nodes for u in n["uses"])
@@ -340,9 +341,12 @@ to be read because its question is about a specification the guide cites, is rea
 <a href="progress/#lookup">{lookup_count} {"question" if lookup_count == 1 else "questions"} a cited specification would settle</a></p>
 
 <h2 id="trust">What the model takes on trust</h2>
-<p class="sub">The guide refers to ISO, OpenID, W3C, IETF, ICAO and IATA specifications that were not read for this project.
-The model takes from each only what the guide says about it: {plural(len(assumptions), 'dependency is', 'dependencies are')}
-recorded with the clause the guide cites, and {plural(relied, 'is', 'are')} relied on by rules in the model so far.
+<p class="sub">The guide refers to ISO, OpenID, W3C, IETF, ICAO and IATA specifications.
+{plural(len(assumptions), 'dependency is', 'dependencies are')} recorded with the clause the guide cites, and
+{plural(relied, 'is', 'are')} relied on by rules in the model so far. Of the {len(assumptions)}, {were_read} come from
+public specifications, which were fetched and read, so what the model says about those comes from their text. The other
+{len(assumptions) - were_read} come from specifications that are sold or not public and were not read: from each of those
+the model takes only what the guide says about it.
 Where a rule needs the content of an external table or format, that content is a parameter, and a guarantee is proven only
 if it holds whatever the content is. The tables and the boarding pass format in the examples are invented stand-ins.
 {confirmed_text}

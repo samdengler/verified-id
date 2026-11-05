@@ -404,11 +404,14 @@
   privacy considerations take precedence over the appendix's. Step 2 then
   says the request should comply with the profile's sections.
 
-  Taken as must.
+  Taken as must. For the DC API the profile's own considerations point to
+  those of the appendix (HAIP §10, §11), so the precedence the guide states
+  changes nothing.
 
   Open point: Must or should: the opening paragraph and step 2 differ.
 
-  External: OpenID4VC HAIP 1.0 §5, §5.2, §5.3.1; OpenID4VP 1.0 Appendix A.
+  External: OpenID4VC HAIP 1.0 §5, §5.2, §5.3.1, §10, §11; OpenID4VP 1.0
+  Appendix A (read).
 
   Source:
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
@@ -478,18 +481,21 @@
   \label{def:c72}
   \uses{def:c70}
   \notready
-  The nonce and state must be set as OpenID4VP says. The guide's example
-  request has a seven-digit nonce and no state, and this profile states no
-  minimum entropy, while the mdoc profile requires 16 bytes.
+  The nonce and state must be set as OpenID4VP says. OpenID4VP requires a
+  nonce that is fresh and random for every request, and asks for 'sufficient
+  entropy' without a number (OpenID4VP §5.2). It does not define
+  \texttt{state} over the DC API, where a wallet ignores it (OpenID4VP §5.3,
+  §A.2). The guide's example request has a seven-digit nonce and no state,
+  and the mdoc profile requires 16 bytes of entropy.
 
-  If a nonce may repeat, a response made for one request can answer another.
+  A nonce is made fresh for every request, so a response made for one request
+  does not answer another, provided the nonce cannot be guessed.
 
-  Open point: Is \texttt{state} required over the DC API? What is the minimum
-  entropy of the nonce in this profile?
+  Open point: What is the minimum entropy of the nonce in this profile: the 16
+  bytes the mdoc profile requires? And is the must for \texttt{state} meant,
+  given that it has no effect over the DC API?
 
-  Lookup: OpenID4VP 1.0 §5.2 and Appendix A; OpenID4VC HAIP 1.0 §5.
-
-  External: OpenID4VP 1.0 §5.2.
+  External: OpenID4VP 1.0 §5.2, §5.3, §A.2 (read).
 
   Source:
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
@@ -504,15 +510,18 @@
   the expected origins, validates the signature, and checks the client
   identifier against trusted verifiers. The list is introduced with 'should',
   three items say must, and the signature item has no keyword. A failed check
-  must produce an OpenID4VP error.
+  must produce an OpenID4VP error. OpenID4VP, which the guide requires, makes
+  the origin check and the check of the signature and the certificate chain a
+  must for the wallet (OpenID4VP §A.2, §5.9.3).
 
   Taken as must. Then no response is made for a request whose origin,
   signature or verifier fails.
 
-  Open point: Are these four checks required? And against which list is the
-  client identifier checked (C-16)?
+  Open point: Are all four checks required by the guide, as OpenID4VP requires
+  two of them? And against which list is the client identifier checked
+  (C-16)?
 
-  External: OpenID4VP 1.0 §8.5.
+  External: OpenID4VP 1.0 §8.5, §A.2, §5.9.3 (read).
 
   Source:
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
@@ -563,10 +572,13 @@
   request, and validate that the token holds credentials of the right format
   that match the query.
 
-  An accepted response answers the query. Whether 'matches' forbids extra
-  data elements is left to OpenID4VP.
+  An accepted response answers the query. OpenID4VP requires the wallet to
+  send no selectively disclosable claim the query did not select (OpenID4VP
+  §6.4), and the verifier to check that what came back meets the query
+  (OpenID4VP §8.6). It does not tell the verifier to refuse a response that
+  holds more.
 
-  External: OpenID4VP 1.0 §8.6.
+  External: OpenID4VP 1.0 §6.4, §8.6 (read).
 
   Source:
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One

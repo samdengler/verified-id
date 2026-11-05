@@ -618,8 +618,8 @@ They are for the people who own the standard: no document settles them.</p>
 {decide_first(model)}
 
 <h2 id="lookup">Look these up first</h2>
-<p class="sub">These questions ask what a specification the guide cites says. This project has not read that specification yet,
-so they need a reader with the document, and no decision. They are ranked the same way. If the clause turns out not to
+<p class="sub">These questions ask what a specification the guide cites says. The specification is sold or not public, and this
+project has not read it, so they need a reader with the document, and no decision. They are ranked the same way. If the clause turns out not to
 settle a question, it becomes a decision.</p>
 {decide_first(model, lookup=True)}
 

@@ -163,8 +163,9 @@ initialize confirmedAttr : ParametricAttribute Confirmation ←
 
 /-- {lit}`@[assumes "x-23220-4-table-c1"]` names the external specifications a
 declaration relies on, by their keys in {lit}`Rules.Core.assumptions`.  Several
-keys are separated by spaces.  The project has not read those specifications,
-so each key marks a place where the model takes only what the guide says. -/
+keys are separated by spaces.  Each entry says whether the project has read
+the specification.  Where it has not, the key marks a place where the model
+takes only what the guide says. -/
 syntax (name := assumes) "assumes " str : attr
 
 /-- The assumption keys attached to a declaration by {lit}`@[assumes "..."]`.

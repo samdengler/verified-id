@@ -14,7 +14,8 @@ The method and the tooling come from [verified-air](https://github.com/samdengle
 | See what is proven, what is open, and which questions to decide first | The progress page, at `/progress/` on the same site |
 | Read the rules and the open questions without reading code | The review document, at `/review/`: one chapter per requirement, then Open questions |
 | See every rule of the guide and how clearly the guide states it | [`docs/one-id-survey.md`](docs/one-id-survey.md) |
-| See what the model takes on trust from ISO, OpenID and IATA specifications | The review document's chapter on assumptions, or [`Rules/Core/Assumptions.lean`](Rules/Core/Assumptions.lean) |
+| See what the model takes from ISO, OpenID and IATA specifications, and which of them were read | The review document's chapter on assumptions, or [`Rules/Core/Assumptions.lean`](Rules/Core/Assumptions.lean) |
+| See what the public specifications say in the clauses the guide cites, and where they differ from the guide | [`docs/external-survey.md`](docs/external-survey.md) |
 | Check the approved guide against the public copy | [`docs/source-crosscheck.md`](docs/source-crosscheck.md) |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per module |
 | Review or change the model | [`Rules/OneId/`](Rules/OneId/), then [`CLAUDE.md`](CLAUDE.md) and the rest of this README |
@@ -34,14 +35,16 @@ Milestone one covers the source conversion, the survey, and the credential data 
 
 | | Count |
 | --- | --- |
-| Rules of the guide surveyed | 103: 44 clear, 43 vague, 16 silent |
+| Rules of the guide surveyed | 104: 44 clear, 43 vague, 17 silent |
 | Requirements in Lean | 9, OID-101 to OID-109 |
 | Acceptance criteria | 35: 21 proven, 14 open |
 | Open questions in Lean, each with a computed example | 14, from 15 open theorems (two are the same question for the two credentials) |
-| Candidates that need a decision before they can be modelled | 41 |
-| Candidates that need a source to be read, and no decision | 6, with 3 of the open questions in Lean |
+| Candidates that need a decision before they can be modelled | 43 |
+| Candidates that need a source to be read, and no decision | 5, with 3 of the open questions in Lean |
 | Theorems proven | 37, of which 21 check a criterion; the others hold under one reading or support another proof |
-| Dependencies on external specifications recorded | 28: 10 relied on by the model, 18 for the presentation flows |
+| Dependencies on external specifications recorded | 29: 10 relied on by the model, 19 for the presentation flows |
+| Of those, from specifications that were read | 10, from 10 public documents; the other 19 are from documents that are sold or not public |
+| Clauses of public specifications surveyed | 45, in 11 documents |
 
 The nine requirements:
 
@@ -114,12 +117,13 @@ pip install leanblueprint==0.0.20       # on macOS with Homebrew graphviz, set
 git config core.hooksPath .githooks     # the pre-push gate, once per clone
 
 scripts/convert-source.sh <guide.docx>  # sources/one-id-tig-26.3.md (not committed) and sources/outline.json
+scripts/fetch-sources.sh                # the public specifications into sources/external/ (not committed), and sources/external.json
 python3 scripts/crosscheck_source.py    # compare with the public copy; report in build/
 scripts/preview.sh                      # the documents, served at http://localhost:8000
 scripts/build-site.sh                   # everything CI builds, assembled in site/
 ```
 
-The model builds without the converted guide: only the conversion and the cross-check need the document.
+The model builds without the converted guide and without the fetched specifications: only the conversion, the cross-check and a new reading need the documents. `scripts/fetch-sources.sh` also needs `pdftotext` (poppler).
 
 ## Versions
 
@@ -147,7 +151,7 @@ Choices made where the request left room, in the order they came up.
 7. **Requirement words decide findings and advisories.** What the guide says with MUST or SHALL is a finding, and a credential with one is rejected. What it says with SHOULD or RECOMMENDED is an advisory, reported and not rejected. A lower-case "must" is not a requirement, as §1.2 of the guide says.
 8. **Facts only the issuer knows are inputs of the rules.** The subject of a credential, the departure of the last leg, and the expiry of the passport are known to the issuer and are not data elements the guide defines. The model takes them as inputs of the rules that need them (`Issued`, `Journey`, the document expiry). A relying party sees only the credential.
 9. **A credential has an end of validity and no start.** The guide names `validUntil` and nothing else from the validity information.
-10. **Survey IDs.** C-01 to C-103 are rules, G-01 to G-04 the candidate guarantees. C-97 to C-100 were added by the critique, and C-101 to C-103 when lookups were separated from decisions. Several requirement words of the guide share one entry when they state one rule. A Lean-backed blueprint node carries the ID of its main survey entry; the survey's Model column names the requirement for the others it covers.
+10. **Survey IDs.** C-01 to C-104 are rules, G-01 to G-04 the candidate guarantees. C-97 to C-100 were added by the critique, C-101 to C-103 when lookups were separated from decisions, and C-104 when the public specifications were read. Several requirement words of the guide share one entry when they state one rule. A Lean-backed blueprint node carries the ID of its main survey entry; the survey's Model column names the requirement for the others it covers.
 11. **The survey and the blueprint were first written from one list**, then split into the two files, which are maintained by hand from here on as in verified-air. `scripts/check_survey.py` keeps them from drifting.
 12. **The ranking counts dependents in the blueprint graph.** A card depends on a question if its `\uses` reaches the question's node. The edges are written by hand, so the ranking is as good as they are. The candidate guarantees have the status waiting and are left out of the ranking; each lists what blocks it.
 13. **The pre-push hook is the gate.** With no pull requests, the only place to stop a push to `main` is before it. `.githooks/pre-push` runs `scripts/build-site.sh` and refuses when it fails or when the working tree differs from what is pushed.
@@ -171,3 +175,12 @@ Choices made where the request left room, in the order they came up.
 19. **A home page for a reader with no context, and no Blueprint link in the bar** (added at Sam's request). The site first opened on the progress page, which drops a reader into tiles and rankings. The root is now a home page ported from verified-air's: what One ID and the project are in plain words, one open guarantee worked through from the model (the rule, the guarantee, the example's Given and When, what Lean computes, and the open point), four links by kind of reader, what is in Lean, surveyed and left out by the guide, the status tiles, the top three of "Decide these first", and what the model takes on trust. The worked guarantee is `QUESTION` in `scripts/render_home.py`; the build stops when it is proven. The progress page moved to `/progress/`. The bar now has Progress and Review document only, as in verified-air: the blueprint is for people who work on the Lean, and is linked from the home page and the review document.
 20. **Needs a source, apart from needs a decision** (added at Sam's request). Some questions ask what a specification the guide cites says: whether Table C.1 marks the portrait mandatory, whether the clause two profiles cite for issuer data authentication includes the validity check. No one has to decide those; someone has to read the clause. A blueprint node names the clause in a paragraph that starts with `Lookup:`. A candidate with one has the status needs a source, an open question with one carries the same label beside its own, and the progress page ranks both under "Look these up first", apart from "Decide these first". The survey has the clause in its column "Answered by reading", and `scripts/check_survey.py` keeps the two in step. Three questions that mixed a lookup with a decision were split, which added C-101 to C-103. Only a question that reading alone would settle is marked: one where the guide contradicts itself stays a decision whatever the cited clause says. If a clause, once read, does not settle its question, the paragraph is removed and the question becomes a decision.
 21. **Sources are linked where they are named** (added at Sam's request). The home page's opening named IATA, One ID, the guide and the specifications and linked only Lean. It now links IATA's One ID page, the guide's public copy, the chapters for the photoid and the boarding pass, the list of assumptions, and the ranked questions. Each entry of `Rules/Core/Assumptions.lean` carries the address the guide's reference list gives for its specification, so the assumptions chapter, the requirement chapters and `assumptions.csv` link out too. The sentence about One ID follows the description on IATA's own page. The ISO addresses are catalogue pages where the documents are sold.
+22. **The public specifications were read, and read status is part of the model.** The first milestone was written without any specification the guide refers to. On 2026-11-05 the public ones were fetched and the clauses the guide cites in them were read: OpenID4VP 1.0, the OpenID4VC high assurance profile 1.0, the W3C Digital Credentials draft of 16 July 2026, ICAO Doc 9303 parts 10 and 11, IATA's BCBP implementation guide, and RFCs 8949, 9052, 9180 and 5280. OpenID4VCI was fetched and only its section heading for terms checked, since the guide cites it from an informative annex. The ISO/IEC documents and Resolution 792 are sold and stay unread.
+    - `scripts/fetch-sources.sh` fetches each document into `sources/external/`, which is ignored, and writes `sources/external.json`, which is committed: address, day fetched, SHA-256, the version and the copyright line the copy prints, and its section numbers and titles. The script stops if a copy no longer prints the version this project read. No text is committed, and several of the documents forbid copying, so the survey describes clauses in its own words.
+    - [`docs/external-survey.md`](docs/external-survey.md) has one row for each cited clause: what the guide says about it, what it says, and whether the two agree. It found four differences: the guide requires `state`, which OpenID4VP does not define over the DC API; it says the high assurance profile's considerations take precedence over Appendix A's, and the profile points to Appendix A's; it cites the W3C draft's §3 for terms, which are in §4; and it names ICAO Part 10 without a reference entry. No cited clause is missing from the copies read.
+    - Each entry of `Rules/Core/Assumptions.lean` has a `read` field: read, with the name of the fetched document, or not read, with the reason. The statements of the ten read entries were rewritten from the text, each with its clause. The review document, the specs and the home page say which is which, and `assumptions.csv` exports it.
+    - `scripts/check_survey.py` now fails on a clause that the copy read does not have, wherever the external survey, a read assumption, the survey or the blueprint cites one, and on an assumption whose read status disagrees with the fetched documents. The gate was tested by citing a clause that does not exist.
+    - Of the nine questions marked as answered by reading a clause, one was settled. C-72 asked whether `state` is required and what the minimum entropy of the nonce is. OpenID4VP answers the first (no) and gives no number for the second, so C-72 is now a decision about entropy. C-102, what a boarding pass string contains, stays a lookup: the public guide gives the kinds of item and says the passenger name is mandatory, and leaves the list of items to the resolution's attachments. The other seven wait on ISO documents.
+    - One entry was added, C-104: the public guide says some airlines issue one boarding pass for an adult with an infant, and the One ID guide does not say whether a credential may cover two travelers. It blocks G-03.
+    - `PhotoidTables` and `Resolution792` stay parameters. No definition was added from a read document: the two a rule depends on are still in documents that were not read.
+    - The addresses differ in one case worth knowing. The address the guide gives for OpenID4VP holds the latest revision with errata, and on the day of reading it differed from the approved text in one reference line.

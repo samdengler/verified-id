@@ -11,7 +11,7 @@ present and which are recommended, and where the portrait comes from.  The
 tables that list the data elements are in the ISO document, which this project
 has not read, so the rules take them as a parameter.
 
-These requirements are generated from the Lean model in [`Rules/OneId/Photoid.lean`](https://github.com/samdengler/verified-id/blob/main/Rules/OneId/Photoid.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet. *Sources* lists the sections of the guide each rule was written from, *External specifications* lists the specifications it relies on that this project has not read, and *Confirmation* says whether anyone outside the model has confirmed the rule as written.
+These requirements are generated from the Lean model in [`Rules/OneId/Photoid.lean`](https://github.com/samdengler/verified-id/blob/main/Rules/OneId/Photoid.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet. *Sources* lists the sections of the guide each rule was written from, *External specifications* lists the specifications it relies on and whether this project has read each, and *Confirmation* says whether anyone outside the model has confirmed the rule as written.
 
 ## Requirements
 
@@ -23,7 +23,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/Photoid.le
 
 **Sources:** [One ID Technical Implementation Guide 26.3, §4.1.1 photoid](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §2 Terminology](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard)
 
-**External specifications:** ISO/IEC TS 23220-4:2026, Annex C, §C.2.1; ISO/IEC TS 23220-4:2026, Annex C, Table C.1; ISO/IEC TS 23220-4:2026, Annex C, Table C.2; ISO/IEC TS 23220-4:2026, Annex C, Table C.3; ISO/IEC TS 23220-2:2026, §6.2.4 and its encoding rules; ISO/IEC 18013-5:2021, §6.3.1, §8.3.1, §8.3.2
+**External specifications:** ISO/IEC TS 23220-4:2026, Annex C, §C.2.1 (not read); ISO/IEC TS 23220-4:2026, Annex C, Table C.1 (not read); ISO/IEC TS 23220-4:2026, Annex C, Table C.2 (not read); ISO/IEC TS 23220-4:2026, Annex C, Table C.3 (not read); ISO/IEC TS 23220-2:2026, §6.2.4 and its encoding rules (not read); ISO/IEC 18013-5:2021, §6.3.1, §8.3.1, §8.3.2 (not read)
 
 **Confirmation:** Not confirmed yet.
 
@@ -123,7 +123,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/Photoid.le
 
 **Sources:** [One ID Technical Implementation Guide 26.3, §4.1.1 photoid](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §2 Terminology](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard)
 
-**External specifications:** ISO/IEC TS 23220-4:2026, Annex C, Table C.2; ISO/IEC TS 23220-4:2026, Annex C, Table C.3; ICAO Doc 9303, Part 10
+**External specifications:** ISO/IEC TS 23220-4:2026, Annex C, Table C.2 (not read); ISO/IEC TS 23220-4:2026, Annex C, Table C.3 (not read); ICAO Doc 9303, Part 10 (read)
 
 **Confirmation:** Not confirmed yet.
 

@@ -12,7 +12,7 @@ This module keeps the readings of what a relying party could check from the
 two credentials alone.  A reading that uses the device key is added with the
 presentation flows.
 
-These requirements are generated from the Lean model in [`Rules/OneId/Traveler.lean`](https://github.com/samdengler/verified-id/blob/main/Rules/OneId/Traveler.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet. *Sources* lists the sections of the guide each rule was written from, *External specifications* lists the specifications it relies on that this project has not read, and *Confirmation* says whether anyone outside the model has confirmed the rule as written.
+These requirements are generated from the Lean model in [`Rules/OneId/Traveler.lean`](https://github.com/samdengler/verified-id/blob/main/Rules/OneId/Traveler.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet. *Sources* lists the sections of the guide each rule was written from, *External specifications* lists the specifications it relies on and whether this project has read each, and *Confirmation* says whether anyone outside the model has confirmed the rule as written.
 
 ## Requirements
 
@@ -24,7 +24,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/Traveler.l
 
 **Sources:** [One ID Technical Implementation Guide 26.3, §4.1.2 Boarding pass](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §3.2 Assumption](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §1.4 Technical Guidance Scope](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [Readings of how a photoid and a boarding pass are matched, where the guide states no rule](https://github.com/samdengler/verified-id/blob/main/Rules/OneId/Traveler.lean) (modeller)
 
-**External specifications:** IATA Resolution 792 (BCBP), the resolution as a whole; ISO/IEC TS 23220-4:2026, Annex C, Table C.1
+**External specifications:** IATA Resolution 792 (BCBP), the resolution as a whole (not read); ISO/IEC TS 23220-4:2026, Annex C, Table C.1 (not read)
 
 **Confirmation:** Not confirmed yet.
 

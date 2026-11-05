@@ -274,12 +274,32 @@ def sourcesJson : Json :=
 def usedBy (es : Array Entry) (key : String) : Array Entry :=
   es.filter (·.assumes.contains key)
 
+/-- Whether a specification was read. -/
+def wasRead (a : Rules.Core.Assumption) : Bool :=
+  match a.read with
+  | .read _ => true
+  | .notRead _ => false
+
+/-- The name of the fetched document in `sources/external.json`, for a
+specification that was read. -/
+def readDocument (a : Rules.Core.Assumption) : String :=
+  match a.read with
+  | .read d => d
+  | .notRead _ => ""
+
+/-- Why a specification was not read. -/
+def notReadReason (a : Rules.Core.Assumption) : String :=
+  match a.read with
+  | .read _ => ""
+  | .notRead r => r
+
 /-- The assumptions about external specifications, each with the declarations
 that rely on it, as JSON. -/
 def assumptionsJson (es : Array Entry) : Json :=
   Json.arr (Rules.Core.assumptions.toArray.map fun a => Json.mkObj
     [("key", toJson a.key), ("spec", toJson a.spec), ("url", toJson a.url), ("clause", toJson a.clause),
-     ("guide", toJson a.guide), ("statement", toJson a.statement),
+     ("guide", toJson a.guide), ("read", toJson (wasRead a)), ("document", toJson (readDocument a)),
+     ("notReadReason", toJson (notReadReason a)), ("statement", toJson a.statement),
      ("usedBy", toJson ((usedBy es a.key).map (·.name.toString)))])
 
 def countIn (es : Array Entry) (ns : Name) (status : String) : Nat :=
@@ -346,9 +366,10 @@ def provenanceCsv (es : Array Entry) : String := Id.run do
 
 /-- One row per assumption about an external specification. -/
 def assumptionsCsv (es : Array Entry) : String := Id.run do
-  let mut s := "key,specification,address,clause,guide_section,what_the_model_takes,used_by\n"
+  let mut s := "key,specification,address,clause,guide_section,read,fetched_document,not_read_because,what_the_model_takes,used_by\n"
   for a in Rules.Core.assumptions do
-    let row := [a.key, a.spec, a.url, a.clause, a.guide, a.statement,
+    let row := [a.key, a.spec, a.url, a.clause, a.guide, (if wasRead a then "read" else "not read"),
+      readDocument a, notReadReason a, a.statement,
       "; ".intercalate ((usedBy es a.key).toList.map (·.name.toString))]
     s := s ++ ",".intercalate (row.map csvField) ++ "\n"
   return s
@@ -434,6 +455,7 @@ def main : IO UInt32 := do
   IO.println s!"{criteria.size} acceptance criteria: {countStatus "proven"} proven, {countStatus "example"} example only, {countStatus "open"} open, {countStatus "not checked"} not checked"
   IO.println s!"{rules.size} rules: {countProvenance "confirmed"} confirmed, {countProvenance "out of date"} confirmed but out of date, {countProvenance "sourced"} from a source, {countProvenance "assumed"} assumed by the modeller"
   let used := (Rules.Core.assumptions.filter fun a => !(usedBy entries a.key).isEmpty).length
-  IO.println s!"{Rules.Core.assumptions.length} assumptions about external specifications: {used} relied on by the model, {Rules.Core.assumptions.length - used} not yet modelled"
+  let read := (Rules.Core.assumptions.filter wasRead).length
+  IO.println s!"{Rules.Core.assumptions.length} assumptions about external specifications: {used} relied on by the model, {Rules.Core.assumptions.length - used} not yet modelled; {read} from specifications that were read, {Rules.Core.assumptions.length - read} from specifications that were not"
   IO.println s!"{entries.size} declarations written to build/status.json; {(earsRows entries).size} EARS rows to build/ears.md and build/ears.csv; {criteria.size} criteria to build/ears-criteria.csv; {rules.size} rules to build/provenance.csv"
   return if ok then 0 else 1

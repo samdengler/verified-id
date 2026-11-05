@@ -1,0 +1,5599 @@
+{
+ "what": "The public specifications the One ID guide refers to, as fetched by scripts/fetch-sources.sh. The documents themselves are not in the repository.",
+ "documents": [
+  {
+   "name": "openid4vp",
+   "title": "OpenID for Verifiable Presentations 1.0",
+   "assumptions": [
+    "x-openid4vp"
+   ],
+   "address": "https://openid.net/specs/openid-4-verifiable-presentations-1_0.html",
+   "retrieved": "2026-11-05",
+   "sha256": "e4f0abc689afd0a4f6c41b83954d7f970c5263a26143ad861216aea9918993bb",
+   "bytes": 515401,
+   "guide_names": "version 1.0 published 9 July 2025",
+   "version_printed": [
+    "OpenID for Verifiable Presentations 1.0",
+    "9 July 2025",
+    "Final"
+   ],
+   "copyright_printed": "Copyright (c) 2025 The OpenID Foundation",
+   "sections": [
+    {
+     "number": "1",
+     "title": "Introduction"
+    },
+    {
+     "number": "1.1",
+     "title": "Additional Authors"
+    },
+    {
+     "number": "1.2",
+     "title": "Errata revisions"
+    },
+    {
+     "number": "1.3",
+     "title": "Requirements Notation and Conventions"
+    },
+    {
+     "number": "2",
+     "title": "Terminology"
+    },
+    {
+     "number": "3",
+     "title": "Overview"
+    },
+    {
+     "number": "3.1",
+     "title": "Same Device Flow"
+    },
+    {
+     "number": "3.2",
+     "title": "Cross Device Flow"
+    },
+    {
+     "number": "4",
+     "title": "Scope"
+    },
+    {
+     "number": "5",
+     "title": "Authorization Request"
+    },
+    {
+     "number": "5.1",
+     "title": "New Parameters"
+    },
+    {
+     "number": "5.2",
+     "title": "Existing Parameters"
+    },
+    {
+     "number": "5.3",
+     "title": "Requesting Presentations without Holder Binding Proofs"
+    },
+    {
+     "number": "5.4",
+     "title": "Examples"
+    },
+    {
+     "number": "5.5",
+     "title": "Using scope Parameter to Request Presentations"
+    },
+    {
+     "number": "5.6",
+     "title": "Response Type vp_token"
+    },
+    {
+     "number": "5.7",
+     "title": "Passing Authorization Request Across Devices"
+    },
+    {
+     "number": "5.8",
+     "title": "aud of a Request Object"
+    },
+    {
+     "number": "5.9",
+     "title": "Client Identifier Prefix and Verifier Metadata Management"
+    },
+    {
+     "number": "5.9.1",
+     "title": "Syntax"
+    },
+    {
+     "number": "5.9.2",
+     "title": "Fallback"
+    },
+    {
+     "number": "5.9.3",
+     "title": "Defined Client Identifier Prefixes"
+    },
+    {
+     "number": "5.10",
+     "title": "Request URI Method post"
+    },
+    {
+     "number": "5.10.1",
+     "title": "Request URI Response"
+    },
+    {
+     "number": "5.10.2",
+     "title": "Request URI Error Response"
+    },
+    {
+     "number": "5.11",
+     "title": "Verifier Info"
+    },
+    {
+     "number": "5.11.1",
+     "title": "Proof of Possession"
+    },
+    {
+     "number": "6",
+     "title": "Digital Credentials Query Language (DCQL)"
+    },
+    {
+     "number": "6.1",
+     "title": "Credential Query"
+    },
+    {
+     "number": "6.1.1",
+     "title": "Trusted Authorities Query"
+    },
+    {
+     "number": "6.1.1.1",
+     "title": "Authority Key Identifier"
+    },
+    {
+     "number": "6.1.1.2",
+     "title": "ETSI Trusted List"
+    },
+    {
+     "number": "6.1.1.3",
+     "title": "OpenID Federation"
+    },
+    {
+     "number": "6.2",
+     "title": "Credential Set Query"
+    },
+    {
+     "number": "6.3",
+     "title": "Claims Query"
+    },
+    {
+     "number": "6.4",
+     "title": "Selecting Claims and Credentials"
+    },
+    {
+     "number": "6.4.1",
+     "title": "Selecting Claims"
+    },
+    {
+     "number": "6.4.2",
+     "title": "Selecting Credentials"
+    },
+    {
+     "number": "6.4.3",
+     "title": "User Interface Considerations"
+    },
+    {
+     "number": "7",
+     "title": "Claims Path Pointer"
+    },
+    {
+     "number": "7.1",
+     "title": "Semantics for JSON-based credentials"
+    },
+    {
+     "number": "7.1.1",
+     "title": "Processing"
+    },
+    {
+     "number": "7.2",
+     "title": "Semantics for ISO mdoc-based credentials"
+    },
+    {
+     "number": "7.2.1",
+     "title": "Processing"
+    },
+    {
+     "number": "7.3",
+     "title": "Claims Path Pointer Example"
+    },
+    {
+     "number": "7.4",
+     "title": "DCQL Examples"
+    },
+    {
+     "number": "8",
+     "title": "Response"
+    },
+    {
+     "number": "8.1",
+     "title": "Response Parameters"
+    },
+    {
+     "number": "8.1.1",
+     "title": "Examples"
+    },
+    {
+     "number": "8.2",
+     "title": "Response Mode \"direct_post\""
+    },
+    {
+     "number": "8.3",
+     "title": "Encrypted Responses"
+    },
+    {
+     "number": "8.3.1",
+     "title": "Response Mode \"direct_post.jwt\""
+    },
+    {
+     "number": "8.4",
+     "title": "Transaction Data"
+    },
+    {
+     "number": "8.5",
+     "title": "Error Response"
+    },
+    {
+     "number": "8.6",
+     "title": "VP Token Validation"
+    },
+    {
+     "number": "9",
+     "title": "Wallet Invocation"
+    },
+    {
+     "number": "10",
+     "title": "Wallet Metadata (Authorization Server Metadata)"
+    },
+    {
+     "number": "10.1",
+     "title": "Additional Wallet Metadata Parameters"
+    },
+    {
+     "number": "10.2",
+     "title": "Obtaining Wallet's Metadata"
+    },
+    {
+     "number": "11",
+     "title": "Verifier Metadata (Client Metadata)"
+    },
+    {
+     "number": "11.1",
+     "title": "Additional Verifier Metadata Parameters"
+    },
+    {
+     "number": "12",
+     "title": "Verifier Attestation JWT"
+    },
+    {
+     "number": "13",
+     "title": "Implementation Considerations"
+    },
+    {
+     "number": "13.1",
+     "title": "Static Configuration Values of the Wallets"
+    },
+    {
+     "number": "13.1.1",
+     "title": "Profiles that Define Static Configuration Values"
+    },
+    {
+     "number": "13.1.2",
+     "title": "A Set of Static Configuration Values bound to openid4vp://"
+    },
+    {
+     "number": "13.2",
+     "title": "Nested Presentations"
+    },
+    {
+     "number": "13.3",
+     "title": "Response Mode direct_post"
+    },
+    {
+     "number": "13.4",
+     "title": "Pre-Final Specifications"
+    },
+    {
+     "number": "14",
+     "title": "Security Considerations"
+    },
+    {
+     "number": "14.1",
+     "title": "Preventing Replay of Verifiable Presentations"
+    },
+    {
+     "number": "14.1.1",
+     "title": "Presentations without Holder Binding Proofs"
+    },
+    {
+     "number": "14.1.2",
+     "title": "Verifiable Presentations"
+    },
+    {
+     "number": "14.2",
+     "title": "Session Fixation"
+    },
+    {
+     "number": "14.3",
+     "title": "Response Mode \"direct_post\""
+    },
+    {
+     "number": "14.3.1",
+     "title": "Validation of the Response URI"
+    },
+    {
+     "number": "14.3.2",
+     "title": "Protection of the Response URI"
+    },
+    {
+     "number": "14.3.3",
+     "title": "Protection of the Authorization Response Data"
+    },
+    {
+     "number": "14.4",
+     "title": "End-User Authentication using Credentials"
+    },
+    {
+     "number": "14.5",
+     "title": "Encrypting an Unsigned Response"
+    },
+    {
+     "number": "14.6",
+     "title": "TLS Requirements"
+    },
+    {
+     "number": "14.7",
+     "title": "Incomplete or Incorrect Implementations of the Specifications and Conformance Testing"
+    },
+    {
+     "number": "14.8",
+     "title": "Always Use the Full Client Identifier"
+    },
+    {
+     "number": "14.9",
+     "title": "Security Checks on the Returned Credentials and Presentations"
+    },
+    {
+     "number": "15",
+     "title": "Privacy Considerations"
+    },
+    {
+     "number": "15.1",
+     "title": "User Consent"
+    },
+    {
+     "number": "15.2",
+     "title": "Privacy Notice"
+    },
+    {
+     "number": "15.3",
+     "title": "Purpose Legitimacy"
+    },
+    {
+     "number": "15.4",
+     "title": "Selective Disclosure"
+    },
+    {
+     "number": "15.4.1",
+     "title": "DCQL Value Matching"
+    },
+    {
+     "number": "15.4.2",
+     "title": "Strictly Necessary Claims"
+    },
+    {
+     "number": "15.5",
+     "title": "Verifier-to-Verifier Unlinkable Presentations"
+    },
+    {
+     "number": "15.6",
+     "title": "No Fingerprinting of the End-User"
+    },
+    {
+     "number": "15.7",
+     "title": "Information Security"
+    },
+    {
+     "number": "15.8",
+     "title": "Wallet to Verifier Communication"
+    },
+    {
+     "number": "15.8.1",
+     "title": "Establishing Trust in the Request URI"
+    },
+    {
+     "number": "15.8.2",
+     "title": "Authorization Requests with Request URI"
+    },
+    {
+     "number": "15.9",
+     "title": "Error Responses"
+    },
+    {
+     "number": "15.9.1",
+     "title": "wallet_unavailable Authorization Error Response"
+    },
+    {
+     "number": "15.9.2",
+     "title": "Digital Credential API Error Responses"
+    },
+    {
+     "number": "15.10",
+     "title": "Establishing Trust in the Issuers"
+    },
+    {
+     "number": "16",
+     "title": "Normative References"
+    },
+    {
+     "number": "17",
+     "title": "Informative References"
+    },
+    {
+     "number": "A",
+     "title": "OpenID4VP over the Digital Credentials API"
+    },
+    {
+     "number": "A.1",
+     "title": "Protocol"
+    },
+    {
+     "number": "A.2",
+     "title": "Request"
+    },
+    {
+     "number": "A.3",
+     "title": "Signed and Unsigned Requests"
+    },
+    {
+     "number": "A.3.1",
+     "title": "Unsigned Request"
+    },
+    {
+     "number": "A.3.2",
+     "title": "Signed Request"
+    },
+    {
+     "number": "A.3.2.1",
+     "title": "JWS Compact Serialization"
+    },
+    {
+     "number": "A.3.2.2",
+     "title": "JWS JSON Serialization"
+    },
+    {
+     "number": "A.4",
+     "title": "Response"
+    },
+    {
+     "number": "A.5",
+     "title": "Security Considerations"
+    },
+    {
+     "number": "A.6",
+     "title": "Privacy Considerations"
+    },
+    {
+     "number": "B",
+     "title": "Credential Format Specific Parameters and Rules"
+    },
+    {
+     "number": "B.1",
+     "title": "W3C Verifiable Credentials"
+    },
+    {
+     "number": "B.1.1",
+     "title": "Parameters in the meta parameter in Credential Query"
+    },
+    {
+     "number": "B.1.2",
+     "title": "Claims Matching"
+    },
+    {
+     "number": "B.1.3",
+     "title": "Formats and Examples"
+    },
+    {
+     "number": "B.1.3.1",
+     "title": "VC signed as a JWT, not using JSON-LD"
+    },
+    {
+     "number": "B.1.3.1.1",
+     "title": "Format Identifier and Cipher Suites"
+    },
+    {
+     "number": "B.1.3.1.2",
+     "title": "Example Credential"
+    },
+    {
+     "number": "B.1.3.1.3",
+     "title": "Metadata"
+    },
+    {
+     "number": "B.1.3.1.4",
+     "title": "Presentation Request"
+    },
+    {
+     "number": "B.1.3.1.5",
+     "title": "Presentation Response"
+    },
+    {
+     "number": "B.1.3.2",
+     "title": "LDP VCs"
+    },
+    {
+     "number": "B.1.3.2.1",
+     "title": "Format Identifier and Cipher Suites"
+    },
+    {
+     "number": "B.1.3.2.2",
+     "title": "Example Credential"
+    },
+    {
+     "number": "B.1.3.2.3",
+     "title": "Metadata"
+    },
+    {
+     "number": "B.1.3.2.4",
+     "title": "Presentation Request"
+    },
+    {
+     "number": "B.1.3.2.5",
+     "title": "Presentation Response"
+    },
+    {
+     "number": "B.2",
+     "title": "Mobile Documents or mdocs (ISO/IEC 18013 and ISO/IEC 23220 series)"
+    },
+    {
+     "number": "B.2.1",
+     "title": "Transaction Data"
+    },
+    {
+     "number": "B.2.2",
+     "title": "Metadata"
+    },
+    {
+     "number": "B.2.3",
+     "title": "Parameter in the meta parameter in Credential Query"
+    },
+    {
+     "number": "B.2.4",
+     "title": "Parameter in the Claims Query"
+    },
+    {
+     "number": "B.2.5",
+     "title": "Presentation Response"
+    },
+    {
+     "number": "B.2.6",
+     "title": "Handover and SessionTranscript Definitions"
+    },
+    {
+     "number": "B.2.6.1",
+     "title": "Invocation via Redirects"
+    },
+    {
+     "number": "B.2.6.2",
+     "title": "Invocation via the Digital Credentials API"
+    },
+    {
+     "number": "B.3",
+     "title": "IETF SD-JWT VC"
+    },
+    {
+     "number": "B.3.1",
+     "title": "Format Identifier"
+    },
+    {
+     "number": "B.3.2",
+     "title": "Example Credential"
+    },
+    {
+     "number": "B.3.3",
+     "title": "Transaction Data"
+    },
+    {
+     "number": "B.3.3.1",
+     "title": "A Profile of Transaction Data in SD-JWT VC"
+    },
+    {
+     "number": "B.3.4",
+     "title": "Metadata"
+    },
+    {
+     "number": "B.3.5",
+     "title": "Parameter in the meta parameter in Credential Query"
+    },
+    {
+     "number": "B.3.6",
+     "title": "Presentation Response"
+    },
+    {
+     "number": "B.3.7",
+     "title": "SD-JWT VCLD"
+    },
+    {
+     "number": "B.3.7.1",
+     "title": "Format"
+    },
+    {
+     "number": "B.3.7.2",
+     "title": "Processing"
+    },
+    {
+     "number": "B.3.7.2.1",
+     "title": "Step 1: SD-JWT VC Processing"
+    },
+    {
+     "number": "B.3.7.2.2",
+     "title": "Step 2: Business Logic Processing"
+    },
+    {
+     "number": "B.3.7.3",
+     "title": "Examples"
+    },
+    {
+     "number": "C",
+     "title": "Combining this specification with SIOPv2"
+    },
+    {
+     "number": "C.1",
+     "title": "Request"
+    },
+    {
+     "number": "C.2",
+     "title": "Response"
+    },
+    {
+     "number": "D",
+     "title": "Examples for DCQL Queries"
+    },
+    {
+     "number": "E",
+     "title": "IANA Considerations"
+    },
+    {
+     "number": "E.1",
+     "title": "OAuth Authorization Endpoint Response Types Registry"
+    },
+    {
+     "number": "E.1.1",
+     "title": "vp_token"
+    },
+    {
+     "number": "E.1.2",
+     "title": "vp_token id_token"
+    },
+    {
+     "number": "E.2",
+     "title": "OAuth Parameters Registry"
+    },
+    {
+     "number": "E.2.1",
+     "title": "dcql_query"
+    },
+    {
+     "number": "E.2.2",
+     "title": "client_metadata"
+    },
+    {
+     "number": "E.2.3",
+     "title": "request_uri_method"
+    },
+    {
+     "number": "E.2.4",
+     "title": "transaction_data"
+    },
+    {
+     "number": "E.2.5",
+     "title": "wallet_nonce"
+    },
+    {
+     "number": "E.2.6",
+     "title": "response_uri"
+    },
+    {
+     "number": "E.2.7",
+     "title": "vp_token"
+    },
+    {
+     "number": "E.2.8",
+     "title": "verifier_info"
+    },
+    {
+     "number": "E.2.9",
+     "title": "expected_origins"
+    },
+    {
+     "number": "E.3",
+     "title": "OAuth Extensions Error Registry"
+    },
+    {
+     "number": "E.3.1",
+     "title": "vp_formats_not_supported"
+    },
+    {
+     "number": "E.3.2",
+     "title": "invalid_request_uri_method"
+    },
+    {
+     "number": "E.3.3",
+     "title": "wallet_unavailable"
+    },
+    {
+     "number": "E.4",
+     "title": "OAuth Authorization Server Metadata Registry"
+    },
+    {
+     "number": "E.4.1",
+     "title": "vp_formats_supported"
+    },
+    {
+     "number": "E.5",
+     "title": "OAuth Dynamic Client Registration Metadata Registry"
+    },
+    {
+     "number": "E.5.1",
+     "title": "encrypted_response_enc_values_supported"
+    },
+    {
+     "number": "E.5.2",
+     "title": "vp_formats_supported"
+    },
+    {
+     "number": "E.6",
+     "title": "Media Types Registry"
+    },
+    {
+     "number": "E.6.1",
+     "title": "application/verifier-attestation+jwt"
+    },
+    {
+     "number": "E.7",
+     "title": "JSON Web Signature and Encryption Header Parameters Registry"
+    },
+    {
+     "number": "E.7.1",
+     "title": "jwt"
+    },
+    {
+     "number": "E.7.2",
+     "title": "client_id"
+    },
+    {
+     "number": "E.8",
+     "title": "Uniform Resource Identifier (URI) Schemes Registry"
+    },
+    {
+     "number": "E.8.1",
+     "title": "openid4vp"
+    },
+    {
+     "number": "E.9",
+     "title": "JSON Web Token Claims Registration"
+    },
+    {
+     "number": "F",
+     "title": "Acknowledgements"
+    },
+    {
+     "number": "G",
+     "title": "Notices"
+    }
+   ],
+   "note": "This address holds the latest revision with errata. The text as approved is at the same address ending in -final.html."
+  },
+  {
+   "name": "haip",
+   "title": "OpenID4VC High Assurance Interoperability Profile 1.0",
+   "assumptions": [
+    "x-haip"
+   ],
+   "address": "https://openid.net/specs/openid4vc-high-assurance-interoperability-profile-1_0.html",
+   "retrieved": "2026-11-05",
+   "sha256": "3996e0479d06b72d6d68668b8ae3cd39fddfc29ae9220c0c3fead7dc060ec4fb",
+   "bytes": 150031,
+   "guide_names": "version 1.0 published 24 December 2025",
+   "version_printed": [
+    "OpenID4VC High Assurance Interoperability Profile 1.0",
+    "24 December 2025",
+    "Final"
+   ],
+   "copyright_printed": "Copyright (c) 2025 The OpenID Foundation",
+   "sections": [
+    {
+     "number": "1",
+     "title": "Introduction"
+    },
+    {
+     "number": "1.1",
+     "title": "Target Audience/Usage"
+    },
+    {
+     "number": "1.2",
+     "title": "Errata Revisions"
+    },
+    {
+     "number": "1.3",
+     "title": "Requirements Notation and Conventions"
+    },
+    {
+     "number": "2",
+     "title": "Terminology"
+    },
+    {
+     "number": "3",
+     "title": "Scope"
+    },
+    {
+     "number": "3.1",
+     "title": "Assumptions"
+    },
+    {
+     "number": "3.2",
+     "title": "Additional scenarios"
+    },
+    {
+     "number": "3.3",
+     "title": "Standards Requirements"
+    },
+    {
+     "number": "3.4",
+     "title": "Out of Scope"
+    },
+    {
+     "number": "4",
+     "title": "OpenID for Verifiable Credential Issuance"
+    },
+    {
+     "number": "4.1",
+     "title": "Issuer Metadata"
+    },
+    {
+     "number": "4.2",
+     "title": "Credential Offer"
+    },
+    {
+     "number": "4.3",
+     "title": "Authorization Endpoint"
+    },
+    {
+     "number": "4.4",
+     "title": "Token Endpoint"
+    },
+    {
+     "number": "4.4.1",
+     "title": "Wallet Attestation"
+    },
+    {
+     "number": "4.5",
+     "title": "Credential Endpoint"
+    },
+    {
+     "number": "4.5.1",
+     "title": "Key Attestation"
+    },
+    {
+     "number": "5",
+     "title": "OpenID for Verifiable Presentations"
+    },
+    {
+     "number": "5.1",
+     "title": "OpenID for Verifiable Presentations via Redirects"
+    },
+    {
+     "number": "5.2",
+     "title": "OpenID for Verifiable Presentations via W3C Digital Credentials API"
+    },
+    {
+     "number": "5.3",
+     "title": "Requirements specific to Credential Formats"
+    },
+    {
+     "number": "5.3.1",
+     "title": "ISO Mobile Documents or mdocs (ISO/IEC 18013 and ISO/IEC 23220 series)"
+    },
+    {
+     "number": "5.3.2",
+     "title": "IETF SD-JWT VC"
+    },
+    {
+     "number": "6",
+     "title": "OpenID4VC Credential Format Profiles"
+    },
+    {
+     "number": "6.1",
+     "title": "IETF SD-JWT VC Profile"
+    },
+    {
+     "number": "6.1.1",
+     "title": "Issuer identification and key resolution to validate an issued Credential"
+    },
+    {
+     "number": "6.1.1.1",
+     "title": "Cryptographic Holder Binding between VC and VP"
+    },
+    {
+     "number": "7",
+     "title": "Requirements for Digital Signatures"
+    },
+    {
+     "number": "8",
+     "title": "Hash Algorithms"
+    },
+    {
+     "number": "9",
+     "title": "Implementation Considerations"
+    },
+    {
+     "number": "9.1",
+     "title": "Requirements for browser/OS support of specific features"
+    },
+    {
+     "number": "9.2",
+     "title": "Interoperable Key Attestations"
+    },
+    {
+     "number": "9.3",
+     "title": "Ecosystem Implementation Considerations"
+    },
+    {
+     "number": "9.3.1",
+     "title": "Non-normative Examples of Ecosystem-specific Extensions of this Specification"
+    },
+    {
+     "number": "9.3.1.1",
+     "title": "Example 1: Baseline Interoperability without pre-existing relationships"
+    },
+    {
+     "number": "9.3.1.2",
+     "title": "Example 2: Achieving Compatibility with Existing Deployments of ISO/IEC 18013-5"
+    },
+    {
+     "number": "9.4",
+     "title": "Pre-Final Specifications"
+    },
+    {
+     "number": "10",
+     "title": "Security Considerations"
+    },
+    {
+     "number": "10.1",
+     "title": "Incomplete or Incorrect Implementations of the Specifications and Conformance Testing"
+    },
+    {
+     "number": "10.2",
+     "title": "Key sizes"
+    },
+    {
+     "number": "11",
+     "title": "Privacy Considerations"
+    },
+    {
+     "number": "11.1",
+     "title": "Interoperable Key Attestations"
+    },
+    {
+     "number": "12",
+     "title": "Normative References"
+    },
+    {
+     "number": "13",
+     "title": "Informative References"
+    },
+    {
+     "number": "A",
+     "title": "IANA Considerations"
+    },
+    {
+     "number": "A.1",
+     "title": "Uniform Resource Identifier (URI) Schemes Registry"
+    },
+    {
+     "number": "A.1.1",
+     "title": "haip-vci"
+    },
+    {
+     "number": "A.1.2",
+     "title": "haip-vp"
+    },
+    {
+     "number": "B",
+     "title": "Acknowledgements"
+    },
+    {
+     "number": "C",
+     "title": "Notices"
+    }
+   ],
+   "note": "This address holds the latest revision with errata."
+  },
+  {
+   "name": "openid4vci",
+   "title": "OpenID for Verifiable Credential Issuance 1.0",
+   "assumptions": [],
+   "address": "https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html",
+   "retrieved": "2026-11-05",
+   "sha256": "f123c3178cacd27688b15b762098a045e9eb35eccfe2f5f18a357c3815e06ba7",
+   "bytes": 504445,
+   "guide_names": "version 1.0 published 16 September 2025",
+   "version_printed": [
+    "OpenID for Verifiable Credential Issuance 1.0",
+    "16 September 2025",
+    "Final"
+   ],
+   "copyright_printed": "Copyright (c) 2025 The OpenID Foundation",
+   "sections": [
+    {
+     "number": "1",
+     "title": "Introduction"
+    },
+    {
+     "number": "1.1",
+     "title": "Errata revisions"
+    },
+    {
+     "number": "1.2",
+     "title": "Requirements Notation and Conventions"
+    },
+    {
+     "number": "2",
+     "title": "Terminology"
+    },
+    {
+     "number": "3",
+     "title": "Overview"
+    },
+    {
+     "number": "3.1",
+     "title": "Credential Issuer"
+    },
+    {
+     "number": "3.2",
+     "title": "OAuth 2.0"
+    },
+    {
+     "number": "3.3",
+     "title": "Core Concepts"
+    },
+    {
+     "number": "3.3.1",
+     "title": "Credential Formats and Credential Format Profiles"
+    },
+    {
+     "number": "3.3.2",
+     "title": "Batch Credential Issuance"
+    },
+    {
+     "number": "3.3.3",
+     "title": "Issuance Flow Variations"
+    },
+    {
+     "number": "3.3.4",
+     "title": "Identifying Credentials Being Issued Throughout the Issuance Flow"
+    },
+    {
+     "number": "3.4",
+     "title": "Authorization Code Flow"
+    },
+    {
+     "number": "3.5",
+     "title": "Pre-Authorized Code Flow"
+    },
+    {
+     "number": "4",
+     "title": "Credential Offer Endpoint"
+    },
+    {
+     "number": "4.1",
+     "title": "Credential Offer"
+    },
+    {
+     "number": "4.1.1",
+     "title": "Credential Offer Parameters"
+    },
+    {
+     "number": "4.1.2",
+     "title": "Sending Credential Offer by Value Using credential_offer Parameter"
+    },
+    {
+     "number": "4.1.3",
+     "title": "Sending Credential Offer by Reference Using credential_offer_uri Parameter"
+    },
+    {
+     "number": "4.2",
+     "title": "Credential Offer Response"
+    },
+    {
+     "number": "5",
+     "title": "Authorization Endpoint"
+    },
+    {
+     "number": "5.1",
+     "title": "Authorization Request"
+    },
+    {
+     "number": "5.1.1",
+     "title": "Using Authorization Details Parameter"
+    },
+    {
+     "number": "5.1.2",
+     "title": "Using scope Parameter to Request Issuance of a Credential"
+    },
+    {
+     "number": "5.1.3",
+     "title": "Additional Request Parameters"
+    },
+    {
+     "number": "5.1.4",
+     "title": "Pushed Authorization Request"
+    },
+    {
+     "number": "5.2",
+     "title": "Successful Authorization Response"
+    },
+    {
+     "number": "5.3",
+     "title": "Authorization Error Response"
+    },
+    {
+     "number": "6",
+     "title": "Token Endpoint"
+    },
+    {
+     "number": "6.1",
+     "title": "Token Request"
+    },
+    {
+     "number": "6.1.1",
+     "title": "Request Credential Issuance using authorization_details Parameter"
+    },
+    {
+     "number": "6.2",
+     "title": "Successful Token Response"
+    },
+    {
+     "number": "6.3",
+     "title": "Token Error Response"
+    },
+    {
+     "number": "7",
+     "title": "Nonce Endpoint"
+    },
+    {
+     "number": "7.1",
+     "title": "Nonce Request"
+    },
+    {
+     "number": "7.2",
+     "title": "Nonce Response"
+    },
+    {
+     "number": "8",
+     "title": "Credential Endpoint"
+    },
+    {
+     "number": "8.1",
+     "title": "Binding the Issued Credential to the Identifier of the End-User Possessing that Credential"
+    },
+    {
+     "number": "8.2",
+     "title": "Credential Request"
+    },
+    {
+     "number": "8.3",
+     "title": "Credential Response"
+    },
+    {
+     "number": "8.3.1",
+     "title": "Credential Error Response"
+    },
+    {
+     "number": "8.3.1.1",
+     "title": "Authorization Errors"
+    },
+    {
+     "number": "8.3.1.2",
+     "title": "Credential Request Errors"
+    },
+    {
+     "number": "9",
+     "title": "Deferred Credential Endpoint"
+    },
+    {
+     "number": "9.1",
+     "title": "Deferred Credential Request"
+    },
+    {
+     "number": "9.2",
+     "title": "Deferred Credential Response"
+    },
+    {
+     "number": "9.3",
+     "title": "Deferred Credential Error Response"
+    },
+    {
+     "number": "10",
+     "title": "Encrypted Credential Requests and Responses"
+    },
+    {
+     "number": "11",
+     "title": "Notification Endpoint"
+    },
+    {
+     "number": "11.1",
+     "title": "Notification Request"
+    },
+    {
+     "number": "11.2",
+     "title": "Successful Notification Response"
+    },
+    {
+     "number": "11.3",
+     "title": "Notification Error Response"
+    },
+    {
+     "number": "12",
+     "title": "Metadata"
+    },
+    {
+     "number": "12.1",
+     "title": "Client Metadata"
+    },
+    {
+     "number": "12.1.1",
+     "title": "Client Metadata Retrieval"
+    },
+    {
+     "number": "12.2",
+     "title": "Credential Issuer Metadata"
+    },
+    {
+     "number": "12.2.1",
+     "title": "Credential Issuer Identifier"
+    },
+    {
+     "number": "12.2.2",
+     "title": "Credential Issuer Metadata Retrieval"
+    },
+    {
+     "number": "12.2.3",
+     "title": "Signed Metadata"
+    },
+    {
+     "number": "12.2.4",
+     "title": "Credential Issuer Metadata Parameters"
+    },
+    {
+     "number": "12.3",
+     "title": "OAuth 2.0 Authorization Server Metadata"
+    },
+    {
+     "number": "13",
+     "title": "Security Considerations"
+    },
+    {
+     "number": "13.1",
+     "title": "Formal Security Analysis"
+    },
+    {
+     "number": "13.2",
+     "title": "Best Current Practice for OAuth 2.0 Security"
+    },
+    {
+     "number": "13.3",
+     "title": "Trust between Wallet and Issuer"
+    },
+    {
+     "number": "13.4",
+     "title": "Split-Architecture Wallets"
+    },
+    {
+     "number": "13.5",
+     "title": "Credential Offer"
+    },
+    {
+     "number": "13.6",
+     "title": "Pre-Authorized Code Flow"
+    },
+    {
+     "number": "13.6.1",
+     "title": "Replay Prevention"
+    },
+    {
+     "number": "13.6.2",
+     "title": "Transaction Code Phishing"
+    },
+    {
+     "number": "13.7",
+     "title": "Credential Lifecycle Management"
+    },
+    {
+     "number": "13.8",
+     "title": "Proof replay"
+    },
+    {
+     "number": "13.9",
+     "title": "TLS Requirements"
+    },
+    {
+     "number": "13.10",
+     "title": "Protecting the Access Token"
+    },
+    {
+     "number": "13.11",
+     "title": "Application-Layer Encryption"
+    },
+    {
+     "number": "14",
+     "title": "Implementation Considerations"
+    },
+    {
+     "number": "14.1",
+     "title": "Claims-based Holder Binding of the Credential to the End-User possessing the Credential"
+    },
+    {
+     "number": "14.2",
+     "title": "Binding of the Credential without Cryptographic Key Binding or Claims-based Holder Binding"
+    },
+    {
+     "number": "14.3",
+     "title": "Multiple Accesses to the Credential Endpoint"
+    },
+    {
+     "number": "14.4",
+     "title": "Relationship between the Credential Issuer Identifier in the Metadata and the Issuer Identifier in the Issued Credential"
+    },
+    {
+     "number": "14.5",
+     "title": "Refreshing Issued Credentials"
+    },
+    {
+     "number": "14.6",
+     "title": "Batch Issuing Credentials"
+    },
+    {
+     "number": "14.7",
+     "title": "Pre-Final Specifications"
+    },
+    {
+     "number": "15",
+     "title": "Privacy Considerations"
+    },
+    {
+     "number": "15.1",
+     "title": "User Consent"
+    },
+    {
+     "number": "15.2",
+     "title": "Minimum Disclosure"
+    },
+    {
+     "number": "15.3",
+     "title": "Storage of the Credentials"
+    },
+    {
+     "number": "15.4",
+     "title": "Correlation"
+    },
+    {
+     "number": "15.4.1",
+     "title": "Unique Values Encoded in the Credential"
+    },
+    {
+     "number": "15.4.2",
+     "title": "Credential Offer"
+    },
+    {
+     "number": "15.4.3",
+     "title": "Authorization Request"
+    },
+    {
+     "number": "15.4.4",
+     "title": "Wallet Attestation Subject"
+    },
+    {
+     "number": "15.5",
+     "title": "Identifying the Credential Issuer"
+    },
+    {
+     "number": "15.6",
+     "title": "Identifying the Wallet"
+    },
+    {
+     "number": "15.7",
+     "title": "Untrusted Wallets"
+    },
+    {
+     "number": "16",
+     "title": "Normative References"
+    },
+    {
+     "number": "17",
+     "title": "Informative References"
+    },
+    {
+     "number": "A",
+     "title": "Credential Format Profiles"
+    },
+    {
+     "number": "A.1",
+     "title": "W3C Verifiable Credentials"
+    },
+    {
+     "number": "A.1.1",
+     "title": "VC Signed as a JWT, Not Using JSON-LD"
+    },
+    {
+     "number": "A.1.1.1",
+     "title": "Format Identifier"
+    },
+    {
+     "number": "A.1.1.2",
+     "title": "Credential Issuer Metadata"
+    },
+    {
+     "number": "A.1.1.3",
+     "title": "Authorization Details"
+    },
+    {
+     "number": "A.1.1.4",
+     "title": "Credential Response"
+    },
+    {
+     "number": "A.1.2",
+     "title": "VC Secured using Data Integrity, using JSON-LD, with a Proof Suite Requiring Linked Data Canonicalization"
+    },
+    {
+     "number": "A.1.2.1",
+     "title": "Format Identifier"
+    },
+    {
+     "number": "A.1.2.2",
+     "title": "Credential Issuer Metadata"
+    },
+    {
+     "number": "A.1.2.3",
+     "title": "Authorization Details"
+    },
+    {
+     "number": "A.1.2.4",
+     "title": "Credential Response"
+    },
+    {
+     "number": "A.1.3",
+     "title": "VC signed as a JWT, Using JSON-LD"
+    },
+    {
+     "number": "A.1.3.1",
+     "title": "Format Identifier"
+    },
+    {
+     "number": "A.1.3.2",
+     "title": "Credential Issuer Metadata"
+    },
+    {
+     "number": "A.1.3.3",
+     "title": "Authorization Details"
+    },
+    {
+     "number": "A.1.3.4",
+     "title": "Credential Response"
+    },
+    {
+     "number": "A.2",
+     "title": "Mobile Documents or mdocs (ISO/IEC 18013)"
+    },
+    {
+     "number": "A.2.1",
+     "title": "Format Identifier"
+    },
+    {
+     "number": "A.2.2",
+     "title": "Credential Issuer Metadata"
+    },
+    {
+     "number": "A.2.3",
+     "title": "Authorization Details"
+    },
+    {
+     "number": "A.2.4",
+     "title": "Credential Response"
+    },
+    {
+     "number": "A.3",
+     "title": "IETF SD-JWT VC"
+    },
+    {
+     "number": "A.3.1",
+     "title": "Format Identifier"
+    },
+    {
+     "number": "A.3.2",
+     "title": "Credential Issuer Metadata"
+    },
+    {
+     "number": "A.3.3",
+     "title": "Authorization Details"
+    },
+    {
+     "number": "A.3.4",
+     "title": "Credential Response"
+    },
+    {
+     "number": "B",
+     "title": "Claims Description"
+    },
+    {
+     "number": "B.1",
+     "title": "Claims Description for Authorization Details"
+    },
+    {
+     "number": "B.2",
+     "title": "Claims Description for Issuer Metadata"
+    },
+    {
+     "number": "B.3",
+     "title": "Processing Rules for Claims Description Objects"
+    },
+    {
+     "number": "C",
+     "title": "Claims Path Pointer"
+    },
+    {
+     "number": "C.1",
+     "title": "Semantics for JSON-based credentials"
+    },
+    {
+     "number": "C.1.1",
+     "title": "Processing"
+    },
+    {
+     "number": "C.2",
+     "title": "Semantics for ISO mdoc-based credentials"
+    },
+    {
+     "number": "C.2.1",
+     "title": "Processing"
+    },
+    {
+     "number": "C.3",
+     "title": "Claims Path Pointer Example"
+    },
+    {
+     "number": "D",
+     "title": "Key Attestations"
+    },
+    {
+     "number": "D.1",
+     "title": "Key Attestation in JWT format"
+    },
+    {
+     "number": "D.2",
+     "title": "Attack Potential Resistance"
+    },
+    {
+     "number": "E",
+     "title": "Wallet Attestations in JWT format"
+    },
+    {
+     "number": "F",
+     "title": "Proof Types"
+    },
+    {
+     "number": "F.1",
+     "title": "jwt Proof Type"
+    },
+    {
+     "number": "F.2",
+     "title": "di_vp Proof Type"
+    },
+    {
+     "number": "F.3",
+     "title": "attestation Proof Type"
+    },
+    {
+     "number": "F.4",
+     "title": "Verifying Proof"
+    },
+    {
+     "number": "G",
+     "title": "IANA Considerations"
+    },
+    {
+     "number": "G.1",
+     "title": "OAuth URI Registry"
+    },
+    {
+     "number": "G.1.1",
+     "title": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+    },
+    {
+     "number": "G.2",
+     "title": "OAuth Parameters Registry"
+    },
+    {
+     "number": "G.2.1",
+     "title": "issuer_state"
+    },
+    {
+     "number": "G.2.2",
+     "title": "pre-authorized_code"
+    },
+    {
+     "number": "G.2.3",
+     "title": "tx_code"
+    },
+    {
+     "number": "G.3",
+     "title": "OAuth Authorization Server Metadata Registry"
+    },
+    {
+     "number": "G.3.1",
+     "title": "pre-authorized_grant_anonymous_access_supported"
+    },
+    {
+     "number": "G.4",
+     "title": "OAuth Dynamic Client Registration Metadata Registry"
+    },
+    {
+     "number": "G.4.1",
+     "title": "credential_offer_endpoint"
+    },
+    {
+     "number": "G.5",
+     "title": "Well-Known URI Registry"
+    },
+    {
+     "number": "G.5.1",
+     "title": ".well-known/openid-credential-issuer"
+    },
+    {
+     "number": "G.6",
+     "title": "Media Types Registry"
+    },
+    {
+     "number": "G.6.1",
+     "title": "application/openid4vci-proof+jwt"
+    },
+    {
+     "number": "G.6.2",
+     "title": "application/key-attestation+jwt"
+    },
+    {
+     "number": "G.6.3",
+     "title": "application/openidvci-issuer-metadata+jwt"
+    },
+    {
+     "number": "G.7",
+     "title": "Uniform Resource Identifier (URI) Schemes Registry"
+    },
+    {
+     "number": "G.7.1",
+     "title": "openid-credential-offer"
+    },
+    {
+     "number": "H",
+     "title": "Use Cases"
+    },
+    {
+     "number": "H.1",
+     "title": "Credential Offer - Same-Device"
+    },
+    {
+     "number": "H.2",
+     "title": "Credential Offer - Cross-Device (with Information Pre-Submitted by the End-User)"
+    },
+    {
+     "number": "H.3",
+     "title": "Credential Offer - Cross-Device & Deferred"
+    },
+    {
+     "number": "H.4",
+     "title": "Wallet-Initiated Issuance during Presentation"
+    },
+    {
+     "number": "H.5",
+     "title": "Wallet-Initiated Issuance during Presentation (Requires Presentation of Additional Credentials During Issuance)"
+    },
+    {
+     "number": "H.6",
+     "title": "Wallet-Initiated Issuance after Installation"
+    },
+    {
+     "number": "I",
+     "title": "Additional Examples"
+    },
+    {
+     "number": "I.1",
+     "title": "Credential Issuer Metadata"
+    },
+    {
+     "number": "I.2",
+     "title": "Wallet Attestation JWT"
+    },
+    {
+     "number": "J",
+     "title": "Acknowledgements"
+    },
+    {
+     "number": "K",
+     "title": "Notices"
+    }
+   ],
+   "note": "The guide cites it for terms (§2) and in the informative Annex A only, so no assumption names it."
+  },
+  {
+   "name": "w3c-dc-api",
+   "title": "W3C Digital Credentials",
+   "assumptions": [
+    "x-w3c-dc-api"
+   ],
+   "address": "https://www.w3.org/TR/2026/WD-digital-credentials-20260716/",
+   "retrieved": "2026-11-05",
+   "sha256": "939891ac5d3cc4622ff8327e02ab8c70dcab3cd07556a7ce826b5a6bf91a75c9",
+   "bytes": 693863,
+   "guide_names": "draft of 16 July 2026",
+   "version_printed": [
+    "W3C Working Draft",
+    "16 July 2026"
+   ],
+   "copyright_printed": "permissive document license",
+   "sections": [
+    {
+     "number": "1",
+     "title": "Introduction"
+    },
+    {
+     "number": "2",
+     "title": "Examples of usage"
+    },
+    {
+     "number": "2.1",
+     "title": "Feature Detection"
+    },
+    {
+     "number": "2.2",
+     "title": "Checking if protocol is allowed"
+    },
+    {
+     "number": "2.3",
+     "title": "Requesting a digital credential"
+    },
+    {
+     "number": "2.4",
+     "title": "Issuing a digital credential"
+    },
+    {
+     "number": "2.5",
+     "title": "Requesting a digital credential across origins"
+    },
+    {
+     "number": "2.6",
+     "title": "Issuing a digital credential across origins"
+    },
+    {
+     "number": "3",
+     "title": "Scope"
+    },
+    {
+     "number": "4",
+     "title": "Terminology"
+    },
+    {
+     "number": "5",
+     "title": "Protocols"
+    },
+    {
+     "number": "5.1",
+     "title": "Convert request protocol"
+    },
+    {
+     "number": "6",
+     "title": "Credential Request Coordinator"
+    },
+    {
+     "number": "6.1",
+     "title": "Interaction states"
+    },
+    {
+     "number": "6.2",
+     "title": "Prepare credential requests"
+    },
+    {
+     "number": "6.3",
+     "title": "Validate credential requests"
+    },
+    {
+     "number": "6.4",
+     "title": "Abort the credential request"
+    },
+    {
+     "number": "6.5",
+     "title": "Reject the credential request"
+    },
+    {
+     "number": "6.6",
+     "title": "Initiate the credential request"
+    },
+    {
+     "number": "7",
+     "title": "The Digital Credentials API"
+    },
+    {
+     "number": "7.1",
+     "title": "Extensions to CredentialRequestOptions dictionary"
+    },
+    {
+     "number": "7.1.1",
+     "title": "The digital member"
+    },
+    {
+     "number": "7.2",
+     "title": "The DigitalCredentialRequestOptions dictionary"
+    },
+    {
+     "number": "7.2.1",
+     "title": "The requests member"
+    },
+    {
+     "number": "7.3",
+     "title": "The DigitalCredentialGetRequest dictionary"
+    },
+    {
+     "number": "7.3.1",
+     "title": "The protocol member"
+    },
+    {
+     "number": "7.3.2",
+     "title": "The data member"
+    },
+    {
+     "number": "7.4",
+     "title": "Extensions to CredentialCreationOptions dictionary"
+    },
+    {
+     "number": "7.4.1",
+     "title": "The digital member"
+    },
+    {
+     "number": "7.5",
+     "title": "The DigitalCredentialCreationOptions dictionary"
+    },
+    {
+     "number": "7.5.1",
+     "title": "The requests member"
+    },
+    {
+     "number": "7.6",
+     "title": "The DigitalCredentialCreateRequest dictionary"
+    },
+    {
+     "number": "7.6.1",
+     "title": "The protocol member"
+    },
+    {
+     "number": "7.6.2",
+     "title": "The data member"
+    },
+    {
+     "number": "7.7",
+     "title": "The DigitalCredential interface"
+    },
+    {
+     "number": "7.7.1",
+     "title": "The protocol member"
+    },
+    {
+     "number": "7.7.2",
+     "title": "The data member"
+    },
+    {
+     "number": "7.7.3",
+     "title": "The userAgentAllowsProtocol() method"
+    },
+    {
+     "number": "7.8",
+     "title": "Supporting Data Structures"
+    },
+    {
+     "number": "7.8.1",
+     "title": "The request context struct"
+    },
+    {
+     "number": "7.8.2",
+     "title": "The DigitalCredentialPresentationProtocol enumeration"
+    },
+    {
+     "number": "7.8.3",
+     "title": "The DigitalCredentialIssuanceProtocol enumeration"
+    },
+    {
+     "number": "8",
+     "title": "Integration with Credential Management Level 1"
+    },
+    {
+     "number": "8.1",
+     "title": "[[DiscoverFromExternalSource]](origin, options, sameOriginWithAncestors) internal method"
+    },
+    {
+     "number": "8.2",
+     "title": "[[Store]](credential, sameOriginWithAncestors) internal method"
+    },
+    {
+     "number": "8.3",
+     "title": "[[Create]](origin, options, sameOriginWithAncestors) internal method"
+    },
+    {
+     "number": "8.4",
+     "title": "[[type]] internal slot"
+    },
+    {
+     "number": "8.5",
+     "title": "[[discovery]] internal slot"
+    },
+    {
+     "number": "8.6",
+     "title": "User permission"
+    },
+    {
+     "number": "9",
+     "title": "Permissions Policy integration"
+    },
+    {
+     "number": "10",
+     "title": "Security Considerations"
+    },
+    {
+     "number": "10.1",
+     "title": "Threat Model"
+    },
+    {
+     "number": "10.1.1",
+     "title": "In-Scope Threats"
+    },
+    {
+     "number": "10.1.2",
+     "title": "Out of Scope Threats"
+    },
+    {
+     "number": "10.2",
+     "title": "Mitigations"
+    },
+    {
+     "number": "10.3",
+     "title": "Cross-Device Security and Proximity"
+    },
+    {
+     "number": "11",
+     "title": "Privacy Considerations"
+    },
+    {
+     "number": "11.1",
+     "title": "Design Considerations and Alternatives"
+    },
+    {
+     "number": "11.2",
+     "title": "Spectrum of Privacy"
+    },
+    {
+     "number": "11.3",
+     "title": "Presentation Protocol and Credential Format"
+    },
+    {
+     "number": "11.3.1",
+     "title": "Presentation Protocol Considerations for User Privacy"
+    },
+    {
+     "number": "11.3.1.1",
+     "title": "Selective disclosure"
+    },
+    {
+     "number": "11.3.1.2",
+     "title": "Unlinkable presentations"
+    },
+    {
+     "number": "11.3.1.3",
+     "title": "\"Phone home\" mechanisms"
+    },
+    {
+     "number": "11.3.1.4",
+     "title": "Unlinkable revocation"
+    },
+    {
+     "number": "11.3.1.5",
+     "title": "Support for user transparency, permission and consent"
+    },
+    {
+     "number": "11.3.1.6",
+     "title": "Support for verifier authorization"
+    },
+    {
+     "number": "11.3.1.7",
+     "title": "Encrypting credential responses"
+    },
+    {
+     "number": "11.4",
+     "title": "Unnecessary Requests for Credentials"
+    },
+    {
+     "number": "11.4.1",
+     "title": "Government-issued credentials"
+    },
+    {
+     "number": "11.4.1.1",
+     "title": "Risk of theft and leakage of government credentials"
+    },
+    {
+     "number": "11.4.1.2",
+     "title": "Risk of proliferation of requests for government credentials"
+    },
+    {
+     "number": "11.4.1.3",
+     "title": "Mitigating unnecessary requests for government credentials"
+    },
+    {
+     "number": "11.4.2",
+     "title": "Non-government-issued credentials"
+    },
+    {
+     "number": "11.4.2.1",
+     "title": "Risk of theft and leakage of non-government credentials"
+    },
+    {
+     "number": "11.4.2.2",
+     "title": "Risk of proliferation of requests for non-government credentials"
+    },
+    {
+     "number": "11.4.2.3",
+     "title": "Mitigating unnecessary requests for non-government credentials"
+    },
+    {
+     "number": "11.4.2.4",
+     "title": "Reporting abuse"
+    },
+    {
+     "number": "11.5",
+     "title": "Fingerprinting and Data Leakage"
+    },
+    {
+     "number": "11.5.1",
+     "title": "Browser fingerprinting"
+    },
+    {
+     "number": "11.5.2",
+     "title": "Leaking incidental data with credential presentations"
+    },
+    {
+     "number": "11.5.3",
+     "title": "Revealing device properties through protocol availability"
+    },
+    {
+     "number": "11.5.4",
+     "title": "Avoiding leaks of credential availability"
+    },
+    {
+     "number": "11.6",
+     "title": "User Permission and Transparency"
+    },
+    {
+     "number": "11.6.1",
+     "title": "Handling multiple credential requests"
+    },
+    {
+     "number": "11.6.2",
+     "title": "Integrating Multiple User Agents"
+    },
+    {
+     "number": "11.6.3",
+     "title": "Permission Prior to Credential Manager Selection"
+    },
+    {
+     "number": "11.6.4",
+     "title": "Permission vs. Consent"
+    },
+    {
+     "number": "12",
+     "title": "Accessibility Considerations"
+    },
+    {
+     "number": "13",
+     "title": "Internationalization Considerations"
+    },
+    {
+     "number": "14",
+     "title": "Automated Testing"
+    },
+    {
+     "number": "14.1",
+     "title": "The digitalCredentials Module"
+    },
+    {
+     "number": "14.1.1",
+     "title": "Types"
+    },
+    {
+     "number": "14.1.2",
+     "title": "Commands"
+    },
+    {
+     "number": "14.1.2.1",
+     "title": "The digitalCredentials.setVirtualWalletBehavior Command"
+    },
+    {
+     "number": "14.2",
+     "title": "Handle Virtual Wallet Behavior"
+    },
+    {
+     "number": "A",
+     "title": "Index"
+    },
+    {
+     "number": "A.1",
+     "title": "Terms defined by this specification"
+    },
+    {
+     "number": "A.2",
+     "title": "Terms defined by reference"
+    },
+    {
+     "number": "B",
+     "title": "IDL Index"
+    },
+    {
+     "number": "C",
+     "title": "CDDL Index"
+    },
+    {
+     "number": "C.1",
+     "title": "Module: remote-cddl"
+    },
+    {
+     "number": "C.2",
+     "title": "Module: local-cddl"
+    },
+    {
+     "number": "D",
+     "title": "Conformance"
+    },
+    {
+     "number": "E",
+     "title": "Acknowledgements"
+    },
+    {
+     "number": "F",
+     "title": "References"
+    },
+    {
+     "number": "F.1",
+     "title": "Normative references"
+    },
+    {
+     "number": "F.2",
+     "title": "Informative references"
+    }
+   ],
+   "note": "A dated working draft. The document says it may be replaced at any time."
+  },
+  {
+   "name": "icao-9303-10",
+   "title": "ICAO Doc 9303 Part 10",
+   "assumptions": [
+    "x-icao-9303-10"
+   ],
+   "address": "https://www.icao.int/sites/default/files/publications/DocSeries/9303_p10_cons_en.pdf",
+   "retrieved": "2026-11-05",
+   "sha256": "7fe6b2bb4d01fab49607dd4474098a616afb19e52e3508573f7200ea19f39807",
+   "bytes": 1754272,
+   "guide_names": "no version named, and no address given",
+   "version_printed": [
+    "Eighth Edition, 2021",
+    "Part 10: Logical Data Structure"
+   ],
+   "copyright_printed": "© ICAO 2021",
+   "sections": [
+    {
+     "number": "1",
+     "title": "SCOPE"
+    },
+    {
+     "number": "2",
+     "title": "STRUCTURE OF DOC 9303-10"
+    },
+    {
+     "number": "3",
+     "title": "SPECIFICATIONS COMMON TO LDS1 AND LDS2"
+    },
+    {
+     "number": "3.1",
+     "title": "Minimum Requirements for Interoperability"
+    },
+    {
+     "number": "3.2",
+     "title": "Electrical Characteristics"
+    },
+    {
+     "number": "3.3",
+     "title": "Physical Characteristics"
+    },
+    {
+     "number": "3.4",
+     "title": "Transmission Protocol"
+    },
+    {
+     "number": "3.5",
+     "title": "Command Set"
+    },
+    {
+     "number": "3.6",
+     "title": "Command Formats and Parameter Options (LDS1 and LDS2)"
+    },
+    {
+     "number": "3.7",
+     "title": "Records Handling and Commands (LDS2)"
+    },
+    {
+     "number": "3.8",
+     "title": "Transparent Files Handling and Other (LDS2)"
+    },
+    {
+     "number": "3.9",
+     "title": "File Structure Specifications"
+    },
+    {
+     "number": "3.10",
+     "title": "Application Selection — DF"
+    },
+    {
+     "number": "3.11",
+     "title": "Common Elementary Files (EFs)"
+    },
+    {
+     "number": "4",
+     "title": "LDS1 eMRTD APPLICATION (MANDATORY)"
+    },
+    {
+     "number": "4.1",
+     "title": "Application Selection — DF"
+    },
+    {
+     "number": "4.2",
+     "title": "Random Ordering Schemes"
+    },
+    {
+     "number": "4.3",
+     "title": "Random Access File Representation"
+    },
+    {
+     "number": "4.4",
+     "title": "Grouping of Data Elements"
+    },
+    {
+     "number": "4.5",
+     "title": "Requirements of the Logical Data Structure"
+    },
+    {
+     "number": "4.6",
+     "title": "LDS1 eMRTD Elementary Files (EFs)"
+    },
+    {
+     "number": "4.7",
+     "title": "Data Elements Forming Data Groups 1 through 16"
+    },
+    {
+     "number": "5",
+     "title": "LDS2 APPLICATIONS (OPTIONAL)"
+    },
+    {
+     "number": "5.1",
+     "title": "Travel Records Application (CONDITIONAL)"
+    },
+    {
+     "number": "5.2",
+     "title": "Visa Records Application (CONDITIONAL)"
+    },
+    {
+     "number": "5.3",
+     "title": "Additional Biometrics Application (CONDITIONAL)"
+    },
+    {
+     "number": "5.4",
+     "title": "LDS2 Application File Access Conditions (CONDITIONAL)"
+    },
+    {
+     "number": "6",
+     "title": "OBJECTS IDENTIFIERS"
+    },
+    {
+     "number": "6.1",
+     "title": "LDS1 and LDS2 Application Object Identifiers Summary"
+    },
+    {
+     "number": "7",
+     "title": "ASN.1 SPECIFICATIONS"
+    },
+    {
+     "number": "8",
+     "title": "REFERENCES (NORMATIVE)"
+    },
+    {
+     "number": "A",
+     "title": "TO PART 10. LOGICAL DATA STRUCTURE MAPPING EXAMPLES (INFORMATIVE)"
+    },
+    {
+     "number": "A.1",
+     "title": "EF.COM Common Data Elements"
+    },
+    {
+     "number": "A.2",
+     "title": "EF.DG1 Machine Readable Zone Information"
+    },
+    {
+     "number": "A.3",
+     "title": "EF.DG2 to EF.DG4 Biometric Templates"
+    },
+    {
+     "number": "A.4",
+     "title": "EF.DG5 to EF.DG7 Displayed Image Templates"
+    },
+    {
+     "number": "A.5",
+     "title": "EF.DG11 Additional Personal Details"
+    },
+    {
+     "number": "A.6",
+     "title": "EF.DG16 Person(s) to Notify"
+    },
+    {
+     "number": "B",
+     "title": "TO PART 10. THE CONTACTLESS IC IN AN eMRP (INFORMATIVE)"
+    },
+    {
+     "number": "B.1",
+     "title": "The Antenna Size and Class of an eMRTD"
+    },
+    {
+     "number": "B.2",
+     "title": "Booting and Polling"
+    },
+    {
+     "number": "B.3",
+     "title": "Anticollision and Type"
+    },
+    {
+     "number": "B.4",
+     "title": "Mandatory Bit Rates"
+    },
+    {
+     "number": "B.5",
+     "title": "Electromagnetic Disturbance (EMD)"
+    },
+    {
+     "number": "B.6",
+     "title": "(Optional) Support of Exchange of Additional Parameters"
+    },
+    {
+     "number": "B.7",
+     "title": "Shielding"
+    },
+    {
+     "number": "B.8",
+     "title": "(Recommended) Unique IDentifier (UID) and Pseudo-Unique PICC Identifier (PUPI)"
+    },
+    {
+     "number": "B.9",
+     "title": "(Recommended) Resonance Frequency Range"
+    },
+    {
+     "number": "B.10",
+     "title": "(Recommended) Frame Sizes"
+    },
+    {
+     "number": "C",
+     "title": "TO PART 10. INSPECTION SYSTEMS (INFORMATIVE)"
+    },
+    {
+     "number": "C.1",
+     "title": "Operating Volume and Test Positions"
+    },
+    {
+     "number": "C.2",
+     "title": "Particular Waveform and RF Requirements"
+    },
+    {
+     "number": "C.3",
+     "title": "Polling Sequences and eMRTD Detection Time"
+    },
+    {
+     "number": "C.4",
+     "title": "Mandatory Bit Rates"
+    },
+    {
+     "number": "C.5",
+     "title": "Electromagnetic Disturbance (EMD)"
+    },
+    {
+     "number": "C.6",
+     "title": "Supported Antenna Classes"
+    },
+    {
+     "number": "C.7",
+     "title": "(Optional) Frame Sizes and Error Correction"
+    },
+    {
+     "number": "C.8",
+     "title": "(Optional) Support of Additional Classes"
+    },
+    {
+     "number": "C.9",
+     "title": "(Recommended) Operating Temperature"
+    },
+    {
+     "number": "C.11",
+     "title": "(Recommended) Frame Sizes"
+    },
+    {
+     "number": "C.12",
+     "title": "(Recommended) Error Recovery"
+    },
+    {
+     "number": "C.13",
+     "title": "(Recommended) Error Detecting and Recovery Mechanism"
+    },
+    {
+     "number": "D.1",
+     "title": "SignedData Type for SOD V0"
+    },
+    {
+     "number": "D.2",
+     "title": "ASN.1 Profile LDS Document Security Object for SOD V0"
+    },
+    {
+     "number": "E",
+     "title": "TO PART 10. FILE STRUCTURES SUMMARY (INFORMATIVE)"
+    },
+    {
+     "number": "F",
+     "title": "TO PART 10. LDS AUTHORIZATION SUMMARY (INFORMATIVE)"
+    },
+    {
+     "number": "G",
+     "title": "TO PART 10. LDS DIGITAL SIGNATURE SUMMARY (INFORMATIVE)"
+    },
+    {
+     "number": "H",
+     "title": "TO PART 10. EXAMPLE READING TRAVEL RECORDS (INFORMATIVE)"
+    },
+    {
+     "number": "H.1",
+     "title": "FMM Command Retrieving the Number of Entry Records"
+    },
+    {
+     "number": "H.2",
+     "title": "READ RECORD Command Retrieving the Last Travel Record from the Retrieved List"
+    },
+    {
+     "number": "I",
+     "title": "TO PART 10. EXAMPLE SEARCHING RECORDS BY STATE (INFORMATIVE)"
+    },
+    {
+     "number": "I.1",
+     "title": "SEARCH RECORD Command Searching Travel Record(s) by Destination State"
+    },
+    {
+     "number": "J.2",
+     "title": "APPEND RECORD Command Writing Certificate"
+    },
+    {
+     "number": "J.3",
+     "title": "APPEND RECORD Command Writing Travel Record"
+    },
+    {
+     "number": "3.4.1",
+     "title": "Request Command and Answer to Request"
+    },
+    {
+     "number": "3.4.2",
+     "title": "Random vs Fixed Identifier for the Contactless IC"
+    },
+    {
+     "number": "3.5.1",
+     "title": "SELECT"
+    },
+    {
+     "number": "3.5.2",
+     "title": "READ BINARY"
+    },
+    {
+     "number": "3.6.1",
+     "title": "Application DF Selection Using the SELECT Command"
+    },
+    {
+     "number": "3.6.1.1",
+     "title": "Selection of Master File"
+    },
+    {
+     "number": "3.6.1.2",
+     "title": "Selection of Application DF"
+    },
+    {
+     "number": "3.6.2",
+     "title": "EF Selection Using the SELECT Command"
+    },
+    {
+     "number": "3.6.3",
+     "title": "Reading Data from EF (READ BINARY)"
+    },
+    {
+     "number": "3.6.3.1",
+     "title": "Reading Data from Selected EF (Transparent File)"
+    },
+    {
+     "number": "3.6.3.2",
+     "title": "Reading Data Using EF Identifier (Transparent File)"
+    },
+    {
+     "number": "3.6.4",
+     "title": "Extended Lc/Le Support"
+    },
+    {
+     "number": "3.6.4.1",
+     "title": "Extended Length and eMRTD Chips"
+    },
+    {
+     "number": "3.6.4.2",
+     "title": "Terminals"
+    },
+    {
+     "number": "3.6.5",
+     "title": "Command Chaining"
+    },
+    {
+     "number": "3.6.6",
+     "title": "EFs Greater than 32 767 Bytes"
+    },
+    {
+     "number": "3.7.1",
+     "title": "APPEND RECORD Command"
+    },
+    {
+     "number": "3.7.2",
+     "title": "READ RECORD Command"
+    },
+    {
+     "number": "3.7.3",
+     "title": "SEARCH RECORD Command"
+    },
+    {
+     "number": "3.8.1",
+     "title": "UPDATE BINARY Command"
+    },
+    {
+     "number": "3.8.2",
+     "title": "ACTIVATE Command"
+    },
+    {
+     "number": "3.8.3",
+     "title": "FILE AND MEMORY MANAGEMENT Command"
+    },
+    {
+     "number": "3.9.1",
+     "title": "Encoding of Data"
+    },
+    {
+     "number": "3.11.1",
+     "title": "EF.ATR/INFO (CONDITIONAL)"
+    },
+    {
+     "number": "3.11.2",
+     "title": "EF.DIR (CONDITIONAL)"
+    },
+    {
+     "number": "3.11.3",
+     "title": "EF.CardAccess (CONDITIONAL)"
+    },
+    {
+     "number": "3.11.4",
+     "title": "EF.CardSecurity (CONDITIONAL)"
+    },
+    {
+     "number": "4.5.1",
+     "title": "Security"
+    },
+    {
+     "number": "4.5.2",
+     "title": "Authenticity and Integrity of Data"
+    },
+    {
+     "number": "4.5.3",
+     "title": "Ordering of LDS"
+    },
+    {
+     "number": "4.5.4",
+     "title": "Data Storage Capacity of the Contactless IC"
+    },
+    {
+     "number": "4.5.5",
+     "title": "Storage of Other Data"
+    },
+    {
+     "number": "4.5.6",
+     "title": "International Standard for Encoding Biometrics"
+    },
+    {
+     "number": "4.6.1",
+     "title": "Header and Data Group Presence Information EF.COM (MANDATORY)"
+    },
+    {
+     "number": "4.6.1.1",
+     "title": "LDS version number"
+    },
+    {
+     "number": "4.6.1.2",
+     "title": "UNICODE version number"
+    },
+    {
+     "number": "4.6.2",
+     "title": "Document Security Object EF.SOD (MANDATORY)"
+    },
+    {
+     "number": "4.6.2.1",
+     "title": "Document Security Object EF.SOD V1 LDS v1.8"
+    },
+    {
+     "number": "4.6.2.2",
+     "title": "SignedData Type for SOD V1"
+    },
+    {
+     "number": "4.6.2.3",
+     "title": "ASN.1 Profile LDS Document Security Object for SOD V1"
+    },
+    {
+     "number": "4.7.1",
+     "title": "DATA GROUP 1 — Machine Readable Zone Information (MANDATORY)"
+    },
+    {
+     "number": "4.7.1.1",
+     "title": "DATA GROUP 1 — EF.DG1 Data Elements for TD1 Size LDS1 eMRTD"
+    },
+    {
+     "number": "4.7.1.2",
+     "title": "DATA GROUP 1 — EF.DG1 Data Elements for TD2 Size eMRTD"
+    },
+    {
+     "number": "4.7.1.3",
+     "title": "DATA GROUP 1 — EF.DG1 Data Elements for TD3 Size LDS1 eMRTD"
+    },
+    {
+     "number": "4.7.2",
+     "title": "DATA GROUP 2 — Encoded Identification Features — Face (MANDATORY)"
+    },
+    {
+     "number": "4.7.2.1",
+     "title": "Biometric encoding of EF.DG2"
+    },
+    {
+     "number": "4.7.2.2",
+     "title": "DATA GROUP 2 — EF.DG2 Data Elements"
+    },
+    {
+     "number": "4.7.3",
+     "title": "DATA GROUP 3 — Additional Identification Feature — Finger(s) (OPTIONAL)"
+    },
+    {
+     "number": "4.7.3.1",
+     "title": "Biometric Encoding of EF.DG3"
+    },
+    {
+     "number": "4.7.3.2",
+     "title": "DATA GROUP 3 — EF.DG3 Data Elements"
+    },
+    {
+     "number": "4.7.3.2.1",
+     "title": "Biometric sub-type encoding"
+    },
+    {
+     "number": "4.7.3.2.2",
+     "title": "Encoding of Zero Instance"
+    },
+    {
+     "number": "4.7.3.2.3",
+     "title": "Encoding of One Instance"
+    },
+    {
+     "number": "4.7.3.2.4",
+     "title": "Encoding of More than One Instance"
+    },
+    {
+     "number": "4.7.4",
+     "title": "DATA GROUP 4 — Additional Identification Feature — Iris(es) (OPTIONAL)"
+    },
+    {
+     "number": "4.7.4.1",
+     "title": "Biometric Encoding of EF.DG4"
+    },
+    {
+     "number": "4.7.4.2",
+     "title": "DATA GROUP 4 — EF.DG4 Data Elements"
+    },
+    {
+     "number": "4.7.4.2.1",
+     "title": "Biometric Sub-Type Encoding"
+    },
+    {
+     "number": "4.7.4.2.2",
+     "title": "Encoding of Zero Instance"
+    },
+    {
+     "number": "4.7.4.2.3",
+     "title": "Encoding of One Instance"
+    },
+    {
+     "number": "4.7.4.2.4",
+     "title": "Encoding of More than One Instance"
+    },
+    {
+     "number": "4.7.5",
+     "title": "DATA GROUP 5 — Displayed Portrait (OPTIONAL)"
+    },
+    {
+     "number": "4.7.5.1",
+     "title": "DATA GROUP 5 — EF.DG5 Data Elements (Optional)"
+    },
+    {
+     "number": "4.7.6",
+     "title": "DATA GROUP 6 — Reserved for Future Use"
+    },
+    {
+     "number": "4.7.6.1",
+     "title": "DATA GROUP 6 — EF.DG6 Data Elements"
+    },
+    {
+     "number": "4.7.7",
+     "title": "DATA GROUP 7 — Displayed Signature or Usual Mark (OPTIONAL)"
+    },
+    {
+     "number": "4.7.7.1",
+     "title": "DATA GROUP 7 — EF.DG7 Data Elements (OPTIONAL)"
+    },
+    {
+     "number": "4.7.8",
+     "title": "DATA GROUP 8 — Data Feature(s) (OPTIONAL)"
+    },
+    {
+     "number": "4.7.8.1",
+     "title": "DATA GROUP 8 — EF.DG8 Data Elements"
+    },
+    {
+     "number": "4.7.9",
+     "title": "DATA GROUP 9 — Structure Feature(s) (OPTIONAL)"
+    },
+    {
+     "number": "4.7.9.1",
+     "title": "DATA GROUP 9 — EF.DG9 Data Elements"
+    },
+    {
+     "number": "4.7.10",
+     "title": "DATA GROUP 10 — Substance Feature(s) (OPTIONAL)"
+    },
+    {
+     "number": "4.7.10.1",
+     "title": "DATA GROUP 10 — EF.DG10 Data Elements"
+    },
+    {
+     "number": "4.7.11",
+     "title": "DATA GROUP 11 — Additional Personal Detail(s) (OPTIONAL)"
+    },
+    {
+     "number": "4.7.11.1",
+     "title": "DATA GROUP 11 — EF.DG11 Data Elements"
+    },
+    {
+     "number": "4.7.12",
+     "title": "DATA GROUP 12 — Additional Document Detail(s) (OPTIONAL)"
+    },
+    {
+     "number": "4.7.12.1",
+     "title": "DATA GROUP 12 — EF.DG12 Data Elements"
+    },
+    {
+     "number": "4.7.13",
+     "title": "DATA GROUP 13 — Optional Details(s) (OPTIONAL)"
+    },
+    {
+     "number": "4.7.14",
+     "title": "DATA GROUP 14 — Security Options (CONDITIONAL)"
+    },
+    {
+     "number": "4.7.14.1",
+     "title": "DATA GROUP 14 — EF.DG14 Data Elements"
+    },
+    {
+     "number": "4.7.14.2",
+     "title": "DATA GROUP 14 SecurityInfos"
+    },
+    {
+     "number": "4.7.15",
+     "title": "DATA GROUP 15 — Active Authentication Public Key Info (CONDITIONAL)"
+    },
+    {
+     "number": "4.7.15.1",
+     "title": "DATA GROUP 15 — EF.DG15 Data Elements"
+    },
+    {
+     "number": "4.7.16",
+     "title": "DATA GROUP 16 — Person(s) to Notify (OPTIONAL)"
+    },
+    {
+     "number": "4.7.16.1",
+     "title": "DATA GROUP 16 — EF.DG16 Data Elements"
+    },
+    {
+     "number": "5.1.1",
+     "title": "Application Selection — DF"
+    },
+    {
+     "number": "5.1.2",
+     "title": "EF.Certificates (MANDATORY)"
+    },
+    {
+     "number": "5.1.3",
+     "title": "EF.ExitRecords (MANDATORY)"
+    },
+    {
+     "number": "5.1.4",
+     "title": "EF.EntryRecords (MANDATORY)"
+    },
+    {
+     "number": "5.2.1",
+     "title": "Application Selection — DF"
+    },
+    {
+     "number": "5.2.2",
+     "title": "EF.Certificates (MANDATORY)"
+    },
+    {
+     "number": "5.2.3",
+     "title": "EF.VisaRecords (MANDATORY)"
+    },
+    {
+     "number": "5.3.1",
+     "title": "Application Selection — DF"
+    },
+    {
+     "number": "5.3.2",
+     "title": "EF.Certificates (MANDATORY)"
+    },
+    {
+     "number": "5.3.3",
+     "title": "EF.Biometrics"
+    },
+    {
+     "number": "5.4.1",
+     "title": "Roles and Default Authorization Levels (MANDATORY)"
+    },
+    {
+     "number": "5.4.2",
+     "title": "Application Authorization Levels (MANDATORY)"
+    }
+   ],
+   "note": "The guide's reference list gives an address for Part 11 only. This is the same address with p10 in place of p11. The file is the consolidated text with Amendment No. 1."
+  },
+  {
+   "name": "icao-9303-11",
+   "title": "ICAO Doc 9303 Part 11",
+   "assumptions": [
+    "x-icao-9303-11"
+   ],
+   "address": "https://www.icao.int/sites/default/files/publications/DocSeries/9303_p11_cons_en.pdf",
+   "retrieved": "2026-11-05",
+   "sha256": "953bd8998c254f14617675f7d138301afda65d55107f8e751baf50d7e9a3db86",
+   "bytes": 12693295,
+   "guide_names": "no version named",
+   "version_printed": [
+    "Eighth Edition, 2021",
+    "Part 11: Security Mechanisms for MRTDs"
+   ],
+   "copyright_printed": "© ICAO 2021",
+   "sections": [
+    {
+     "number": "1",
+     "title": "SCOPE"
+    },
+    {
+     "number": "2",
+     "title": "ASSUMPTIONS AND NOTATIONS"
+    },
+    {
+     "number": "2.1",
+     "title": "Requirements for eMRTD Chips and Terminals"
+    },
+    {
+     "number": "2.2",
+     "title": "Notations"
+    },
+    {
+     "number": "3",
+     "title": "SECURING ELECTRONIC DATA"
+    },
+    {
+     "number": "4",
+     "title": "ACCESS TO THE CONTACTLESS IC"
+    },
+    {
+     "number": "4.1",
+     "title": "Compliant Configurations"
+    },
+    {
+     "number": "4.2",
+     "title": "Chip Access Procedure"
+    },
+    {
+     "number": "4.3",
+     "title": "Basic Access Control"
+    },
+    {
+     "number": "4.4",
+     "title": "Password Authenticated Connection Establishment"
+    },
+    {
+     "number": "5",
+     "title": "AUTHENTICATION OF DATA"
+    },
+    {
+     "number": "5.1",
+     "title": "Passive Authentication"
+    },
+    {
+     "number": "6",
+     "title": "AUTHENTICATION OF THE CONTACTLESS IC"
+    },
+    {
+     "number": "6.1",
+     "title": "Active Authentication"
+    },
+    {
+     "number": "6.2",
+     "title": "Chip Authentication"
+    },
+    {
+     "number": "7",
+     "title": "ADDITIONAL ACCESS CONTROL MECHANISMS"
+    },
+    {
+     "number": "7.1",
+     "title": "Terminal Authentication"
+    },
+    {
+     "number": "7.2",
+     "title": "Encryption of Additional Biometrics"
+    },
+    {
+     "number": "8",
+     "title": "INSPECTION SYSTEM"
+    },
+    {
+     "number": "8.1",
+     "title": "Basic Access Control"
+    },
+    {
+     "number": "8.2",
+     "title": "Password Authenticated Connection Establishment"
+    },
+    {
+     "number": "8.3",
+     "title": "Passive Authentication"
+    },
+    {
+     "number": "8.4",
+     "title": "Active Authentication"
+    },
+    {
+     "number": "8.5",
+     "title": "Chip Authentication"
+    },
+    {
+     "number": "8.6",
+     "title": "Terminal Authentication"
+    },
+    {
+     "number": "8.7",
+     "title": "Decryption of Additional Biometrics"
+    },
+    {
+     "number": "9",
+     "title": "COMMON SPECIFICATIONS"
+    },
+    {
+     "number": "9.1",
+     "title": "ASN.1 Structures"
+    },
+    {
+     "number": "9.2",
+     "title": "Information on Supported Protocols and Supported Applications"
+    },
+    {
+     "number": "9.3",
+     "title": "APDUs"
+    },
+    {
+     "number": "9.4",
+     "title": "Public Key Data Objects"
+    },
+    {
+     "number": "9.5",
+     "title": "Domain Parameters"
+    },
+    {
+     "number": "9.6",
+     "title": "Key Agreement Algorithms"
+    },
+    {
+     "number": "9.7",
+     "title": "Key Derivation Mechanism"
+    },
+    {
+     "number": "9.8",
+     "title": "Secure Messaging"
+    },
+    {
+     "number": "10",
+     "title": "REFERENCES (NORMATIVE)"
+    },
+    {
+     "number": "A",
+     "title": "TO PART 11. ENTROPY OF MRZ-DERIVED ACCESS KEYS (INFORMATIVE)"
+    },
+    {
+     "number": "B.1",
+     "title": "High-level Description of the Point Encoding Method"
+    },
+    {
+     "number": "B.2",
+     "title": "Implementation for Affine Coordinates"
+    },
+    {
+     "number": "B.3",
+     "title": "Implementation for Jacobian Coordinates"
+    },
+    {
+     "number": "C",
+     "title": "TO PART 11. CHALLENGE SEMANTICS (INFORMATIVE)"
+    },
+    {
+     "number": "D",
+     "title": "TO PART 11. WORKED EXAMPLE: BASIC ACCESS CONTROL (INFORMATIVE)"
+    },
+    {
+     "number": "D.1",
+     "title": "Compute Keys from Key Seed (Kseed)"
+    },
+    {
+     "number": "D.2",
+     "title": "Derivation of Document Basic Access Keys (KEnc and KMAC)"
+    },
+    {
+     "number": "D.3",
+     "title": "Authentication and Establishment of Session Keys"
+    },
+    {
+     "number": "D.4",
+     "title": "Secure Messaging"
+    },
+    {
+     "number": "E",
+     "title": "TO PART 11. WORKED EXAMPLE: PASSIVE AUTHENTICATION (INFORMATIVE)"
+    },
+    {
+     "number": "F",
+     "title": "TO PART 11. WORKED EXAMPLE: ACTIVE AUTHENTICATION (INFORMATIVE)"
+    },
+    {
+     "number": "G",
+     "title": "TO PART 11. WORKED EXAMPLE: PACE – GENERIC MAPPING (INFORMATIVE)"
+    },
+    {
+     "number": "G.1",
+     "title": "ECDH based example"
+    },
+    {
+     "number": "G.2",
+     "title": "DH based example"
+    },
+    {
+     "number": "H.1",
+     "title": "ECDH based example"
+    },
+    {
+     "number": "H.2",
+     "title": "DH based example"
+    },
+    {
+     "number": "I.1",
+     "title": "ECDH based example"
+    },
+    {
+     "number": "J",
+     "title": "TO PART 11. INSPECTION PROCEDURES (INFORMATIVE)"
+    },
+    {
+     "number": "J.1",
+     "title": "Inspection Procedure for eMRTD Application"
+    },
+    {
+     "number": "J.2",
+     "title": "Inspection Procedure for Multi-application eMRTDs"
+    },
+    {
+     "number": "K",
+     "title": "TO PART 11. EUROPEAN EXTENDED ACCESS CONTROL (INFORMATIVE)"
+    },
+    {
+     "number": "K.1",
+     "title": "Access Rights"
+    },
+    {
+     "number": "K.2",
+     "title": "EF.CVCA"
+    },
+    {
+     "number": "4.3.1",
+     "title": "Protocol Specification"
+    },
+    {
+     "number": "4.3.2",
+     "title": "Inspection Process"
+    },
+    {
+     "number": "4.3.3",
+     "title": "Cryptographic Specifications"
+    },
+    {
+     "number": "4.3.3.1",
+     "title": "Encryption of Challenge and Response"
+    },
+    {
+     "number": "4.3.3.2",
+     "title": "Authentication of Challenge and Response"
+    },
+    {
+     "number": "4.3.4",
+     "title": "Application Protocol Data Units"
+    },
+    {
+     "number": "4.3.4.1",
+     "title": "GET CHALLENGE"
+    },
+    {
+     "number": "4.3.4.2",
+     "title": "EXTERNAL AUTHENTICATE"
+    },
+    {
+     "number": "4.4.1",
+     "title": "Protocol Specification"
+    },
+    {
+     "number": "4.4.2",
+     "title": "Security Status"
+    },
+    {
+     "number": "4.4.3",
+     "title": "Cryptographic Specifications"
+    },
+    {
+     "number": "4.4.3.1",
+     "title": "DH"
+    },
+    {
+     "number": "4.4.3.2",
+     "title": "ECDH"
+    },
+    {
+     "number": "4.4.3.3",
+     "title": "Encrypting and Mapping Nonces"
+    },
+    {
+     "number": "4.4.3.3.1",
+     "title": "Generic Mapping"
+    },
+    {
+     "number": "4.4.3.3.2",
+     "title": "Integrated Mapping"
+    },
+    {
+     "number": "4.4.3.3.3",
+     "title": "Chip Authentication Mapping"
+    },
+    {
+     "number": "4.4.3.4",
+     "title": "Authentication Token"
+    },
+    {
+     "number": "4.4.3.5",
+     "title": "Encrypted Chip Authentication Data"
+    },
+    {
+     "number": "4.4.3.5.1",
+     "title": "Generation by the eMRTD chip"
+    },
+    {
+     "number": "4.4.3.5.2",
+     "title": "Verification by the terminal"
+    },
+    {
+     "number": "4.4.3.5.3",
+     "title": "Padding"
+    },
+    {
+     "number": "4.4.3.5.4",
+     "title": "AES"
+    },
+    {
+     "number": "4.4.4",
+     "title": "Application Protocol Data Units"
+    },
+    {
+     "number": "4.4.4.1",
+     "title": "MSE:Set AT"
+    },
+    {
+     "number": "4.4.4.2",
+     "title": "GENERAL AUTHENTICATE"
+    },
+    {
+     "number": "4.4.4.3",
+     "title": "Command Chaining"
+    },
+    {
+     "number": "4.4.5",
+     "title": "Exchanged Data"
+    },
+    {
+     "number": "4.4.5.1",
+     "title": "Encrypted Nonce"
+    },
+    {
+     "number": "4.4.5.2",
+     "title": "Mapping Data"
+    },
+    {
+     "number": "4.4.5.2.1",
+     "title": "Generic Mapping"
+    },
+    {
+     "number": "4.4.5.2.2",
+     "title": "Integrated Mapping"
+    },
+    {
+     "number": "4.4.5.2.3",
+     "title": "Chip Authentication Mapping"
+    },
+    {
+     "number": "4.4.5.3",
+     "title": "Public Keys"
+    },
+    {
+     "number": "4.4.5.4",
+     "title": "Authentication Token"
+    },
+    {
+     "number": "4.4.5.5",
+     "title": "Certification Authority Reference"
+    },
+    {
+     "number": "4.4.5.6",
+     "title": "Encrypted Chip Authentication Data"
+    },
+    {
+     "number": "5.1.1",
+     "title": "Inspection Process"
+    },
+    {
+     "number": "5.1.2",
+     "title": "Additional Inspection Process for LDS2 Applications"
+    },
+    {
+     "number": "6.1.1",
+     "title": "Protocol Specification"
+    },
+    {
+     "number": "6.1.2",
+     "title": "Cryptographic Specifications"
+    },
+    {
+     "number": "6.1.2.1",
+     "title": "Nonce"
+    },
+    {
+     "number": "6.1.2.2",
+     "title": "RSA"
+    },
+    {
+     "number": "6.1.2.3",
+     "title": "ECDSA"
+    },
+    {
+     "number": "6.1.3",
+     "title": "Application Protocol Data Units"
+    },
+    {
+     "number": "6.1.4",
+     "title": "Active Authentication Keys"
+    },
+    {
+     "number": "6.1.5",
+     "title": "Active Authentication Public Key Info"
+    },
+    {
+     "number": "6.1.6",
+     "title": "Inspection Process"
+    },
+    {
+     "number": "6.2.1",
+     "title": "Protocol Specification"
+    },
+    {
+     "number": "6.2.2",
+     "title": "Security Status"
+    },
+    {
+     "number": "6.2.3",
+     "title": "Cryptographic Specifications"
+    },
+    {
+     "number": "6.2.3.1",
+     "title": "Chip Authentication with DH"
+    },
+    {
+     "number": "6.2.3.2",
+     "title": "Chip Authentication with ECDH"
+    },
+    {
+     "number": "6.2.4",
+     "title": "Applications Protocol Data Units"
+    },
+    {
+     "number": "6.2.4.1",
+     "title": "Implementation using MSE:Set KAT"
+    },
+    {
+     "number": "6.2.4.2",
+     "title": "Implementation using MSE:Set AT and GENERAL AUTHENTICATE"
+    },
+    {
+     "number": "6.2.4.3",
+     "title": "Ephemeral Public Key"
+    },
+    {
+     "number": "7.1.2",
+     "title": "Protocol Specification"
+    },
+    {
+     "number": "7.1.3",
+     "title": "Security Status"
+    },
+    {
+     "number": "7.1.4",
+     "title": "Cryptographic Specifications"
+    },
+    {
+     "number": "7.1.4.1",
+     "title": "Terminal Authentication with RSA"
+    },
+    {
+     "number": "7.1.4.1.1",
+     "title": "Signature Algorithm"
+    },
+    {
+     "number": "7.1.4.1.2",
+     "title": "Public Key Format"
+    },
+    {
+     "number": "7.1.4.1.3",
+     "title": "Public Key Compression"
+    },
+    {
+     "number": "7.1.4.2",
+     "title": "Terminal Authentication with ECDSA"
+    },
+    {
+     "number": "7.1.4.2.1",
+     "title": "Signature Algorithm"
+    },
+    {
+     "number": "7.1.4.2.2",
+     "title": "Public Key Format"
+    },
+    {
+     "number": "7.1.4.2.3",
+     "title": "Public Key Compression"
+    },
+    {
+     "number": "7.1.4.3",
+     "title": "Certificate Validation"
+    },
+    {
+     "number": "7.1.4.3.1",
+     "title": "Initial State of the IC’s Trust-point(s)"
+    },
+    {
+     "number": "7.1.4.3.2",
+     "title": "Link Certificates"
+    },
+    {
+     "number": "7.1.4.3.3",
+     "title": "Current Date"
+    },
+    {
+     "number": "7.1.4.3.4",
+     "title": "General Validation Procedure"
+    },
+    {
+     "number": "7.1.4.3.5",
+     "title": "Example Validation Procedure"
+    },
+    {
+     "number": "7.1.4.3.6",
+     "title": "Effective Authorization"
+    },
+    {
+     "number": "7.1.4.3.7",
+     "title": "Public Key Import"
+    },
+    {
+     "number": "7.1.5",
+     "title": "Application Protocol Data Units"
+    },
+    {
+     "number": "7.1.5.1",
+     "title": "MSE:Set DST"
+    },
+    {
+     "number": "7.1.5.2",
+     "title": "PSO:Verify Certificate"
+    },
+    {
+     "number": "7.1.5.3",
+     "title": "MSE:Set AT"
+    },
+    {
+     "number": "7.1.5.4",
+     "title": "Get Challenge"
+    },
+    {
+     "number": "7.1.5.5",
+     "title": "External Authenticate"
+    },
+    {
+     "number": "9.2.1",
+     "title": "PACEInfo"
+    },
+    {
+     "number": "9.2.2",
+     "title": "PACEDomainParameterInfo"
+    },
+    {
+     "number": "9.2.3",
+     "title": "PACE Object Identifier"
+    },
+    {
+     "number": "9.2.4",
+     "title": "ActiveAuthenticationInfo"
+    },
+    {
+     "number": "9.2.5",
+     "title": "ChipAuthenticationInfo"
+    },
+    {
+     "number": "9.2.6",
+     "title": "ChipAuthenticationPublicKeyInfo"
+    },
+    {
+     "number": "9.2.7",
+     "title": "Chip Authentication Object Identifier"
+    },
+    {
+     "number": "9.2.8",
+     "title": "TerminalAuthenticationInfo"
+    },
+    {
+     "number": "9.2.9",
+     "title": "Terminal Authentication Object Identifiers"
+    },
+    {
+     "number": "9.2.10",
+     "title": "EFDIRInfo"
+    },
+    {
+     "number": "9.2.11",
+     "title": "Storage on the Chip"
+    },
+    {
+     "number": "9.3.1",
+     "title": "Extended Length"
+    },
+    {
+     "number": "9.3.1.2",
+     "title": "Terminals"
+    },
+    {
+     "number": "9.3.2",
+     "title": "Command Chaining"
+    },
+    {
+     "number": "9.3.3",
+     "title": "Data Objects"
+    },
+    {
+     "number": "9.4.1",
+     "title": "Data Object Encoding"
+    },
+    {
+     "number": "9.4.2",
+     "title": "RSA Public Keys"
+    },
+    {
+     "number": "9.4.3",
+     "title": "Diffie Hellman Public Keys"
+    },
+    {
+     "number": "9.4.4",
+     "title": "Elliptic Curve Public Keys"
+    },
+    {
+     "number": "9.4.5",
+     "title": "Ephemeral Public Keys"
+    },
+    {
+     "number": "9.5.1",
+     "title": "Standardized Domain Parameters"
+    },
+    {
+     "number": "9.5.2",
+     "title": "Explicit Domain Parameters"
+    },
+    {
+     "number": "9.7.1",
+     "title": "Key Derivation Function"
+    },
+    {
+     "number": "9.7.1.2",
+     "title": "AES"
+    },
+    {
+     "number": "9.7.2",
+     "title": "Document Basic Access Keys"
+    },
+    {
+     "number": "9.7.3",
+     "title": "PACE"
+    },
+    {
+     "number": "9.7.4",
+     "title": "Secure Messaging Keys"
+    },
+    {
+     "number": "9.8.1",
+     "title": "Session Initiation"
+    },
+    {
+     "number": "9.8.2",
+     "title": "Send Sequence Counter"
+    },
+    {
+     "number": "9.8.3",
+     "title": "Session Termination"
+    },
+    {
+     "number": "9.8.4",
+     "title": "Message Structure of SM APDUs"
+    },
+    {
+     "number": "9.8.5",
+     "title": "SM Errors"
+    },
+    {
+     "number": "9.8.6.1",
+     "title": "Encryption"
+    },
+    {
+     "number": "9.8.6.2",
+     "title": "Message Authentication"
+    },
+    {
+     "number": "9.8.6.3",
+     "title": "Send Sequence Counter"
+    },
+    {
+     "number": "9.8.7",
+     "title": "AES Modes of Operation"
+    },
+    {
+     "number": "9.8.7.1",
+     "title": "Encryption"
+    },
+    {
+     "number": "9.8.7.2",
+     "title": "Message Authentication"
+    },
+    {
+     "number": "9.8.7.3",
+     "title": "Send Sequence Counter"
+    }
+   ],
+   "note": "The file is the consolidated text with Amendment No. 1."
+  },
+  {
+   "name": "iata-bcbp-guide",
+   "title": "IATA Bar Coded Boarding Pass Implementation Guide",
+   "assumptions": [
+    "x-iata-bcbp-guide"
+   ],
+   "address": "https://www.iata.org/contentassets/1dccc9ed041b4f3bbdcf8ee8682e75c4/2021_03_02-bcbp-implementation-guide-version-7-.pdf",
+   "retrieved": "2026-11-05",
+   "sha256": "10090e2b18c1c4bc994c686dc0b883713f4af03a2e714142300cc9572e306182",
+   "bytes": 1649136,
+   "guide_names": "the open implementation guide, listed under Resolution 792",
+   "version_printed": [
+    "IMPLEMENTATION GUIDE",
+    "Effective Date: 1st June, 2018",
+    "Seven Edition"
+   ],
+   "copyright_printed": "© IATA 2017",
+   "sections": [
+    {
+     "number": "1",
+     "title": "INTRODUCTION"
+    },
+    {
+     "number": "1.1",
+     "title": "Background"
+    },
+    {
+     "number": "1.2",
+     "title": "About Bar Coded Boarding Pass"
+    },
+    {
+     "number": "2",
+     "title": "KEY BCBP COMPONENTS"
+    },
+    {
+     "number": "2.1",
+     "title": "2D bar codes"
+    },
+    {
+     "number": "2.2",
+     "title": "BCBP Standard (Resolution 792)"
+    },
+    {
+     "number": "2.3",
+     "title": "Boarding pass"
+    },
+    {
+     "number": "2.4",
+     "title": "Mobile and Web BCBP"
+    },
+    {
+     "number": "2.5",
+     "title": "Mobile BCBP"
+    },
+    {
+     "number": "2.6",
+     "title": "Departure Control System"
+    },
+    {
+     "number": "3",
+     "title": "MEDIA USED AS BOARDING PASSES"
+    },
+    {
+     "number": "3.1",
+     "title": "Mobile phones (NFC)"
+    },
+    {
+     "number": "3.2",
+     "title": "Biometrics"
+    },
+    {
+     "number": "A",
+     "title": "- RESOURCES"
+    },
+    {
+     "number": "A.1",
+     "title": "Glossary of Terms"
+    },
+    {
+     "number": "A.2",
+     "title": "Industry Groups"
+    },
+    {
+     "number": "A.3",
+     "title": "Reference Documents"
+    },
+    {
+     "number": "B",
+     "title": "- BCBP SAMPLES"
+    },
+    {
+     "number": "B.1",
+     "title": "BCBP printed at home"
+    },
+    {
+     "number": "B.2",
+     "title": "BCBP printed at a kiosk"
+    },
+    {
+     "number": "B.3",
+     "title": "Mobile BCBP"
+    },
+    {
+     "number": "C",
+     "title": "- PDF417"
+    },
+    {
+     "number": "D",
+     "title": "- AZTEC"
+    },
+    {
+     "number": "E",
+     "title": "- DATAMATRIX"
+    },
+    {
+     "number": "F",
+     "title": "- QR CODE"
+    },
+    {
+     "number": "1.2.1",
+     "title": "The BCBP standard"
+    },
+    {
+     "number": "1.2.2",
+     "title": "The rationale for BCBP"
+    },
+    {
+     "number": "1.2.3",
+     "title": "Comparison between BCBP and other solutions"
+    },
+    {
+     "number": "1.2.4",
+     "title": "Key differentiators between the IATA 2D standard and the non-"
+    },
+    {
+     "number": "1.2.5",
+     "title": "Main considerations"
+    },
+    {
+     "number": "2.1.1",
+     "title": "PDF417"
+    },
+    {
+     "number": "2.1.2",
+     "title": "Aztec"
+    },
+    {
+     "number": "2.1.3",
+     "title": "Datamatrix"
+    },
+    {
+     "number": "2.1.4",
+     "title": "QR code"
+    },
+    {
+     "number": "2.1.5",
+     "title": "Size of the bar codes"
+    },
+    {
+     "number": "2.2.1",
+     "title": "Data format"
+    },
+    {
+     "number": "2.2.2",
+     "title": "Encoding one flight leg"
+    },
+    {
+     "number": "2.2.3",
+     "title": "Version management"
+    },
+    {
+     "number": "2.2.4",
+     "title": "E-Ticket Itinerary receipt"
+    },
+    {
+     "number": "2.2.5",
+     "title": "Digital signature"
+    },
+    {
+     "number": "2.2.6",
+     "title": "BCBP XML"
+    },
+    {
+     "number": "2.3.1",
+     "title": "Check-in data"
+    },
+    {
+     "number": "2.3.2",
+     "title": "Layout of the boarding pass"
+    },
+    {
+     "number": "2.3.3",
+     "title": "Mandatory text"
+    },
+    {
+     "number": "2.3.4",
+     "title": "Size of the boarding pass"
+    },
+    {
+     "number": "2.3.5",
+     "title": "Boarding pass for infants"
+    },
+    {
+     "number": "2.5.1",
+     "title": "Selecting a symbology"
+    },
+    {
+     "number": "2.5.2",
+     "title": "Sending a 2D bar code to a mobile device"
+    },
+    {
+     "number": "2.5.3",
+     "title": "Size of the 2D bar code displayed"
+    },
+    {
+     "number": "2.5.4",
+     "title": "Reading the 2D bar code from the handset"
+    },
+    {
+     "number": "2.5.5",
+     "title": "Processing mobile BCBP at the gate"
+    },
+    {
+     "number": "2.5.6",
+     "title": "Paper specifications"
+    },
+    {
+     "number": "2.5.7",
+     "title": "Bar code print quality"
+    },
+    {
+     "number": "2.6.1",
+     "title": "Automated Boarding Control"
+    },
+    {
+     "number": "2.6.2",
+     "title": "Common Use Systems"
+    },
+    {
+     "number": "2.6.3",
+     "title": "Fraud Prevention"
+    }
+   ],
+   "note": "A guide to Resolution 792. It is not the resolution, which is sold and was not read."
+  },
+  {
+   "name": "rfc8949",
+   "title": "IETF RFC 8949 (CBOR)",
+   "assumptions": [
+    "x-cbor-tstr"
+   ],
+   "address": "https://www.rfc-editor.org/rfc/rfc8949.txt",
+   "retrieved": "2026-11-05",
+   "sha256": "f1164a5b31a39350ad46abe29b83575eb933ca6c45366989c118b6b1058a214a",
+   "bytes": 185226,
+   "guide_names": "no version named",
+   "version_printed": [
+    "Request for Comments: 8949",
+    "December 2020"
+   ],
+   "copyright_printed": "Copyright (c) 2020 IETF Trust",
+   "sections": [
+    {
+     "number": "1",
+     "title": "Introduction"
+    },
+    {
+     "number": "1.1",
+     "title": "Objectives"
+    },
+    {
+     "number": "1.2",
+     "title": "Terminology"
+    },
+    {
+     "number": "2",
+     "title": "CBOR Data Models"
+    },
+    {
+     "number": "2.1",
+     "title": "Extended Generic Data Models"
+    },
+    {
+     "number": "2.2",
+     "title": "Specific Data Models"
+    },
+    {
+     "number": "3",
+     "title": "Specification of the CBOR Encoding"
+    },
+    {
+     "number": "3.1",
+     "title": "Major Types"
+    },
+    {
+     "number": "3.2",
+     "title": "Indefinite Lengths for Some Major Types"
+    },
+    {
+     "number": "3.2.1",
+     "title": "The \"break\" Stop Code"
+    },
+    {
+     "number": "3.2.2",
+     "title": "Indefinite-Length Arrays and Maps"
+    },
+    {
+     "number": "3.2.3",
+     "title": "Indefinite-Length Byte Strings and Text Strings"
+    },
+    {
+     "number": "3.2.4",
+     "title": "Summary of Indefinite-Length Use of Major Types"
+    },
+    {
+     "number": "3.3",
+     "title": "Floating-Point Numbers and Values with No Content"
+    },
+    {
+     "number": "3.4",
+     "title": "Tagging of Items"
+    },
+    {
+     "number": "3.4.1",
+     "title": "Standard Date/Time String"
+    },
+    {
+     "number": "3.4.2",
+     "title": "Epoch-Based Date/Time"
+    },
+    {
+     "number": "3.4.3",
+     "title": "Bignums"
+    },
+    {
+     "number": "3.4.4",
+     "title": "Decimal Fractions and Bigfloats"
+    },
+    {
+     "number": "3.4.5",
+     "title": "Content Hints"
+    },
+    {
+     "number": "3.4.5.1",
+     "title": "Encoded CBOR Data Item"
+    },
+    {
+     "number": "3.4.5.2",
+     "title": "Expected Later Encoding for CBOR-to-JSON Converters"
+    },
+    {
+     "number": "3.4.5.3",
+     "title": "Encoded Text"
+    },
+    {
+     "number": "3.4.6",
+     "title": "Self-Described CBOR"
+    },
+    {
+     "number": "4",
+     "title": "Serialization Considerations"
+    },
+    {
+     "number": "4.1",
+     "title": "Preferred Serialization"
+    },
+    {
+     "number": "4.2",
+     "title": "Deterministically Encoded CBOR"
+    },
+    {
+     "number": "4.2.1",
+     "title": "Core Deterministic Encoding Requirements"
+    },
+    {
+     "number": "4.2.2",
+     "title": "Additional Deterministic Encoding Considerations"
+    },
+    {
+     "number": "4.2.3",
+     "title": "Length-First Map Key Ordering"
+    },
+    {
+     "number": "5",
+     "title": "Creating CBOR-Based Protocols"
+    },
+    {
+     "number": "5.1",
+     "title": "CBOR in Streaming Applications"
+    },
+    {
+     "number": "5.2",
+     "title": "Generic Encoders and Decoders"
+    },
+    {
+     "number": "5.3",
+     "title": "Validity of Items"
+    },
+    {
+     "number": "5.3.1",
+     "title": "Basic validity"
+    },
+    {
+     "number": "5.3.2",
+     "title": "Tag validity"
+    },
+    {
+     "number": "5.4",
+     "title": "Validity and Evolution"
+    },
+    {
+     "number": "5.5",
+     "title": "Numbers"
+    },
+    {
+     "number": "5.6",
+     "title": "Specifying Keys for Maps"
+    },
+    {
+     "number": "5.6.1",
+     "title": "Equivalence of Keys"
+    },
+    {
+     "number": "5.7",
+     "title": "Undefined Values"
+    },
+    {
+     "number": "6",
+     "title": "Converting Data between CBOR and JSON"
+    },
+    {
+     "number": "6.1",
+     "title": "Converting from CBOR to JSON"
+    },
+    {
+     "number": "6.2",
+     "title": "Converting from JSON to CBOR"
+    },
+    {
+     "number": "7",
+     "title": "Future Evolution of CBOR"
+    },
+    {
+     "number": "7.1",
+     "title": "Extension Points"
+    },
+    {
+     "number": "7.2",
+     "title": "Curating the Additional Information Space"
+    },
+    {
+     "number": "8",
+     "title": "Diagnostic Notation"
+    },
+    {
+     "number": "8.1",
+     "title": "Encoding Indicators"
+    },
+    {
+     "number": "9",
+     "title": "IANA Considerations"
+    },
+    {
+     "number": "9.1",
+     "title": "CBOR Simple Values Registry"
+    },
+    {
+     "number": "9.2",
+     "title": "CBOR Tags Registry"
+    },
+    {
+     "number": "9.3",
+     "title": "Media Types Registry"
+    },
+    {
+     "number": "9.4",
+     "title": "CoAP Content-Format Registry"
+    },
+    {
+     "number": "9.5",
+     "title": "Structured Syntax Suffix Registry"
+    },
+    {
+     "number": "10",
+     "title": "Security Considerations"
+    },
+    {
+     "number": "11",
+     "title": "References"
+    },
+    {
+     "number": "11.1",
+     "title": "Normative References"
+    },
+    {
+     "number": "11.2",
+     "title": "Informative References"
+    },
+    {
+     "number": "A",
+     "title": "Examples of Encoded CBOR Data Items"
+    },
+    {
+     "number": "B",
+     "title": "Jump Table for Initial Byte"
+    },
+    {
+     "number": "C",
+     "title": "Pseudocode"
+    },
+    {
+     "number": "D",
+     "title": "Half-Precision"
+    },
+    {
+     "number": "E",
+     "title": "Comparison of Other Binary Formats to CBOR's Design"
+    },
+    {
+     "number": "E.1",
+     "title": "ASN.1 DER, BER, and PER"
+    },
+    {
+     "number": "E.2",
+     "title": "MessagePack"
+    },
+    {
+     "number": "E.3",
+     "title": "BSON"
+    },
+    {
+     "number": "E.4",
+     "title": "MSDTP: RFC 713"
+    },
+    {
+     "number": "E.5",
+     "title": "Conciseness on the Wire"
+    },
+    {
+     "number": "F",
+     "title": "Well-Formedness Errors and Examples"
+    },
+    {
+     "number": "F.1",
+     "title": "Examples of CBOR Data Items That Are Not Well-Formed"
+    },
+    {
+     "number": "G",
+     "title": "Changes from RFC 7049"
+    },
+    {
+     "number": "G.1",
+     "title": "Errata Processing and Clerical Changes"
+    },
+    {
+     "number": "G.2",
+     "title": "Changes in IANA Considerations"
+    },
+    {
+     "number": "G.3",
+     "title": "Changes in Suggestions and Other Informational Components"
+    }
+   ],
+   "address_in_guide": "https://datatracker.ietf.org/doc/html/rfc8949"
+  },
+  {
+   "name": "rfc9052",
+   "title": "IETF RFC 9052 (COSE)",
+   "assumptions": [
+    "x-cose"
+   ],
+   "address": "https://www.rfc-editor.org/rfc/rfc9052.txt",
+   "retrieved": "2026-11-05",
+   "sha256": "01eecd7f646537600e7aad665b1fa581ce6ec33dae4ef4add0997aaf38cd0a45",
+   "bytes": 149835,
+   "guide_names": "no version named",
+   "version_printed": [
+    "Request for Comments: 9052",
+    "August 2022"
+   ],
+   "copyright_printed": "Copyright (c) 2022 IETF Trust",
+   "sections": [
+    {
+     "number": "1",
+     "title": "Introduction"
+    },
+    {
+     "number": "1.1",
+     "title": "Requirements Terminology"
+    },
+    {
+     "number": "1.2",
+     "title": "Changes from RFC 8152"
+    },
+    {
+     "number": "1.3",
+     "title": "Design Changes from JOSE"
+    },
+    {
+     "number": "1.4",
+     "title": "CDDL Grammar for CBOR Data Structures"
+    },
+    {
+     "number": "1.5",
+     "title": "CBOR-Related Terminology"
+    },
+    {
+     "number": "1.6",
+     "title": "Document Terminology"
+    },
+    {
+     "number": "2",
+     "title": "Basic COSE Structure"
+    },
+    {
+     "number": "3",
+     "title": "Header Parameters"
+    },
+    {
+     "number": "3.1",
+     "title": "Common COSE Header Parameters"
+    },
+    {
+     "number": "4",
+     "title": "Signing Objects"
+    },
+    {
+     "number": "4.1",
+     "title": "Signing with One or More Signers"
+    },
+    {
+     "number": "4.2",
+     "title": "Signing with One Signer"
+    },
+    {
+     "number": "4.3",
+     "title": "Externally Supplied Data"
+    },
+    {
+     "number": "4.4",
+     "title": "Signing and Verification Process"
+    },
+    {
+     "number": "5",
+     "title": "Encryption Objects"
+    },
+    {
+     "number": "5.1",
+     "title": "Enveloped COSE Structure"
+    },
+    {
+     "number": "5.1.1",
+     "title": "Content Key Distribution Methods"
+    },
+    {
+     "number": "5.2",
+     "title": "Single Recipient Encrypted"
+    },
+    {
+     "number": "5.3",
+     "title": "How to Encrypt and Decrypt for AEAD Algorithms"
+    },
+    {
+     "number": "5.4",
+     "title": "How to Encrypt and Decrypt for AE Algorithms"
+    },
+    {
+     "number": "6",
+     "title": "MAC Objects"
+    },
+    {
+     "number": "6.1",
+     "title": "MACed Message with Recipients"
+    },
+    {
+     "number": "6.2",
+     "title": "MACed Messages with Implicit Key"
+    },
+    {
+     "number": "6.3",
+     "title": "How to Compute and Verify a MAC"
+    },
+    {
+     "number": "7",
+     "title": "Key Objects"
+    },
+    {
+     "number": "7.1",
+     "title": "COSE Key Common Parameters"
+    },
+    {
+     "number": "8",
+     "title": "Taxonomy of Algorithms Used by COSE"
+    },
+    {
+     "number": "8.1",
+     "title": "Signature Algorithms"
+    },
+    {
+     "number": "8.2",
+     "title": "Message Authentication Code (MAC) Algorithms"
+    },
+    {
+     "number": "8.3",
+     "title": "Content Encryption Algorithms"
+    },
+    {
+     "number": "8.4",
+     "title": "Key Derivation Functions (KDFs)"
+    },
+    {
+     "number": "8.5",
+     "title": "Content Key Distribution Methods"
+    },
+    {
+     "number": "8.5.1",
+     "title": "Direct Encryption"
+    },
+    {
+     "number": "8.5.2",
+     "title": "Key Wrap"
+    },
+    {
+     "number": "8.5.3",
+     "title": "Key Transport"
+    },
+    {
+     "number": "8.5.4",
+     "title": "Direct Key Agreement"
+    },
+    {
+     "number": "8.5.5",
+     "title": "Key Agreement with Key Wrap"
+    },
+    {
+     "number": "9",
+     "title": "CBOR Encoding Restrictions"
+    },
+    {
+     "number": "10",
+     "title": "Application Profiling Considerations"
+    },
+    {
+     "number": "11",
+     "title": "IANA Considerations"
+    },
+    {
+     "number": "11.1",
+     "title": "COSE Header Parameters Registry"
+    },
+    {
+     "number": "11.2",
+     "title": "COSE Key Common Parameters Registry"
+    },
+    {
+     "number": "11.3",
+     "title": "Media Type Registrations"
+    },
+    {
+     "number": "11.3.1",
+     "title": "COSE Security Message"
+    },
+    {
+     "number": "11.3.2",
+     "title": "COSE Key Media Type"
+    },
+    {
+     "number": "11.4",
+     "title": "CoAP Content-Formats Registry"
+    },
+    {
+     "number": "11.5",
+     "title": "CBOR Tags Registry"
+    },
+    {
+     "number": "11.6",
+     "title": "Expert Review Instructions"
+    },
+    {
+     "number": "12",
+     "title": "Security Considerations"
+    },
+    {
+     "number": "13",
+     "title": "References"
+    },
+    {
+     "number": "13.1",
+     "title": "Normative References"
+    },
+    {
+     "number": "13.2",
+     "title": "Informative References"
+    },
+    {
+     "number": "A",
+     "title": "Guidelines for External Data Authentication of Algorithms"
+    },
+    {
+     "number": "B",
+     "title": "Two Layers of Recipient Information"
+    },
+    {
+     "number": "C",
+     "title": "Examples"
+    },
+    {
+     "number": "C.1",
+     "title": "Examples of Signed Messages"
+    },
+    {
+     "number": "C.1.1",
+     "title": "Single Signature"
+    },
+    {
+     "number": "C.1.2",
+     "title": "Multiple Signers"
+    },
+    {
+     "number": "C.1.3",
+     "title": "Signature with Criticality"
+    },
+    {
+     "number": "C.2",
+     "title": "Single Signer Examples"
+    },
+    {
+     "number": "C.2.1",
+     "title": "Single ECDSA Signature"
+    },
+    {
+     "number": "C.3",
+     "title": "Examples of Enveloped Messages"
+    },
+    {
+     "number": "C.3.1",
+     "title": "Direct ECDH"
+    },
+    {
+     "number": "C.3.2",
+     "title": "Direct Plus Key Derivation"
+    },
+    {
+     "number": "C.3.3",
+     "title": "Encrypted Content with External Data"
+    },
+    {
+     "number": "C.4",
+     "title": "Examples of Encrypted Messages"
+    },
+    {
+     "number": "C.4.1",
+     "title": "Simple Encrypted Message"
+    },
+    {
+     "number": "C.4.2",
+     "title": "Encrypted Message with a Partial IV"
+    },
+    {
+     "number": "C.5",
+     "title": "Examples of MACed Messages"
+    },
+    {
+     "number": "C.5.1",
+     "title": "Shared Secret Direct MAC"
+    },
+    {
+     "number": "C.5.2",
+     "title": "ECDH Direct MAC"
+    },
+    {
+     "number": "C.5.3",
+     "title": "Wrapped MAC"
+    },
+    {
+     "number": "C.5.4",
+     "title": "Multi-Recipient MACed Message"
+    },
+    {
+     "number": "C.6",
+     "title": "Examples of MAC0 Messages"
+    },
+    {
+     "number": "C.6.1",
+     "title": "Shared-Secret Direct MAC"
+    },
+    {
+     "number": "C.7",
+     "title": "COSE Keys"
+    },
+    {
+     "number": "C.7.1",
+     "title": "Public Keys"
+    },
+    {
+     "number": "C.7.2",
+     "title": "Private Keys"
+    }
+   ],
+   "address_in_guide": "https://datatracker.ietf.org/doc/html/rfc9052"
+  },
+  {
+   "name": "rfc9180",
+   "title": "IETF RFC 9180 (HPKE)",
+   "assumptions": [
+    "x-hpke"
+   ],
+   "address": "https://www.rfc-editor.org/rfc/rfc9180.txt",
+   "retrieved": "2026-11-05",
+   "sha256": "f45a8b7c30231b26d668b1e8168074e5ab514b174d656b67e859895117f1f8f6",
+   "bytes": 192749,
+   "guide_names": "no version named",
+   "version_printed": [
+    "Request for Comments: 9180",
+    "February 2022"
+   ],
+   "copyright_printed": "Copyright (c) 2022 IETF Trust",
+   "sections": [
+    {
+     "number": "1",
+     "title": "Introduction"
+    },
+    {
+     "number": "2",
+     "title": "Requirements Notation"
+    },
+    {
+     "number": "3",
+     "title": "Notation"
+    },
+    {
+     "number": "4",
+     "title": "Cryptographic Dependencies"
+    },
+    {
+     "number": "4.1",
+     "title": "DH-Based KEM (DHKEM)"
+    },
+    {
+     "number": "5",
+     "title": "Hybrid Public Key Encryption"
+    },
+    {
+     "number": "5.1",
+     "title": "Creating the Encryption Context"
+    },
+    {
+     "number": "5.1.1",
+     "title": "Encryption to a Public Key"
+    },
+    {
+     "number": "5.1.2",
+     "title": "Authentication Using a Pre-Shared Key"
+    },
+    {
+     "number": "5.1.3",
+     "title": "Authentication Using an Asymmetric Key"
+    },
+    {
+     "number": "5.1.4",
+     "title": "Authentication Using Both a PSK and an Asymmetric Key"
+    },
+    {
+     "number": "5.2",
+     "title": "Encryption and Decryption"
+    },
+    {
+     "number": "5.3",
+     "title": "Secret Export"
+    },
+    {
+     "number": "6",
+     "title": "Single-Shot APIs"
+    },
+    {
+     "number": "6.1",
+     "title": "Encryption and Decryption"
+    },
+    {
+     "number": "6.2",
+     "title": "Secret Export"
+    },
+    {
+     "number": "7",
+     "title": "Algorithm Identifiers"
+    },
+    {
+     "number": "7.1",
+     "title": "Key Encapsulation Mechanisms (KEMs)"
+    },
+    {
+     "number": "7.1.1",
+     "title": "SerializePublicKey and DeserializePublicKey"
+    },
+    {
+     "number": "7.1.2",
+     "title": "SerializePrivateKey and DeserializePrivateKey"
+    },
+    {
+     "number": "7.1.3",
+     "title": "DeriveKeyPair"
+    },
+    {
+     "number": "7.1.4",
+     "title": "Validation of Inputs and Outputs"
+    },
+    {
+     "number": "7.1.5",
+     "title": "Future KEMs"
+    },
+    {
+     "number": "7.2",
+     "title": "Key Derivation Functions (KDFs)"
+    },
+    {
+     "number": "7.2.1",
+     "title": "Input Length Restrictions"
+    },
+    {
+     "number": "7.3",
+     "title": "Authenticated Encryption with Associated Data (AEAD) Functions"
+    },
+    {
+     "number": "8",
+     "title": "API Considerations"
+    },
+    {
+     "number": "8.1",
+     "title": "Auxiliary Authenticated Application Information"
+    },
+    {
+     "number": "8.2",
+     "title": "Errors"
+    },
+    {
+     "number": "9",
+     "title": "Security Considerations"
+    },
+    {
+     "number": "9.1",
+     "title": "Security Properties"
+    },
+    {
+     "number": "9.1.1",
+     "title": "Key-Compromise Impersonation"
+    },
+    {
+     "number": "9.1.2",
+     "title": "Computational Analysis"
+    },
+    {
+     "number": "9.1.3",
+     "title": "Post-Quantum Security"
+    },
+    {
+     "number": "9.2",
+     "title": "Security Requirements on a KEM Used within HPKE"
+    },
+    {
+     "number": "9.2.1",
+     "title": "Encap/Decap Interface"
+    },
+    {
+     "number": "9.2.2",
+     "title": "AuthEncap/AuthDecap Interface"
+    },
+    {
+     "number": "9.2.3",
+     "title": "KEM Key Reuse"
+    },
+    {
+     "number": "9.3",
+     "title": "Security Requirements on a KDF"
+    },
+    {
+     "number": "9.4",
+     "title": "Security Requirements on an AEAD"
+    },
+    {
+     "number": "9.5",
+     "title": "Pre-Shared Key Recommendations"
+    },
+    {
+     "number": "9.6",
+     "title": "Domain Separation"
+    },
+    {
+     "number": "9.7",
+     "title": "Application Embedding and Non-Goals"
+    },
+    {
+     "number": "9.7.1",
+     "title": "Message Order and Message Loss"
+    },
+    {
+     "number": "9.7.2",
+     "title": "Downgrade Prevention"
+    },
+    {
+     "number": "9.7.3",
+     "title": "Replay Protection"
+    },
+    {
+     "number": "9.7.4",
+     "title": "Forward Secrecy"
+    },
+    {
+     "number": "9.7.5",
+     "title": "Bad Ephemeral Randomness"
+    },
+    {
+     "number": "9.7.6",
+     "title": "Hiding Plaintext Length"
+    },
+    {
+     "number": "9.8",
+     "title": "Bidirectional Encryption"
+    },
+    {
+     "number": "9.9",
+     "title": "Metadata Protection"
+    },
+    {
+     "number": "10",
+     "title": "Message Encoding"
+    },
+    {
+     "number": "11",
+     "title": "IANA Considerations"
+    },
+    {
+     "number": "11.1",
+     "title": "KEM Identifiers"
+    },
+    {
+     "number": "11.2",
+     "title": "KDF Identifiers"
+    },
+    {
+     "number": "11.3",
+     "title": "AEAD Identifiers"
+    },
+    {
+     "number": "12",
+     "title": "References"
+    },
+    {
+     "number": "12.1",
+     "title": "Normative References"
+    },
+    {
+     "number": "12.2",
+     "title": "Informative References"
+    },
+    {
+     "number": "A",
+     "title": "Test Vectors"
+    },
+    {
+     "number": "A.1",
+     "title": "DHKEM(X25519, HKDF-SHA256), HKDF-SHA256, AES-128-GCM"
+    },
+    {
+     "number": "A.1.1",
+     "title": "Base Setup Information"
+    },
+    {
+     "number": "A.1.1.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.1.1.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.1.2",
+     "title": "PSK Setup Information"
+    },
+    {
+     "number": "A.1.2.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.1.2.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.1.3",
+     "title": "Auth Setup Information"
+    },
+    {
+     "number": "A.1.3.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.1.3.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.1.4",
+     "title": "AuthPSK Setup Information"
+    },
+    {
+     "number": "A.1.4.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.1.4.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.2",
+     "title": "DHKEM(X25519, HKDF-SHA256), HKDF-SHA256, ChaCha20Poly1305"
+    },
+    {
+     "number": "A.2.1",
+     "title": "Base Setup Information"
+    },
+    {
+     "number": "A.2.1.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.2.1.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.2.2",
+     "title": "PSK Setup Information"
+    },
+    {
+     "number": "A.2.2.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.2.2.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.2.3",
+     "title": "Auth Setup Information"
+    },
+    {
+     "number": "A.2.3.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.2.3.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.2.4",
+     "title": "AuthPSK Setup Information"
+    },
+    {
+     "number": "A.2.4.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.2.4.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.3",
+     "title": "DHKEM(P-256, HKDF-SHA256), HKDF-SHA256, AES-128-GCM"
+    },
+    {
+     "number": "A.3.1",
+     "title": "Base Setup Information"
+    },
+    {
+     "number": "A.3.1.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.3.1.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.3.2",
+     "title": "PSK Setup Information"
+    },
+    {
+     "number": "A.3.2.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.3.2.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.3.3",
+     "title": "Auth Setup Information"
+    },
+    {
+     "number": "A.3.3.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.3.3.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.3.4",
+     "title": "AuthPSK Setup Information"
+    },
+    {
+     "number": "A.3.4.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.3.4.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.4",
+     "title": "DHKEM(P-256, HKDF-SHA256), HKDF-SHA512, AES-128-GCM"
+    },
+    {
+     "number": "A.4.1",
+     "title": "Base Setup Information"
+    },
+    {
+     "number": "A.4.1.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.4.1.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.4.2",
+     "title": "PSK Setup Information"
+    },
+    {
+     "number": "A.4.2.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.4.2.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.4.3",
+     "title": "Auth Setup Information"
+    },
+    {
+     "number": "A.4.3.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.4.3.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.4.4",
+     "title": "AuthPSK Setup Information"
+    },
+    {
+     "number": "A.4.4.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.4.4.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.5",
+     "title": "DHKEM(P-256, HKDF-SHA256), HKDF-SHA256, ChaCha20Poly1305"
+    },
+    {
+     "number": "A.5.1",
+     "title": "Base Setup Information"
+    },
+    {
+     "number": "A.5.1.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.5.1.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.5.2",
+     "title": "PSK Setup Information"
+    },
+    {
+     "number": "A.5.2.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.5.2.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.5.3",
+     "title": "Auth Setup Information"
+    },
+    {
+     "number": "A.5.3.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.5.3.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.5.4",
+     "title": "AuthPSK Setup Information"
+    },
+    {
+     "number": "A.5.4.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.5.4.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.6",
+     "title": "DHKEM(P-521, HKDF-SHA512), HKDF-SHA512, AES-256-GCM"
+    },
+    {
+     "number": "A.6.1",
+     "title": "Base Setup Information"
+    },
+    {
+     "number": "A.6.1.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.6.1.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.6.2",
+     "title": "PSK Setup Information"
+    },
+    {
+     "number": "A.6.2.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.6.2.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.6.3",
+     "title": "Auth Setup Information"
+    },
+    {
+     "number": "A.6.3.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.6.3.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.6.4",
+     "title": "AuthPSK Setup Information"
+    },
+    {
+     "number": "A.6.4.1",
+     "title": "Encryptions"
+    },
+    {
+     "number": "A.6.4.2",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.7",
+     "title": "DHKEM(X25519, HKDF-SHA256), HKDF-SHA256, Export-Only AEAD"
+    },
+    {
+     "number": "A.7.1",
+     "title": "Base Setup Information"
+    },
+    {
+     "number": "A.7.1.1",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.7.2",
+     "title": "PSK Setup Information"
+    },
+    {
+     "number": "A.7.2.1",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.7.3",
+     "title": "Auth Setup Information"
+    },
+    {
+     "number": "A.7.3.1",
+     "title": "Exported Values"
+    },
+    {
+     "number": "A.7.4",
+     "title": "AuthPSK Setup Information"
+    },
+    {
+     "number": "A.7.4.1",
+     "title": "Exported Values"
+    }
+   ],
+   "address_in_guide": "https://datatracker.ietf.org/doc/rfc9180/"
+  },
+  {
+   "name": "rfc5280",
+   "title": "IETF RFC 5280",
+   "assumptions": [
+    "x-rfc5280"
+   ],
+   "address": "https://www.rfc-editor.org/rfc/rfc5280.txt",
+   "retrieved": "2026-11-05",
+   "sha256": "a2f2628c0a83b873fc4786abd921f9b2c02395954b655d190bf16b831633345d",
+   "bytes": 352580,
+   "guide_names": "no version named",
+   "version_printed": [
+    "Request for Comments: 5280",
+    "May 2008"
+   ],
+   "copyright_printed": "Copyright (C) The IETF Trust (2008)",
+   "sections": [
+    {
+     "number": "1",
+     "title": "Introduction"
+    },
+    {
+     "number": "2",
+     "title": "Requirements and Assumptions"
+    },
+    {
+     "number": "2.1",
+     "title": "Communication and Topology"
+    },
+    {
+     "number": "2.2",
+     "title": "Acceptability Criteria"
+    },
+    {
+     "number": "2.3",
+     "title": "User Expectations"
+    },
+    {
+     "number": "2.4",
+     "title": "Administrator Expectations"
+    },
+    {
+     "number": "3",
+     "title": "Overview of Approach"
+    },
+    {
+     "number": "3.1",
+     "title": "X.509 Version 3 Certificate"
+    },
+    {
+     "number": "3.2",
+     "title": "Certification Paths and Trust"
+    },
+    {
+     "number": "3.3",
+     "title": "Revocation"
+    },
+    {
+     "number": "3.4",
+     "title": "Operational Protocols"
+    },
+    {
+     "number": "3.5",
+     "title": "Management Protocols"
+    },
+    {
+     "number": "4",
+     "title": "Certificate and Certificate Extensions Profile"
+    },
+    {
+     "number": "4.1",
+     "title": "Basic Certificate Fields"
+    },
+    {
+     "number": "4.1.1",
+     "title": "Certificate Fields"
+    },
+    {
+     "number": "4.1.1.1",
+     "title": "tbsCertificate"
+    },
+    {
+     "number": "4.1.1.2",
+     "title": "signatureAlgorithm"
+    },
+    {
+     "number": "4.1.1.3",
+     "title": "signatureValue"
+    },
+    {
+     "number": "4.1.2",
+     "title": "TBSCertificate"
+    },
+    {
+     "number": "4.1.2.1",
+     "title": "Version"
+    },
+    {
+     "number": "4.1.2.2",
+     "title": "Serial Number"
+    },
+    {
+     "number": "4.1.2.3",
+     "title": "Signature"
+    },
+    {
+     "number": "4.1.2.4",
+     "title": "Issuer"
+    },
+    {
+     "number": "4.1.2.5",
+     "title": "Validity"
+    },
+    {
+     "number": "4.1.2.5.1",
+     "title": "UTCTime"
+    },
+    {
+     "number": "4.1.2.5.2",
+     "title": "GeneralizedTime"
+    },
+    {
+     "number": "4.1.2.6",
+     "title": "Subject"
+    },
+    {
+     "number": "4.1.2.7",
+     "title": "Subject Public Key Info"
+    },
+    {
+     "number": "4.1.2.8",
+     "title": "Unique Identifiers"
+    },
+    {
+     "number": "4.1.2.9",
+     "title": "Extensions"
+    },
+    {
+     "number": "4.2",
+     "title": "Certificate Extensions"
+    },
+    {
+     "number": "4.2.1",
+     "title": "Standard Extensions"
+    },
+    {
+     "number": "4.2.1.1",
+     "title": "Authority Key Identifier"
+    },
+    {
+     "number": "4.2.1.2",
+     "title": "Subject Key Identifier"
+    },
+    {
+     "number": "4.2.1.3",
+     "title": "Key Usage"
+    },
+    {
+     "number": "4.2.1.4",
+     "title": "Certificate Policies"
+    },
+    {
+     "number": "4.2.1.5",
+     "title": "Policy Mappings"
+    },
+    {
+     "number": "4.2.1.6",
+     "title": "Subject Alternative Name"
+    },
+    {
+     "number": "4.2.1.7",
+     "title": "Issuer Alternative Name"
+    },
+    {
+     "number": "4.2.1.8",
+     "title": "Subject Directory Attributes"
+    },
+    {
+     "number": "4.2.1.9",
+     "title": "Basic Constraints"
+    },
+    {
+     "number": "4.2.1.10",
+     "title": "Name Constraints"
+    },
+    {
+     "number": "4.2.1.11",
+     "title": "Policy Constraints"
+    },
+    {
+     "number": "4.2.1.12",
+     "title": "Extended Key Usage"
+    },
+    {
+     "number": "4.2.1.13",
+     "title": "CRL Distribution Points"
+    },
+    {
+     "number": "4.2.1.14",
+     "title": "Inhibit anyPolicy"
+    },
+    {
+     "number": "4.2.1.15",
+     "title": "Freshest CRL (a.k.a. Delta CRL Distribution Point)"
+    },
+    {
+     "number": "4.2.2",
+     "title": "Private Internet Extensions"
+    },
+    {
+     "number": "4.2.2.1",
+     "title": "Authority Information Access"
+    },
+    {
+     "number": "4.2.2.2",
+     "title": "Subject Information Access"
+    },
+    {
+     "number": "5",
+     "title": "CRL and CRL Extensions Profile"
+    },
+    {
+     "number": "5.1",
+     "title": "CRL Fields"
+    },
+    {
+     "number": "5.1.1",
+     "title": "CertificateList Fields"
+    },
+    {
+     "number": "5.1.1.1",
+     "title": "tbsCertList"
+    },
+    {
+     "number": "5.1.1.2",
+     "title": "signatureAlgorithm"
+    },
+    {
+     "number": "5.1.1.3",
+     "title": "signatureValue"
+    },
+    {
+     "number": "5.1.2",
+     "title": "Certificate List \"To Be Signed\""
+    },
+    {
+     "number": "5.1.2.1",
+     "title": "Version"
+    },
+    {
+     "number": "5.1.2.2",
+     "title": "Signature"
+    },
+    {
+     "number": "5.1.2.3",
+     "title": "Issuer Name"
+    },
+    {
+     "number": "5.1.2.4",
+     "title": "This Update"
+    },
+    {
+     "number": "5.1.2.5",
+     "title": "Next Update"
+    },
+    {
+     "number": "5.1.2.6",
+     "title": "Revoked Certificates"
+    },
+    {
+     "number": "5.1.2.7",
+     "title": "Extensions"
+    },
+    {
+     "number": "5.2",
+     "title": "CRL Extensions"
+    },
+    {
+     "number": "5.2.1",
+     "title": "Authority Key Identifier"
+    },
+    {
+     "number": "5.2.2",
+     "title": "Issuer Alternative Name"
+    },
+    {
+     "number": "5.2.3",
+     "title": "CRL Number"
+    },
+    {
+     "number": "5.2.4",
+     "title": "Delta CRL Indicator"
+    },
+    {
+     "number": "5.2.5",
+     "title": "Issuing Distribution Point"
+    },
+    {
+     "number": "5.2.6",
+     "title": "Freshest CRL (a.k.a. Delta CRL Distribution Point)"
+    },
+    {
+     "number": "5.2.7",
+     "title": "Authority Information Access"
+    },
+    {
+     "number": "5.3",
+     "title": "CRL Entry Extensions"
+    },
+    {
+     "number": "5.3.1",
+     "title": "Reason Code"
+    },
+    {
+     "number": "5.3.2",
+     "title": "Invalidity Date"
+    },
+    {
+     "number": "5.3.3",
+     "title": "Certificate Issuer"
+    },
+    {
+     "number": "6",
+     "title": "Certification Path Validation"
+    },
+    {
+     "number": "6.1",
+     "title": "Basic Path Validation"
+    },
+    {
+     "number": "6.1.1",
+     "title": "Inputs"
+    },
+    {
+     "number": "6.1.2",
+     "title": "Initialization"
+    },
+    {
+     "number": "6.1.3",
+     "title": "Basic Certificate Processing"
+    },
+    {
+     "number": "6.1.4",
+     "title": "Preparation for Certificate i+1"
+    },
+    {
+     "number": "6.1.5",
+     "title": "Wrap-Up Procedure"
+    },
+    {
+     "number": "6.1.6",
+     "title": "Outputs"
+    },
+    {
+     "number": "6.2",
+     "title": "Using the Path Validation Algorithm"
+    },
+    {
+     "number": "6.3",
+     "title": "CRL Validation"
+    },
+    {
+     "number": "6.3.1",
+     "title": "Revocation Inputs"
+    },
+    {
+     "number": "6.3.2",
+     "title": "Initialization and Revocation State Variables"
+    },
+    {
+     "number": "6.3.3",
+     "title": "CRL Processing"
+    },
+    {
+     "number": "7",
+     "title": "Processing Rules for Internationalized Names"
+    },
+    {
+     "number": "7.1",
+     "title": "Internationalized Names in Distinguished Names"
+    },
+    {
+     "number": "7.2",
+     "title": "Internationalized Domain Names in GeneralName"
+    },
+    {
+     "number": "7.3",
+     "title": "Internationalized Domain Names in Distinguished Names"
+    },
+    {
+     "number": "7.4",
+     "title": "Internationalized Resource Identifiers"
+    },
+    {
+     "number": "7.5",
+     "title": "Internationalized Electronic Mail Addresses"
+    },
+    {
+     "number": "8",
+     "title": "Security Considerations"
+    },
+    {
+     "number": "9",
+     "title": "IANA Considerations"
+    },
+    {
+     "number": "10",
+     "title": "Acknowledgments"
+    },
+    {
+     "number": "11",
+     "title": "References"
+    },
+    {
+     "number": "11.1",
+     "title": "Normative References"
+    },
+    {
+     "number": "11.2",
+     "title": "Informative References"
+    },
+    {
+     "number": "A",
+     "title": "Pseudo-ASN.1 Structures and OIDs"
+    },
+    {
+     "number": "A.1",
+     "title": "Explicitly Tagged Module, 1988 Syntax"
+    },
+    {
+     "number": "A.2",
+     "title": "Implicitly Tagged Module, 1988 Syntax"
+    },
+    {
+     "number": "B",
+     "title": "ASN.1 Notes"
+    },
+    {
+     "number": "C",
+     "title": "Examples"
+    },
+    {
+     "number": "C.1",
+     "title": "RSA Self-Signed Certificate"
+    },
+    {
+     "number": "C.2",
+     "title": "End Entity Certificate Using RSA"
+    },
+    {
+     "number": "C.3",
+     "title": "End Entity Certificate Using DSA"
+    },
+    {
+     "number": "C.4",
+     "title": "Certificate Revocation List"
+    }
+   ],
+   "address_in_guide": "https://datatracker.ietf.org/doc/html/rfc5280"
+  }
+ ]
+}

@@ -23,8 +23,9 @@ IATA publishes [the same text](https://standards.atlassian.net/wiki/spaces/OneID
 The guide states no license, so this document cites it by section number, describes its rules in its own words, and quotes at most a few words.
 This is a proof of concept. It is not affiliated with or endorsed by IATA, and it is not an implementation of the standard.
 
-The guide builds on ISO, OpenID, W3C, IETF, ICAO and IATA specifications that this project has not read.
-The model takes from each only what the guide says about it.
+The guide builds on ISO, OpenID, W3C, IETF, ICAO and IATA specifications.
+The public ones (OpenID, W3C, IETF, ICAO, and IATA's guide to the boarding pass bar code) were fetched and read, and what this document says about them comes from their text, with the clause.
+The ISO/IEC documents and IATA Resolution 792 are sold and were not read: from each of those the model takes only what the guide says about it.
 Where a rule depends on the content of an external table or format, that content is a parameter of the rule, and a guarantee is proven only when it holds for every content the external clause could have.
 *Assumptions about external specifications* lists every such dependency with its citation.
 

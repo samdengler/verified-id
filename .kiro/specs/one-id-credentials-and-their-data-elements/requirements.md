@@ -10,7 +10,7 @@ every such credential has: a document type, namespaces, data elements
 identified within a namespace, and an end of validity.  The guide leaves the
 rest of the format to ISO/IEC 18013-5, which this project has not read.
 
-These requirements are generated from the Lean model in [`Rules/OneId/Mdoc.lean`](https://github.com/samdengler/verified-id/blob/main/Rules/OneId/Mdoc.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet. *Sources* lists the sections of the guide each rule was written from, *External specifications* lists the specifications it relies on that this project has not read, and *Confirmation* says whether anyone outside the model has confirmed the rule as written.
+These requirements are generated from the Lean model in [`Rules/OneId/Mdoc.lean`](https://github.com/samdengler/verified-id/blob/main/Rules/OneId/Mdoc.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet. *Sources* lists the sections of the guide each rule was written from, *External specifications* lists the specifications it relies on and whether this project has read each, and *Confirmation* says whether anyone outside the model has confirmed the rule as written.
 
 ## Requirements
 
@@ -22,7 +22,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/Mdoc.lean`
 
 **Sources:** [One ID Technical Implementation Guide 26.3, §4.1 Credential format and data model](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §4.1.1 photoid](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard)
 
-**External specifications:** ISO/IEC 18013-5:2021, §6.3.1, §8.3.1, §8.3.2
+**External specifications:** ISO/IEC 18013-5:2021, §6.3.1, §8.3.1, §8.3.2 (not read)
 
 **Confirmation:** Not confirmed yet.
 

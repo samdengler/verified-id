@@ -57,8 +57,27 @@ def load_status():
 
 
 def load_assumptions():
-    """The assumptions about external specifications, by key, with the declarations that rely on each."""
-    return {a["key"]: a for a in json.loads(STATUS.read_text())["assumptions"]}
+    """The assumptions about external specifications, by key, with the declarations that rely on each.
+    One that was read carries the record of the fetched document (sources/external.json) as `fetched`."""
+    fetched = {d["name"]: d for d in json.loads((ROOT / "sources" / "external.json").read_text())["documents"]}
+    out = {}
+    for a in json.loads(STATUS.read_text())["assumptions"]:
+        if a["read"]:
+            if a["document"] not in fetched:
+                sys.exit(f"assumption {a['key']} is marked read from {a['document']!r}, "
+                         "which sources/external.json does not record")
+            a["fetched"] = fetched[a["document"]]
+        out[a["key"]] = a
+    return out
+
+
+def read_text(a):
+    """How an assumption's specification was read, or why it was not."""
+    if not a["read"]:
+        return f"Not read: {a['notReadReason']}."
+    d = a["fetched"]
+    return (f"Read. The copy fetched on {d['retrieved']} prints {', '.join(d['version_printed'])}. "
+            f"SHA-256 {d['sha256'][:12]}.")
 
 
 def load_sources():
@@ -609,7 +628,8 @@ REFERENCE_CHAPTERS = [
     ("Overview", "How to read this document, where the material comes from, and what the build computes."),
     (QUESTIONS_TITLE, "The open guarantees, each with the example that shows the case and the question to answer."),
     ("Objects", "The credentials, data elements, findings and readings the rules talk about."),
-    (ASSUMPTIONS_TITLE, "What the model takes from the ISO, OpenID, IATA and other specifications it has not read."),
+    (ASSUMPTIONS_TITLE, "What the model takes from the ISO, OpenID, IATA and other specifications the guide "
+                        "refers to, and which of them this project has read."),
     ("EARS requirements", "Every requirement statement in one table."),
 ]
 
@@ -713,9 +733,11 @@ def relies_on_lines(rule, assumptions):
     def one(a):
         clause = verso_escape(f"{a['spec']}, {a['clause']}")
         return f"[{clause}]({a['url']})" if a.get("url") else clause
-    named = "; ".join(one(assumptions[k]) for k in keys)
-    return [f"It relies on specifications this project has not read: {named}. "
-            f"[{ASSUMPTIONS_TITLE}]({slug(ASSUMPTIONS_TITLE)}/) says what the model takes from each.", ""]
+    read = "; ".join(one(assumptions[k]) for k in keys if assumptions[k]["read"])
+    unread = "; ".join(one(assumptions[k]) for k in keys if not assumptions[k]["read"])
+    return [(f"It relies on specifications this project has read: {read}. " if read else "")
+            + (f"It relies on specifications this project has not read: {unread}. " if unread else "")
+            + f"[{ASSUMPTIONS_TITLE}]({slug(ASSUMPTIONS_TITLE)}/) says what the model takes from each.", ""]
 
 
 def render_assumptions(decls, titles, assumptions):
@@ -723,13 +745,20 @@ def render_assumptions(decls, titles, assumptions):
     used = [a for a in assumptions.values() if a["usedBy"]]
     later = [a for a in assumptions.values() if not a["usedBy"]]
     parts = [VERSO_HEADER, f'#doc (Manual) "{ASSUMPTIONS_TITLE}" =>', "%%%", 'tag := "assumptions"', "%%%", ""]
+    were_read = [a for a in assumptions.values() if a["read"]]
     parts += [
         "The One ID guide builds on ISO, OpenID, W3C, IETF, ICAO and IATA specifications. "
-        "This project has not read them. The model takes from each only what the guide itself says about it, "
-        "and each dependency is listed here with the clause the guide cites. "
+        "Each dependency is listed here with the clause the guide cites. "
         "A specification's name links to where it is published or sold, as the guide's reference list gives it. "
         f"{len(assumptions)} are recorded: {len(used)} that rules in the model rely on, and {len(later)} that "
         "belong to the presentation flows, which are not modelled yet.",
+        "",
+        f"{len(were_read)} of the {len(assumptions)} come from specifications that are public, which this project "
+        "fetched and read. For those, the last column says what the cited clause says, in our words, with the "
+        f"clause number. The other {len(assumptions) - len(were_read)} come from specifications that are sold or "
+        "not public, which this project has not read. For those, the last column says only what the guide itself "
+        "says about the clause. The column Read gives the version and the SHA-256 of the copy that was read, "
+        "or the reason there is none.",
         "",
         "Where a rule depends on the content of an external table or format, the rule takes that content as a "
         "parameter. A guarantee is proven only when it holds for every content the external clause could have.",
@@ -737,12 +766,13 @@ def render_assumptions(decls, titles, assumptions):
     ]
 
     def table(rows, with_users):
-        out = [":::table +header", "*", "  * Specification", "  * Clause", "  * Cited in the guide",
+        out = [":::table +header", "*", "  * Specification", "  * Clause", "  * Cited in the guide", "  * Read",
                "  * What the model takes from it"] + (["  * Relied on by"] if with_users else [])
         for a in rows:
             spec = verso_escape(a["spec"])
             out += ["*", f"  * [{spec}]({a['url']})" if a.get("url") else f"  * {spec}", f"  * {verso_escape(a['clause'])}",
-                    f"  * {verso_escape(a['guide'])}", f"  * {verso_escape(a['statement'])}"]
+                    f"  * {verso_escape(a['guide'])}", f"  * {verso_escape(read_text(a))}",
+                    f"  * {verso_escape(a['statement'])}"]
             if with_users:
                 users = sorted({titles.get(n, humanize(n.rsplit(".", 1)[-1])) for n in a["usedBy"]})
                 out.append(f"  * {verso_escape(', '.join(users))}")
@@ -847,7 +877,7 @@ def spec_dirs(decls):
 
 SPEC_PROVENANCE_NOTE = (
     " *Sources* lists the sections of the guide each rule was written from, *External specifications* lists "
-    "the specifications it relies on that this project has not read, and *Confirmation* says whether anyone "
+    "the specifications it relies on and whether this project has read each, and *Confirmation* says whether anyone "
     "outside the model has confirmed the rule as written."
 )
 
@@ -855,7 +885,8 @@ SPEC_PROVENANCE_NOTE = (
 def spec_provenance_lines(d, sources, assumptions):
     """The Sources, External specifications and Confirmation lines under a requirement's rule in its spec."""
     links = "; ".join(f"[{s['title']}]({s['url']}) ({s['kind']})" for s in rule_sources(d, sources))
-    external = "; ".join(f"{assumptions[k]['spec']}, {assumptions[k]['clause']}" for k in d.get("assumes", []))
+    external = "; ".join(f"{assumptions[k]['spec']}, {assumptions[k]['clause']} "
+                         f"({'read' if assumptions[k]['read'] else 'not read'})" for k in d.get("assumes", []))
     return (["", f"**Sources:** {links}"]
             + (["", f"**External specifications:** {external}"] if external else [])
             + ["", f"**Confirmation:** {confirmation_text(d)}"])
