@@ -100,8 +100,8 @@ People write the Lean files, the survey, the blueprint statements and the prose 
 | --- | --- | --- |
 | `lake build` | Checks every proof and every `#guard` | A proof is rejected, an example's value changes, or a rule names a source or an assumption that is not listed |
 | `lake exe status` | Computes each theorem's and criterion's status, each rule's fingerprint and provenance; writes `build/status.json` and the CSV exports | A theorem depends on `sorry` without `@[open_question]`, a rule has no `@[source]`, an EARS statement or criterion does not follow one EARS template, a rule lacks a story or criteria, or a `@[checks]` tag names a criterion no rule defines |
-| `lake exe oneid-facts` | Evaluates every scenario under every reading setting; writes `scenarios.json`, `readings.json` and `decisions.jsonl` to `build/one-id-data/` | The default scenario depends on a reading, a scenario disagrees with its example, the oracle answers a request differently from the model's functions, or a list in `Oracle/` or `Exports/` disagrees with the definitions it describes |
-| `scripts/replay_one_id.py` | Runs every decision through `lake exe oracle` | An answer differs from the recorded response |
+| `lake exe oneid-facts` | Evaluates every scenario under every reading setting; writes `scenarios.json`, `readings.json` and `decisions.jsonl` to `build/one-id-data/`, and the same three files for the presentations to `build/one-id-data/presentation/` | A default scenario depends on a reading, a scenario disagrees with its example, the oracle answers a request differently from the model's functions, or a list in `Oracle/` or `Exports/` disagrees with the definitions it describes |
+| `scripts/replay_one_id.py` | Runs every decision of both sets through `lake exe oracle` | An answer differs from the recorded response |
 | `scripts/export_one_id.py` | Writes `build/one-id-data/model.json` from `build/status.json` | An open theorem has no question |
 | `scripts/render_status.py` | Writes the review chapters, the blueprint's `\leanok` markers and the requirement specs | The blueprint names a declaration the build does not report, or `Review/Review.lean` misses a requirement chapter |
 | `scripts/check_survey.py` | Checks the survey, the blueprint, the model and the citations against each other | A survey entry has no node and no requirement, a grade disagrees with the blueprint, a count disagrees with the rows, or a citation names a section the guide does not have |
@@ -129,7 +129,7 @@ The site is not published anywhere. The repository is private and has no remote,
 
 ## The data a product site reads
 
-The build writes four files to `build/one-id-data/`, and the assembled site serves them at `/one-id-data/`. A product site, such as the One ID pages planned for [Verified Airline](https://github.com/samdengler/verified-airline), reads them instead of the Lean. Nothing in them is typed by hand: each result comes from the model's functions, each label from a Lean docstring, and each status from `build/status.json`. They cover the credential checks of §4.1. The presentation flows of §4.2 are in `model.json` as requirements and have no decisions yet.
+The build writes four files to `build/one-id-data/` and three more to `build/one-id-data/presentation/`, and the assembled site serves them at `/one-id-data/`. A product site, such as the One ID pages planned for [Verified Airline](https://github.com/samdengler/verified-airline), reads them instead of the Lean. Nothing in them is typed by hand: each result comes from the model's functions, each label from a Lean docstring, and each status from `build/status.json`. The top-level files cover the credential checks of §4.1, and the files in `presentation/` the presentation flows of §4.2. `model.json` lists the requirements of both.
 
 | File | Written by | What it holds |
 | --- | --- | --- |
@@ -137,8 +137,11 @@ The build writes four files to `build/one-id-data/`, and the assembled site serv
 | `readings.json` | `lake exe oneid-facts` | Every undecided point the checks take as a parameter, with its settings, the checks that read it, and the open criteria and questions it bears on |
 | `decisions.jsonl` | `lake exe oneid-facts` | Each scenario under each reading setting, as an oracle request with the model's response. These are the conformance vectors |
 | `model.json` | `scripts/export_one_id.py` | Every requirement with its criteria and their statuses, the open questions, and the identifier constants |
+| `presentation/scenarios.json` | `lake exe oneid-facts` | Presentations a site can show: what the wallet holds, the request it received, the consent, the relying party's request and the response it receives |
+| `presentation/readings.json` | `lake exe oneid-facts` | Every undecided point the presentation rules take as a parameter, in the shape of `readings.json`, with the profiles each applies in |
+| `presentation/decisions.jsonl` | `lake exe oneid-facts` | Each presentation scenario under each reading setting of its profile, and boundary vectors, in the shape of `decisions.jsonl` |
 
-The tables and the boarding pass format every scenario uses are the invented stand-ins of [`Rules/OneId/Examples.lean`](Rules/OneId/Examples.lean). Each scenario says so, and a site that shows one must say so too.
+The tables and the boarding pass format every scenario uses are the invented stand-ins of [`Rules/OneId/Examples.lean`](Rules/OneId/Examples.lean), and the ISO session transcripts of the presentations those of [`Rules/OneId/PresentationExamples.lean`](Rules/OneId/PresentationExamples.lean). Each scenario says so, and a site that shows one must say so too.
 
 ### The oracle
 
@@ -224,6 +227,44 @@ One line per scenario, check, credential and combination of the settings of the 
 
 `request` is a complete oracle request, so a team with only a JSON reader can run each line through its own code and compare the answer with `response`. After the scenarios come six boundary vectors for `expired`: a boarding pass one second before, at and one second after the end of its validity, under both expiry readings. Their `scenario` is null. A site finds the decision for a scenario, a check and the reader's settings by `scenario`, `request.rule` and `request.reading`; for `expired`, the credential's `docType` says which credential it is.
 
+### The presentation files
+
+The files in `presentation/` have the shapes of the top-level ones, with what a presentation needs added. The oracle answers ten more rules, each named after its Lean function:
+
+| `rule` | Requirement | Inputs besides `rule` and `reading` | Reading points |
+| --- | --- | --- | --- |
+| `Wallet.respond` | OID-201 | `isoTranscripts`, `held`, `seen`, `consent` | `ConsentReading` |
+| `refusals` | OID-202 | `isoTranscripts`, `trustedIssuers`, `request`, `response`, `now` | the points of `AcceptanceReading` for the request's profile, and `ExpiryReading.validAtEnd` |
+| `OpenId4Vp.requestFindings` | OID-203 | `authorization` | `OpenId4Vp.RequestReading.stateRequired` |
+| `OpenId4Vp.reuseFindings` | OID-203 | `authorizations` | none |
+| `OpenId4Vp.walletFindings` | OID-204 | `trustedVerifiers`, `seenOrigin`, `authorization` | `stateRequired` and the two points of `OpenId4Vp.WalletReading` |
+| `OpenId4Vp.transcript` | OID-205 | `origin`, `nonce`, `encryptionKey` | none |
+| `OpenId4Vp.tokenFindings` | OID-205 | `token`, a list of device responses, each a list of presented credentials | none |
+| `MdocProfile.requestFindings` | OID-206 | `deviceRequest` | none |
+| `pairRefusals` | OID-207 | those of `refusals`, with `resolution792`, `photoid` and `boardingPass` in place of `response` | those of `refusals`, and the two points of `PairReading` |
+| `Proximity.sessionFindings` | OID-301 | `sessions` | none |
+
+Keys, nonces, origins, issuers and certificates are symbolic, as in the model: `{"name": "phone"}`, `{"value": "nonce 1", "entropyBytes": 16}`, `{"value": "https://checkin.example"}`. A request is `{"profile", "origin", "nonce", "encryptionKey", "engagementKey", "elements"}`, where an element is `{"docType", "nameSpace", "identifier"}`. A presented credential is `{"mdoc", "issuer", "issuerSignatureValid", "deviceKey", "deviceSignature"}`, and a device signature `{"key", "transcript"}`. A session transcript is `{"handover": {"origin", "nonce", "encryptionKey"}}` in the OpenID4VP profile or `{"iso": "..."}` in the other two. The ISO transcripts are functions in the model, so `isoTranscripts` names one of two invented stand-ins, `exampleIsoTranscripts` or `transcriptsWithoutNonce`. Every other input is the Lean structure of the same name, with `null` for an absent optional field. Refusals and findings are a code and the constructor's arguments, as for the credential checks: `{"code": "missing", "element": {...}}`, `{"code": "refused", "reason": {"code": "expired", "docType": "org.iata.boardingpass.1"}}`.
+
+The points `refusals` and `pairRefusals` read depend on the profile of `request`: the extra data and missing data points of the mdoc profile there, the extra data and validity points of the OpenID4VP profile, and the four points of proximity. A request holds exactly those, and each entry of `presentation/readings.json` lists the `profiles` it applies in.
+
+A presentation scenario:
+
+```json
+{"id": "default-proximity", "profile": "proximity", "default": true,
+ "title": "Alice Martin taps a phone at the gate reader and approves everything asked",
+ "held": [{"mdoc": {...}, "subject": {"id": "traveler 1"}, "issuer": {"name": "Utopia passport office"},
+           "deviceKey": {"name": "phone"}}, ...],
+ "seen": {...}, "consent": {"approved": [...]}, "request": {...}, "response": {"documents": [...]},
+ "checkedAt": 1803889800, "trustedIssuers": [...], "isoTranscripts": "exampleIsoTranscripts",
+ "authorization": null, "seenOrigin": null, "trustedVerifiers": [], "deviceRequest": null,
+ "sessions": [{"deviceKey": {"name": "engagement 1"}, "readerKey": {"name": "reader key 1"},
+               "retrieval": "bluetoothLowEnergy"}],
+ "standIns": true, "example": null}
+```
+
+`seen` is the request as the wallet received it and `request` the relying party's own; they differ when a request is relayed through another origin or a response is replayed. `response` is what the relying party receives, which a wallet that breaks the rules may have made. `authorization`, `seenOrigin` and `trustedVerifiers` are the request as it travels in the OpenID4VP profile and the wallet's view of it, `deviceRequest` the request of the mdoc profile, and `sessions` the proximity sessions of one deployment. A field a scenario does not use is null or empty, and the rules that need it are not evaluated for it. Each profile has one default presentation, Alice Martin's honest check-in, and it gives every rule the same answer under every reading setting of its profile. A scenario that reproduces an example in one profile agrees with the part of the example about that profile. After the scenarios come boundary vectors, with `scenario` null, for the rules no scenario gives a finding: two requests that share a nonce or a key, a token with two mdocs in one device response, a malformed request of the mdoc profile, and proximity sessions that break each of the three rules.
+
 ### `model.json`
 
 The same shape as the `model.json` that verified-air's `scripts/export_airline.py` writes for Verified Airline, so the same code can show it: `source`, `requirements` keyed by ID (each with its Lean `name`, its `ears` in Kiro's notation, `review`, and `criteria` with `id`, `status` and `ears`), and `openQuestions` keyed by criterion (each with its `theorem`, the start of its `question`, and `review`). It differs in six ways:
@@ -237,7 +278,7 @@ The same shape as the `model.json` that verified-air's `scripts/export_airline.p
 
 ### Checking a site and an implementation
 
-`lake exe oneid-facts` stops, naming the case, if the default scenario depends on a reading, a scenario disagrees with its example, two decisions share a name, or the oracle's handler answers a request differently from the model's functions. It also stops if a list written beside the model disagrees with what it describes: the reading points of a rule with the definition of the rule, the points with the fields of the reading structures, the settings of a point with the constructors of its type, the open theorem of a point with its tag, its question and its `_of_` theorem, and the code of a finding with the name of its constructor. `scripts/replay_one_id.py` then runs every decision through `lake exe oracle`. `scripts/check-airline.sh` runs Verified Airline's own check of its One ID pages against these files, once that repository has a `model/one-id/` directory, and prints that it skipped until then.
+`lake exe oneid-facts` stops, naming the case, if the default scenario depends on a reading, a scenario disagrees with its example, two decisions share a name, or the oracle's handler answers a request differently from the model's functions. It also stops if a list written beside the model disagrees with what it describes: the reading points of a rule with the definition of the rule, the points with the fields of the reading structures, the settings of a point with the constructors of its type, the open theorem of a point with its tag, its question and its `_of_` theorem, and the code of a finding with the name of its constructor. For the presentations it also stops if a profile's default depends on a reading, if a point of the acceptance reading changes what a relying party does in a profile and the oracle does not list it for that profile or the reverse, and if `refusals` or `pairRefusals` read the acceptance reading other than through the four functions that pick a point by profile. `scripts/replay_one_id.py` then runs every decision of both sets through `lake exe oracle`. `scripts/check-airline.sh` runs Verified Airline's own check of its One ID pages against these files, once that repository has a `model/one-id/` directory, and prints that it skipped until then.
 
 ## Building locally
 
@@ -358,3 +399,11 @@ Choices made where the request left room, in the order they came up.
     - The header of the presentation theorems named the wrong module for its examples.
 
     The reviewer could not verify anything inside the ISO documents, and did not run the build.
+32. **The presentation flows are exported as well** (the model half of package 6, at Sam's request). The build now writes scenarios, readings and decisions for the presentation rules to `build/one-id-data/presentation/`, described in [The presentation files](#the-presentation-files). The top-level files keep exactly their content and shape, since Verified Airline's check fails if `readings.json` gains a point or `decisions.jsonl` a line its code cannot answer. Nothing under `Rules/` changed.
+    - The oracle answers ten presentation rules, one for each function a product would run, under its Lean name: what a wallet sends (OID-201), the relying party's refusals of a response and of a pair (OID-202, OID-207), the OpenID4VP request's findings and its reuse of nonces and keys (OID-203), the wallet's findings on a request (OID-204), the transcript and the token's findings (OID-205), the mdoc profile request's findings (OID-206) and the proximity sessions' findings (OID-301). They are in `Oracle/Presentation.lean`; `lake exe oracle` answers both kinds of request.
+    - The reading points a relying party reads depend on the profile, since each point of `AcceptanceReading` is stated for the profiles whose text leaves it open. A request carries the points of its own profile only, so the decisions vary three points in the OpenID4VP profile and the mdoc profile and five in proximity, where the full product would vary nine everywhere. The build checks the lists two ways. It tries every acceptance reading with each point flipped, and lists the points that change one of the four functions that pick a point by profile; that list must equal the oracle's for each profile. And it follows the definitions of `refusals` and `pairRefusals`, stopping at those four functions, and fails if any other path reaches a point of the acceptance reading.
+    - The default presentation is Alice Martin's honest check-in, once in each profile, with the same photoid and boarding pass as the default trip on one phone. It does not depend on a reading in any profile, so all three are marked default. Two choices make that so. The OpenID4VP request carries a state value, which both readings of the guide's sentence on state accept; without one, `OpenId4Vp.requestFindings` and `OpenId4Vp.walletFindings` would find a missing state under the reading that the guide's must is meant. And the check is at 08:30, before the boarding pass's validity ends at departure, so neither the validity readings nor the reading of the instant the validity ends can matter.
+    - The other eighteen scenarios reproduce the presentation examples. Where an example compares profiles (the partial response, the replay, the expired boarding pass), there is one scenario for each profile it names, and each agrees with the part of the example about its profile. The nonce outside the transcript is the mdoc replay with the other ISO stand-in. `MdocProfile.accepted_for_one_nonce` checks no criterion and bears on the ISO transcripts, which are an external parameter, so no reading point names it.
+    - A scenario holds the response the relying party receives as data. Most come from `Wallet.respond` under the consent reading the example uses; the extra element is the hand-built response of a wallet that breaks the rules. The decisions of `Wallet.respond` show what a wallet sends under each consent reading beside it.
+    - The ISO transcripts are functions in the model, so a request names one of the two stand-ins, as it names the boarding pass format. A scenario that has the request as it travels, in the OpenID4VP profile or the mdoc profile, is checked to have the relying party's request as its shared form.
+    - The rules no scenario gives a finding have boundary vectors instead: shared nonces and keys, a token with two mdocs in one device response, a malformed mdoc profile request, and proximity sessions that break each rule. The codes of refusals and findings are checked against their constructors as before; arguments that are not strings are built from the types' default values.

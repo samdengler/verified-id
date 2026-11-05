@@ -6,9 +6,10 @@ set_option doc.verso false
 /-!
 # `lake exe oneid-facts`
 
-Loads `Exports.Decisions` from its compiled `.olean` files and runs it in
-Lean's interpreter, the same way `lake exe oracle` runs the rules.  Importing
-the rules directly would make the executable link Mathlib's native code.
+Loads `Exports.PresentationDecisions`, which imports `Exports.Decisions`, from
+its compiled `.olean` files and runs it in Lean's interpreter, the same way
+`lake exe oracle` runs the rules.  Importing the rules directly would make
+the executable link Mathlib's native code.
 
     lake exe oneid-facts
 
@@ -23,14 +24,18 @@ Writes the data a product site reads to `build/one-id-data/`:
   check reads, as an oracle request with the model's response, and the
   boundary vectors for `expired`.
 
+and the same three files for the presentation rules to
+`build/one-id-data/presentation/` (`Exports/PresentationScenarios.lean`,
+`Exports/PresentationDecisions.lean`).
+
 It also writes `build/one-id-identifiers.json`, the document types,
 namespaces and data element identifiers with their values from the build,
 which `scripts/export_one_id.py` puts in `model.json`.
 
 It writes nothing and exits nonzero, naming the case, if:
 
-* the default scenario gives two results for one check under two reading
-  settings, a scenario disagrees with the example it reproduces, or the oracle
+* the default scenario, or the default presentation of a profile, gives two
+  results for one check under two reading settings, a scenario disagrees with the example it reproduces, or the oracle
   answers a request differently from the model's functions
   (`Exports.decisionLines`);
 * a scenario names an example that is not a `@[case]`;
@@ -41,8 +46,13 @@ It writes nothing and exits nonzero, naming the case, if:
   `@[open_question]`, its docstring does not end with a question, or its
   `_of_` theorem does not mention the point; or an open theorem of a credential
   rule bears on no point;
-* the code of a finding or an advisory in the oracle's JSON is not the name of
-  its constructor, or its fields are not the constructor's arguments.
+* the code of a finding, an advisory or a refusal in the oracle's JSON is not
+  the name of its constructor, or its fields are not the constructor's
+  arguments; or
+* a point of the acceptance reading changes a relying party's decision in a
+  profile and the oracle does not list it for that profile, or the reverse,
+  or `refusals` or `pairRefusals` read the acceptance reading other than
+  through `Exports.acceptanceDispatchers`.
 -/
 
 open Lean Meta
@@ -84,8 +94,9 @@ def duration (n : Nat) : String :=
   else unit n "second"
 
 /-- Every constant a declaration's type and value mention, following the
-definitions under `Rules` they use. -/
-def closure (env : Environment) (start : Name) : NameSet := Id.run do
+definitions under `Rules` they use, except those in `stop`, which are
+recorded and not followed. -/
+def closure (env : Environment) (start : Name) (stop : List Name := []) : NameSet := Id.run do
   let mut seen : NameSet := NameSet.empty.insert start
   let mut todo : Array Name := #[start]
   let mut i := 0
@@ -97,7 +108,7 @@ def closure (env : Environment) (start : Name) : NameSet := Id.run do
     for c in used do
       unless seen.contains c do
         seen := seen.insert c
-        if (`Rules).isPrefixOf c && (env.find? c matches some (.defnInfo _)) then
+        if (`Rules).isPrefixOf c && !stop.contains c && (env.find? c matches some (.defnInfo _)) then
           todo := todo.push c
   return seen
 
@@ -117,12 +128,13 @@ def plainLabel : Json → Option String
   | .num n => if n.exponent == 0 && n.mantissa ≥ 0 then some (duration n.mantissa.toNat) else none
   | _ => none
 
-/-- The open theorems of the model that check a credential criterion
-(OID-101 to OID-199). -/
-def credentialQuestions (env : Environment) : List Name :=
+/-- The open theorems of the model that check a criterion whose ID starts with
+one of `prefixes`: `OID-1` for the credential rules, `OID-2` and `OID-3` for
+the presentation rules. -/
+def questionsChecking (env : Environment) (prefixes : List String) : List Name :=
   env.constants.toList.filterMap fun (n, ci) =>
     if (`Rules.OneId).isPrefixOf n && ci matches .thmInfo _ && Rules.Core.openQuestionAttr.hasTag env n &&
-      (((Rules.Core.checksAttr.getParam? env n).getD "").splitOn " ").any (·.startsWith "OID-1")
+      (((Rules.Core.checksAttr.getParam? env n).getD "").splitOn " ").any (fun c => prefixes.any fun pre => c.startsWith pre)
     then some n else none
 
 /-- One question a point bears on, or what is wrong with its theorem. -/
@@ -193,9 +205,32 @@ def pointEntry (rules : List (String × Name × List String)) (theorems : List N
     ("settings", Json.arr settingEntries), ("asWritten", asWritten), ("checks", jsonList checks),
     ("criteria", jsonList criteria), ("questions", Json.arr entries)])
 
-/-- Nothing, or where the oracle's JSON for a finding or an advisory differs
-from its constructor: the code must be the constructor's name and the fields
-its arguments. -/
+/-- A value of a type, to build a constructor with: a string or a number, the
+default of an inhabited type, or else the first constructor whose arguments
+can be built. -/
+partial def sampleOf (ty : Expr) (depth : Nat := 3) : MetaM (Option Expr) := do
+  if ty.isConstOf ``String then return some (mkStrLit "x")
+  if ty.isConstOf ``Nat then return some (mkNatLit 2)
+  if depth == 0 then return none
+  if let some inst ← synthInstance? (← mkAppM ``Inhabited #[ty]) then
+    return some (← mkAppOptM ``Inhabited.default #[ty, inst])
+  let some n := ty.constName? | return none
+  let some (.inductInfo info) := (← getEnv).find? n | return none
+  for ctor in info.ctors do
+    let built ← forallTelescopeReducing (← getConstInfoCtor ctor).type fun xs _ => do
+      let mut args := #[]
+      for x in xs do
+        match ← sampleOf (← inferType x) (depth - 1) with
+        | some a => args := args.push a
+        | none => return none
+      return some (mkAppN (mkConst ctor) args)
+    if built.isSome then return built
+  return none
+
+/-- Nothing, or where the oracle's JSON for a finding, an advisory or a
+refusal differs from its constructor: the code must be the constructor's name
+and the fields its arguments.  A string argument is given its own name as its
+value, which must come back under that name. -/
 def codecErrors (ty encoder : Name) : MetaM (List String) := do
   let mut errors := []
   for ctor in (← getConstInfoInduct ty).ctors do
@@ -203,17 +238,22 @@ def codecErrors (ty encoder : Name) : MetaM (List String) := do
     let err ← forallTelescopeReducing info.type fun xs _ => do
       let mut args := #[]
       for x in xs do
-        unless (← inferType x).isConstOf ``String do return some s!"{ctor} has an argument that is not a string"
-        args := args.push (mkStrLit (← x.fvarId!.getUserName).toString)
+        let t ← inferType x
+        if t.isConstOf ``String then args := args.push (mkStrLit (← x.fvarId!.getUserName).toString)
+        else match ← sampleOf t with
+          | some a => args := args.push a
+          | none => return some s!"cannot build an argument of {ctor} to check {encoder}"
       let names := (← xs.mapM fun x => x.fvarId!.getUserName).toList.map (·.toString)
+      let strings ← xs.filterMapM fun x => do
+        let n ← x.fvarId!.getUserName
+        return if (← inferType x).isConstOf ``String then some n.toString else none
       let j ← unsafe evalExpr Json (mkConst ``Json) (mkApp (mkConst encoder) (mkAppN (mkConst ctor) args))
       let keys := ((j.getObj?.toOption.map (·.toList.map (·.1))).getD []).filter (· != "code")
       if (j.getObjValAs? String "code").toOption != some ctor.getString! then
         return some s!"{encoder} gives {ctor} the code {(j.getObjValD "code").compress}"
       unless keys.all names.contains && names.all keys.contains do
         return some s!"{encoder} gives {ctor} the fields {keys}, and its arguments are {names}"
-      -- Each argument was given its own name as its value.
-      for n in names do
+      for n in strings do
         if j.getObjValD n != toJson n then
           return some s!"{encoder} puts the wrong argument of {ctor} under {n}"
       return none
@@ -239,13 +279,55 @@ def identifiersJson (env : Environment) (table : List (String × List (Name × O
     kinds := kinds.push (kind, Json.arr entries)
   return .ok (Json.mkObj kinds.toList)
 
+/-- The rules of a table, each with every reading point it reads in any
+profile. -/
+def unionPoints (table : List (String × Name × List (String × List String))) : List (String × Name × List String) :=
+  table.map fun (r, fn, entries) => (r, fn, (entries.flatMap (·.2)).eraseDups)
+
+/-- The checks of one set of reading points against the definitions, and its
+`readings.json`, or every error.  `questionPrefixes` names the criteria whose
+open theorems must each bear on a point. -/
+def readingsOf (label : String) (rules : List (String × Name × List String))
+    (pointTable : List (String × Name × Option Name × List Json × List Name)) (structures : List Name)
+    (questionPrefixes : List String) : MetaM (List String × Array Json) := do
+  let env ← getEnv
+  let mut errors : List String := []
+  -- The reading points each rule's definition reads, against the oracle's list.
+  for (rule, fn, listed) in rules do
+    let used := closure env fn
+    let reads := pointTable.filterMap fun (id, lean, _) => if used.contains lean then some id else none
+    unless reads.all listed.contains && listed.all reads.contains do
+      errors := errors ++ [s!"{rule}: its definition reads {reads}, and the oracle lists {listed}"]
+  -- Every field of a reading structure is a point.
+  for st in structures do
+    for f in getStructureFields env st do
+      unless pointTable.any (·.2.1 == st ++ f) do
+        errors := errors ++ [s!"the field {st ++ f} is not a reading point of the {label} readings"]
+  let theorems := env.constants.toList.filterMap fun (n, ci) =>
+    if (`Rules.OneId).isPrefixOf n && ci matches .thmInfo _ then some n else none
+  let mut readings := #[]
+  for pt in pointTable do
+    match ← pointEntry rules theorems pt with
+    | .ok e => readings := readings.push e
+    | .error e => errors := errors ++ [e]
+  let linked := pointTable.flatMap (·.2.2.2.2)
+  for q in questionsChecking env questionPrefixes do
+    unless linked.contains q do
+      errors := errors ++ [s!"the open theorem {q} bears on no reading point of the {label} readings"]
+  return (errors, readings)
+
+/-- What `lake exe oneid-facts` writes beside the decisions. -/
+structure Described where
+  readings : Json
+  presentationReadings : Json
+  identifiers : Json
+
 /-- Every check that needs the environment: the rules against their
 definitions, the readings, the examples and the oracle's JSON.  The readings
 and the identifiers as JSON, or every error. -/
-def checkAndDescribe : MetaM (Except (List String) (Json × Json)) := do
+def checkAndDescribe : MetaM (Except (List String) Described) := do
   let env ← getEnv
-  let eval {α} (n : Name) : Except String α := unsafe env.evalConst α {} n
-  let get {α} (n : Name) : MetaM (Except String α) := pure (eval n)
+  let get {α} (n : Name) : MetaM (Except String α) := pure (unsafe env.evalConst α {} n)
   let .ok rules ← get (α := List (String × Name × List String)) `Oracle.rules | return .error ["cannot read Oracle.rules"]
   let .ok pointTable ← get (α := List (String × Name × Option Name × List Json × List Name)) `Exports.pointTable
     | return .error ["cannot read Exports.pointTable"]
@@ -254,43 +336,62 @@ def checkAndDescribe : MetaM (Except (List String) (Json × Json)) := do
     | return .error ["cannot read Exports.scenarioExamples"]
   let .ok identifiers ← get (α := List (String × List (Name × Option Name))) `Exports.identifierTable
     | return .error ["cannot read Exports.identifierTable"]
+  let .ok pRules ← get (α := List (String × Name × List (String × List String))) `Oracle.presentationRules
+    | return .error ["cannot read Oracle.presentationRules"]
+  let .ok pTable ← get (α := List (String × Name × Option Name × List Json × List Name)) `Exports.presentationPointTable
+    | return .error ["cannot read Exports.presentationPointTable"]
+  let .ok pStructures ← get (α := List Name) `Exports.presentationStructures
+    | return .error ["cannot read Exports.presentationStructures"]
+  let .ok pExamples ← get (α := List (String × Name)) `Exports.presentationScenarioExamples
+    | return .error ["cannot read Exports.presentationScenarioExamples"]
+  let .ok dispatchers ← get (α := List Name) `Exports.acceptanceDispatchers
+    | return .error ["cannot read Exports.acceptanceDispatchers"]
+  let .ok influence ← get (α := List String) `Exports.acceptanceInfluenceErrors
+    | return .error ["cannot read Exports.acceptanceInfluenceErrors"]
   let mut errors : List String := []
-  -- The reading points each rule's definition reads, against Oracle.rules.
-  for (rule, fn, listed) in rules do
-    let used := closure env fn
-    let reads := pointTable.filterMap fun (id, lean, _) => if used.contains lean then some id else none
-    unless reads.all listed.contains && listed.all reads.contains do
-      errors := errors ++ [s!"{rule}: its definition reads {reads}, and Oracle.rules lists {listed}"]
-  -- Every field of a reading structure is a point.
-  for s in structures do
-    for f in getStructureFields env s do
-      unless pointTable.any (·.2.1 == s ++ f) do
-        errors := errors ++ [s!"the field {s ++ f} is not a reading point in Exports.points"]
   -- The examples the scenarios reproduce.
-  for (id, n) in examples do
+  for (id, n) in examples ++ pExamples do
     unless Rules.Core.caseAttr.hasTag env n do
       errors := errors ++ [s!"scenario {id} reproduces {n}, which is not a @[case] example"]
-  -- The oracle's JSON for findings and advisories.
-  errors := errors ++ (← codecErrors `Rules.OneId.Finding `Oracle.findingJson) ++
-    (← codecErrors `Rules.OneId.Advisory `Oracle.advisoryJson)
-  -- The readings.
-  let theorems := env.constants.toList.filterMap fun (n, ci) =>
-    if (`Rules.OneId).isPrefixOf n && ci matches .thmInfo _ then some n else none
-  let mut readings := #[]
-  for p in pointTable do
-    match ← pointEntry rules theorems p with
-    | .ok e => readings := readings.push e
-    | .error e => errors := errors ++ [e]
-  let linked := pointTable.flatMap (·.2.2.2.2)
-  for q in credentialQuestions env do
-    unless linked.contains q do
-      errors := errors ++ [s!"the open theorem {q} bears on no reading point in Exports.points"]
+  -- The oracle's JSON for findings, advisories and refusals.
+  for (ty, encoder) in [(`Rules.OneId.Finding, `Oracle.findingJson), (`Rules.OneId.Advisory, `Oracle.advisoryJson),
+      (`Rules.OneId.Refusal, `Oracle.refusalJson), (`Rules.OneId.PairRefusal, `Oracle.pairRefusalJson),
+      (`Rules.OneId.OpenId4Vp.RequestFinding, `Oracle.requestFindingJson),
+      (`Rules.OneId.OpenId4Vp.WalletFinding, `Oracle.walletFindingJson),
+      (`Rules.OneId.OpenId4Vp.ReuseFinding, `Oracle.reuseFindingJson),
+      (`Rules.OneId.OpenId4Vp.TokenFinding, `Oracle.tokenFindingJson),
+      (`Rules.OneId.MdocProfile.RequestFinding, `Oracle.mdocRequestFindingJson),
+      (`Rules.OneId.Proximity.SessionFinding, `Oracle.sessionFindingJson)] do
+    errors := errors ++ (← codecErrors ty encoder)
+  -- The credential readings.
+  let (es, readings) ← readingsOf "credential" rules pointTable structures ["OID-1"]
+  errors := errors ++ es
+  -- The presentation readings.  A relying party reads an acceptance reading
+  -- only through the four functions that pick a point by profile, and the
+  -- points each of them reads in a profile are the ones the oracle lists.
+  let pUnion := unionPoints pRules
+  let (es, pReadings) ← readingsOf "presentation" pUnion pTable pStructures ["OID-2", "OID-3"]
+  errors := errors ++ es ++ influence
+  let acceptanceFields := (getStructureFields env `Rules.OneId.AcceptanceReading).toList.map
+    (`Rules.OneId.AcceptanceReading ++ ·)
+  for fn in [`Rules.OneId.refusals, `Rules.OneId.pairRefusals] do
+    let used := closure env fn dispatchers
+    if let some f := acceptanceFields.find? used.contains then
+      errors := errors ++ [s!"{fn} reads {f} other than through {dispatchers}"]
+  let pReadings := pReadings.map fun e =>
+    let id := (e.getObjValAs? String "id").toOption.getD ""
+    let profs := (pRules.flatMap fun (_, _, entries) => entries.filterMap fun (p, ps) =>
+      if ps.contains id then some p else none).eraseDups
+    e.setObjVal! "profiles" (jsonList profs)
   let ids ← match ← identifiersJson env identifiers with
     | .ok j => pure j
     | .error e => errors := errors ++ [e]; pure Json.null
   if !errors.isEmpty then return .error errors
-  return .ok (Json.mkObj [("generatedBy", toJson "lake exe oneid-facts"), ("readings", Json.arr readings)],
-    Json.mkObj [("generatedBy", toJson "lake exe oneid-facts"), ("identifiers", ids)])
+  return .ok {
+    readings := Json.mkObj [("generatedBy", toJson "lake exe oneid-facts"), ("readings", Json.arr readings)],
+    presentationReadings :=
+      Json.mkObj [("generatedBy", toJson "lake exe oneid-facts"), ("readings", Json.arr pReadings)],
+    identifiers := Json.mkObj [("generatedBy", toJson "lake exe oneid-facts"), ("identifiers", ids)] }
 
 end OneIdFacts
 
@@ -298,26 +399,36 @@ open OneIdFacts in
 def main : IO UInt32 := do
   initSearchPath (← findSysroot)
   unsafe enableInitializersExecution
-  let env ← importModules #[{ module := `Exports.Decisions }] {} (loadExts := true)
+  let env ← importModules #[{ module := `Exports.PresentationDecisions }] {} (loadExts := true)
   let fail (errors : List String) : IO UInt32 := do
     for e in errors do IO.eprintln s!"oneid-facts: {e}"
     return 1
-  let lines ← IO.ofExcept <| unsafe env.evalConst (Except String (List String)) {} `Exports.decisionLines
-  let lines ← match lines with
+  let linesOf (n : Name) : IO (Except String (List String)) :=
+    IO.ofExcept <| unsafe env.evalConst (Except String (List String)) {} n
+  let lines ← match ← linesOf `Exports.decisionLines with
+    | .ok ls => pure ls
+    | .error e => return ← fail [e]
+  let pLines ← match ← linesOf `Exports.presentationDecisionLines with
     | .ok ls => pure ls
     | .error e => return ← fail [e]
   let scenarios ← IO.ofExcept <| unsafe env.evalConst Json {} `Exports.scenariosJson
+  let pScenarios ← IO.ofExcept <| unsafe env.evalConst Json {} `Exports.presentationScenariosJson
   let ctx : Core.Context := { fileName := "<oneid-facts>", fileMap := default }
   let ((described, _), _) ← (checkAndDescribe.run {} {}).toIO ctx { env }
-  let (readings, identifiers) ← match described with
+  let d ← match described with
     | .ok r => pure r
     | .error es => return ← fail es
-  IO.FS.createDirAll "build/one-id-data"
+  IO.FS.createDirAll "build/one-id-data/presentation"
   IO.FS.writeFile "build/one-id-data/scenarios.json" (scenarios.pretty ++ "\n")
-  IO.FS.writeFile "build/one-id-data/readings.json" (readings.pretty ++ "\n")
+  IO.FS.writeFile "build/one-id-data/readings.json" (d.readings.pretty ++ "\n")
   IO.FS.writeFile "build/one-id-data/decisions.jsonl" ("\n".intercalate lines ++ "\n")
-  IO.FS.writeFile "build/one-id-identifiers.json" (identifiers.pretty ++ "\n")
-  let nScenarios := ((scenarios.getObjVal? "scenarios" >>= Json.getArr?).toOption.map (·.size)).getD 0
-  let nReadings := ((readings.getObjVal? "readings" >>= Json.getArr?).toOption.map (·.size)).getD 0
-  IO.println s!"wrote build/one-id-data/: {nScenarios} scenarios, {nReadings} reading points, {lines.length} decisions"
+  IO.FS.writeFile "build/one-id-data/presentation/scenarios.json" (pScenarios.pretty ++ "\n")
+  IO.FS.writeFile "build/one-id-data/presentation/readings.json" (d.presentationReadings.pretty ++ "\n")
+  IO.FS.writeFile "build/one-id-data/presentation/decisions.jsonl" ("\n".intercalate pLines ++ "\n")
+  IO.FS.writeFile "build/one-id-identifiers.json" (d.identifiers.pretty ++ "\n")
+  let count (j : Json) (key : String) := ((j.getObjVal? key >>= Json.getArr?).toOption.map (·.size)).getD 0
+  IO.println s!"wrote build/one-id-data/: {count scenarios "scenarios"} scenarios, {count d.readings "readings"} \
+    reading points, {lines.length} decisions"
+  IO.println s!"wrote build/one-id-data/presentation/: {count pScenarios "scenarios"} scenarios, \
+    {count d.presentationReadings "readings"} reading points, {pLines.length} decisions"
   return 0

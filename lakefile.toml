@@ -51,7 +51,7 @@ supportInterpreter = true
 # into Lean's interpreter (see Oracle/Main.lean).
 [[lean_lib]]
 name = "Oracle"
-roots = ["Oracle.Handle"]
+roots = ["Oracle.Handle", "Oracle.Presentation"]
 
 [[lean_exe]]
 name = "oracle"
@@ -65,7 +65,8 @@ supportInterpreter = true
 # the specs do not include them.
 [[lean_lib]]
 name = "Exports"
-roots = ["Exports.Scenarios", "Exports.Readings", "Exports.Decisions"]
+roots = ["Exports.Scenarios", "Exports.Readings", "Exports.Decisions", "Exports.PresentationScenarios",
+  "Exports.PresentationDecisions"]
 
 [[lean_exe]]
 name = "oneid-facts"

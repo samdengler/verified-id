@@ -36,5 +36,6 @@ optional blueprint/print/print.pdf site/blueprint/print.pdf
 cp -r .kiro/specs site/specs
 cp build/ears.md build/ears.csv build/ears-criteria.csv build/provenance.csv build/assumptions.csv \
   build/ranking.json build/status.json site/
-# The scenarios, readings, decisions and model.json a product site reads.
+# The scenarios, readings, decisions and model.json a product site reads, with
+# the presentations in one-id-data/presentation/.
 cp -r build/one-id-data site/one-id-data

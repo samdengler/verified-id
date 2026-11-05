@@ -15,7 +15,8 @@ lake build
 # @[source], a malformed EARS statement, or a criterion nothing defines.
 lake exe status
 # The data a product site reads, in build/one-id-data/: the scenarios, the
-# readings and every decision (Exports/).  Fails if the default scenario
+# readings and every decision (Exports/), for the credential checks and, in
+# presentation/, the presentation rules.  Fails if a default scenario
 # depends on a reading, a scenario disagrees with its example, or the oracle
 # answers a request differently from the model's functions.  Then every
 # decision replayed through the oracle executable, and model.json.
