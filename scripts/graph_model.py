@@ -43,8 +43,8 @@ SHORT = {
 }
 
 # The order statuses are listed in, on every page.
-STATUS_ORDER = ["modelled", "proven", "open", "decision", "ready", "waiting"]
-QUESTION = {"open", "decision"}
+STATUS_ORDER = ["modelled", "proven", "open", "decision", "source", "ready", "waiting"]
+QUESTION = {"open", "decision", "source"}
 
 
 def slug(area):
@@ -133,13 +133,15 @@ class Model:
         areas = [a for a in self.order if any(self.by[x]["section"] == a for x in down)]
         return {"count": len(down), "areas": areas, "cards": [n for n in self.nodes if n["label"] in down]}
 
-    def ranking(self, limit=None):
-        """Open questions and decisions, by the number of cards that depend on
-        them, then by the number of areas those cards are in, then by title.
-        A card with nothing depending on it comes last, with a count of 0."""
+    def ranking(self, limit=None, lookup=None):
+        """Open questions, decisions and lookups, by the number of cards that
+        depend on them, then by the number of areas those cards are in, then
+        by title.  A card with nothing depending on it comes last, with a
+        count of 0.  With `lookup` true, only the questions a cited clause
+        would settle; with it false, only the others."""
         rows = []
         for n in self.nodes:
-            if n["status"] in QUESTION:
+            if n["status"] in QUESTION and (lookup is None or bool(n.get("lookup")) == lookup):
                 rows.append({"node": n, **self.impact(n["label"])})
         rows.sort(key=lambda r: (-r["count"], -len(r["areas"]), r["node"]["title"]))
         return rows[:limit] if limit else rows

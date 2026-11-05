@@ -13,11 +13,15 @@ rules from the survey of the One ID guide, each with a status in plain words:
   Proven           a guarantee Lean has checked for every input
   Open question    a guarantee with no proof, marked as a question for the business
   Needs a decision a candidate the guide states vaguely or not at all
+  Needs a source   a candidate whose question a cited specification, not yet
+                   read, would settle
   Ready to build   a candidate whose dependencies are all in Lean
   Waiting          a candidate that depends on candidates not yet in Lean
 
 "Decide these first" ranks the open questions and the decisions by how many
-cards depend on each, directly or through other cards.  The open questions
+cards depend on each, directly or through other cards.  "Look these up first"
+ranks, the same way, the questions that reading a cited clause would settle:
+a node says so with a paragraph that starts with Lookup:.  The open questions
 are listed one line each, grouped by area, with the example and the open
 point behind a click.
 
@@ -53,6 +57,7 @@ STATUSES = {
     "proven": ("Proven", "✓", "guarantees proven"),
     "open": ("Open question", "!", "open questions"),
     "decision": ("Needs a decision", "?", "need a business decision"),
+    "source": ("Needs a source", "§", "need a source to be read"),
     "ready": ("Ready to build", "→", "ready to build"),
     "waiting": ("Waiting", "…", "waiting on other rules"),
 }
@@ -115,6 +120,7 @@ def parse_nodes(src=None):
             "chapter": chapter,
             "section": section,
             "paras": paras,
+            "lookup": next((p.split(":", 1)[1].strip() for p in paras if p.startswith("Lookup:")), None),
         })
     return nodes
 
@@ -130,7 +136,7 @@ def classify(nodes, decls):
             states = {decls[x]["status"] for x in n["lean"]}
             n["status"] = "open" if "open" in states else ("proven" if n["env"] != "definition" else "modelled")
         elif n["notready"]:
-            n["status"] = "decision"
+            n["status"] = "source" if n["lookup"] else "decision"
         elif all(is_done(by_label[u], decls) for u in n["uses"] if u in by_label):
             n["status"] = "ready"
         else:
@@ -154,14 +160,16 @@ def shown(nodes, decls):
     return out
 
 
-LABELLED = {"Counterexample:": "found", "Case to check:": "case", "Open point:": "question", "Blocks:": "blocks",
+LABELLED = {"Counterexample:": "found", "Case to check:": "case", "Open point:": "question", "Lookup:": "lookup",
+            "Blocks:": "blocks",
             "External:": "external", "Source:": "source", "Sources:": "source"}
 
 
 def split_question(n):
     """The description and the labelled paragraphs of a node: the
-    counterexample or case to check, the open point, the guarantees it blocks,
-    the external specifications it depends on, and the source."""
+    counterexample or case to check, the open point, the clause that would
+    settle it, the guarantees it blocks, the external specifications it
+    depends on, and the source."""
     out = {"desc": []}
     for p in n["paras"]:
         for prefix, key in LABELLED.items():
@@ -226,7 +234,8 @@ def card(n):
     extra = "".join(
         f'<p class="{cls}"><strong>{label}:</strong> {q[key]}</p>'
         for key, cls, label in (("found", "found-line", "Counterexample"), ("case", "found-line", "Case to check"),
-                                ("question", "question", "Open point"), ("blocks", "question", "Blocks"))
+                                ("question", "question", "Open point"), ("lookup", "lookup", "Answered by reading"),
+                                ("blocks", "question", "Blocks"))
         if q.get(key))
     foot = "".join(f'<p class="source">{label}: {q[key]}</p>'
                    for key, label in (("external", "External"), ("source", "Source")) if q.get(key))
@@ -242,7 +251,8 @@ CSS = """
 :root { color-scheme: light;
   --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
   --hair: #e1e0d9; --ring: rgba(11,11,11,0.10); --axis: #b9b8b0;
-  --good: #0ca30c; --lean: #e87ba4; --warning: #fab219; --critical: #d03b3b; --ready: #2a78d6; --waiting: #898781; }
+  --good: #0ca30c; --lean: #e87ba4; --warning: #fab219; --critical: #d03b3b; --ready: #2a78d6; --waiting: #898781;
+  --source: #7b61c9; }
 @media (prefers-color-scheme: dark) { :root { color-scheme: dark;
   --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
   --hair: #2c2c2a; --ring: rgba(255,255,255,0.10); --axis: #55544f; --ready: #3987e5; } }
@@ -261,7 +271,7 @@ h1 { font-size: 30px; line-height: 1.2; margin: 0 0 10px; letter-spacing: -0.01e
 h2 { font-size: 20px; margin: 44px 0 6px; }
 h2 + .sub { color: var(--ink-2); margin: 0 0 16px; max-width: 760px; }
 h3 { font-size: 15px; margin: 26px 0 10px; color: var(--ink-2); font-weight: 600; }
-.tiles { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.tiles { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
 .tile { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 14px 14px 12px; }
 .tile .n { font-size: 32px; font-weight: 650; line-height: 1; display: flex; align-items: center; gap: 8px; }
 .tile .l { color: var(--ink-2); font-size: 13px; margin-top: 6px; }
@@ -275,6 +285,7 @@ h3 { font-size: 15px; margin: 26px 0 10px; color: var(--ink-2); font-weight: 600
 .s-proven .ico, .bar .s-proven { background: var(--good); }
 .s-open .ico, .bar .s-open { background: var(--critical); }
 .s-decision .ico, .bar .s-decision { background: var(--warning); color: #0b0b0b; }
+.s-source .ico, .bar .s-source { background: var(--source); }
 .s-ready .ico, .bar .s-ready { background: var(--ready); }
 .s-waiting .ico, .bar .s-waiting { background: var(--waiting); }
 .found { background: var(--surface); border: 1px solid var(--ring); border-left: 4px solid var(--critical);
@@ -288,6 +299,9 @@ h3 { font-size: 15px; margin: 26px 0 10px; color: var(--ink-2); font-weight: 600
 .card.s-proven { border-top-color: var(--good); }
 .card.s-open { border-top-color: var(--critical); }
 .card.s-decision { border-top-color: var(--warning); }
+.card.s-source { border-top-color: var(--source); }
+.card .lookup, .oq-body .lookup { color: var(--ink); background: color-mix(in srgb, var(--source) 13%, transparent);
+  border-radius: 6px; padding: 6px 8px; margin-top: 8px; }
 .card.s-ready { border-top-color: var(--ready); }
 /* The title's link covers the whole card; links inside it sit above. */
 .card { position: relative; transition: border-color .15s; }
@@ -318,6 +332,10 @@ h3 { font-size: 15px; margin: 26px 0 10px; color: var(--ink-2); font-weight: 600
 .ranking .rk-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; font-size: 13px; color: var(--ink-2); margin-top: 2px; }
 .ranking .rk-bar { height: 12px; border-radius: 3px; background: var(--waiting); min-width: 3px; }
 .ranking .s-open .rk-bar { background: var(--critical); } .ranking .s-decision .rk-bar { background: var(--warning); }
+.ranking .s-source .rk-bar, .ranking .looked .rk-bar { background: var(--source); }
+.ranking .rk-lookup { font-size: 13px; color: var(--ink-2); margin-top: 4px; }
+.needs-source { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--ink); }
+.needs-source .ico { background: var(--source); }
 .ranking .rk-n { font-size: 13.5px; color: var(--ink); margin-top: 4px; }
 .ranking .rk-n strong { font-variant-numeric: tabular-nums; }
 .ranking .rk-areas { color: var(--ink-2); }
@@ -329,15 +347,22 @@ h3 { font-size: 15px; margin: 26px 0 10px; color: var(--ink-2); font-weight: 600
 .card, .oq { scroll-margin-top: 64px; }
 @media (max-width: 700px) { .ranking li { grid-template-columns: 24px 1fr; } .ranking .rk-impact { grid-column: 2; } }
 footer { margin-top: 48px; color: var(--muted); font-size: 13px; }
-@media (max-width: 900px) { .tiles { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 900px) { .tiles { grid-template-columns: repeat(4, 1fr); } }
 """
 
 
-def decide_first(model, limit=10, page=""):
+def source_chip():
+    """The label of an open question that a cited clause would settle."""
+    label, icon, _ = STATUSES["source"]
+    return f'<span class="needs-source"><span class="ico" aria-hidden="true">{icon}</span>{label}</span>'
+
+
+def decide_first(model, limit=10, page="", lookup=False):
     """The open questions and decisions with the most cards depending on
     them.  Each links to its card or its question on the progress page;
-    `page` is the path to that page from the page the list is on."""
-    rows = [r for r in model.ranking() if r["count"]][:limit]
+    `page` is the path to that page from the page the list is on.  With
+    `lookup`, the questions a cited clause would settle instead."""
+    rows = [r for r in model.ranking(lookup=lookup) if r["count"]][:limit]
     if not rows:
         return ""
     top = rows[0]["count"]
@@ -348,10 +373,14 @@ def decide_first(model, limit=10, page=""):
         tag = f'<span class="tag">{html.escape(n["cid"])}</span>' if n["cid"] else ""
         target = page + ("#oq-" + card_id(n) if n["status"] == "open" else "#" + card_id(n))
         point = split_question(n).get("question", "")
+        looked = (f'<div class="rk-lookup"><strong>Answered by reading:</strong> {n["lookup"]}</div>'
+                  if n.get("lookup") else "")
+        extra = source_chip() if n.get("lookup") and n["status"] == "open" else ""
         items.append(
-            f'<li class="s-{n["status"]}"><div><a class="rk-title" href="{target}">{html.escape(n["title"])}</a>'
-            f'<div class="rk-meta">{tag}{chip(n["status"])}<span>{html.escape(n["section"])}</span></div>'
-            f'<div class="rk-point">{point}</div></div>'
+            f'<li class="s-{n["status"]}{" looked" if n.get("lookup") else ""}"><div>'
+            f'<a class="rk-title" href="{target}">{html.escape(n["title"])}</a>'
+            f'<div class="rk-meta">{tag}{chip(n["status"])}{extra}<span>{html.escape(n["section"])}</span></div>'
+            f'<div class="rk-point">{point}</div>{looked}</div>'
             f'<div class="rk-impact"><div class="rk-bar" style="width: {100 * k / top:.1f}%"></div>'
             f'<div class="rk-n"><strong>{k}</strong> {"card" if k == 1 else "cards"} in {len(areas)} '
             f'{"area" if len(areas) == 1 else "areas"}: <span class="rk-areas">{html.escape(", ".join(short(a) for a in areas))}</span>'
@@ -363,7 +392,9 @@ def ranking_json(model):
     """Every open question and decision with how far its answer reaches, for
     build/ranking.json: the same order as the page."""
     return [{"rank": i, "label": r["node"]["label"], "id": r["node"]["cid"], "title": r["node"]["title"],
-             "status": r["node"]["status"], "area": r["node"]["section"], "cards": r["count"],
+             "status": r["node"]["status"], "needs": "source" if r["node"].get("lookup") else "decision",
+             "answeredByReading": plain(r["node"].get("lookup") or "") or None,
+             "area": r["node"]["section"], "cards": r["count"],
              "areas": r["areas"], "openPoint": plain(split_question(r["node"]).get("question", ""))}
             for i, r in enumerate(model.ranking(), 1)]
 
@@ -400,8 +431,9 @@ def open_questions(show, model):
             q = split_question(n)
             imp = reach[n["label"]]
             k = imp["count"]
-            count = (f'<span class="oq-reach">{k} {"card depends" if k == 1 else "cards depend"} on it</span>'
-                     if k else "")
+            count = ((source_chip() if n.get("lookup") else "")
+                     + (f'<span class="oq-reach">{k} {"card depends" if k == 1 else "cards depend"} on it</span>'
+                        if k else ""))
             decided = "".join(
                 f'<p class="decided"><strong>If we decide this:</strong> {r["doc"]}</p>' for r in model.readings(n))
             users = ("<p class=\"oq-users\"><strong>Depends on the answer:</strong> "
@@ -414,6 +446,7 @@ def open_questions(show, model):
                 f'<div class="oq-body"><p>{" ".join(q["desc"])}</p>'
                 + (f'<p class="found-line"><strong>Counterexample:</strong> {q["found"]}</p>' if q.get("found") else "")
                 + (f'<p class="question"><strong>Open point:</strong> {q["question"]}</p>' if q.get("question") else "")
+                + (f'<p class="lookup"><strong>Answered by reading:</strong> {q["lookup"]}</p>' if q.get("lookup") else "")
                 + decided + users + link + "</div></details>")
         groups.append(
             f'<section class="oq-area"><h3 id="found-{slug(area)}">{html.escape(area)}'
@@ -454,7 +487,7 @@ h2, h3 { scroll-margin-top: 64px; }
 .oq-area h3 a:hover { color: var(--ready); text-decoration: underline; }
 .oq-list { background: var(--surface); border: 1px solid var(--ring); border-left: 4px solid var(--critical); border-radius: 10px; }
 .oq + .oq { border-top: 1px solid var(--ring); }
-.oq summary { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; align-items: baseline; gap: 4px 12px;
+.oq summary { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto auto; align-items: baseline; gap: 4px 12px;
   padding: 9px 16px 9px 14px; cursor: pointer; list-style: none; }
 .oq summary::-webkit-details-marker { display: none; }
 .oq summary::before { content: ""; width: 6px; height: 6px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
@@ -471,7 +504,7 @@ h2, h3 { scroll-margin-top: 64px; }
 .oq-links { font-size: 13.5px; }
 /* On a narrow screen the contents become a bar of the sections under the
    site's bar, scrolling sideways. */
-@media (max-width: 1100px) { .layout .tiles { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 1100px) { .layout .tiles { grid-template-columns: repeat(4, 1fr); } }
 @media (max-width: 1000px) {
   .layout { display: block; }
   h2, h3 { scroll-margin-top: 104px; }
@@ -546,7 +579,9 @@ def page(show, decls, model):
         groups.append(f'<h2 id="{key}">{head}</h2>{body}')
         entries.append((key, label, len(part),
                         [(f"{key}-{slug(s)}", short(s), sum(1 for n in part if n["section"] == s)) for s in sections]))
+    lookups = model.ranking(lookup=True)
     contents = toc([("decide", "Decide these first", None),
+                    ("lookup", "Look these up first", len(lookups)),
                     ("found", "Open questions", counts["open"]),
                     *entries,
                     ("legend", "What the statuses mean", None)])
@@ -570,14 +605,22 @@ def page(show, decls, model):
 <p class="lede">Every rule and guarantee in the Lean model, and every candidate rule from a survey of the guide, with the
 status the build gives it. A <strong>proven</strong> guarantee holds for every possible input, under every reading of the
 guide. An <strong>open question</strong> is a guarantee the guide as written does not give, with an example that shows the
-case. A candidate that <strong>needs a decision</strong> is a rule the guide states vaguely or not at all.
+case. A candidate that <strong>needs a decision</strong> is a rule the guide states vaguely or not at all. One that
+<strong>needs a source</strong> asks what a specification the guide cites says, and reading it would answer.
 This page is generated from the model on every build.</p>
 {tiles_html(show)}
 
 <h2 id="decide">Decide these first</h2>
 <p class="sub">These open questions and decisions have the most cards depending on them, so an answer reaches furthest.
-Each is ranked by the number of cards that use it, directly or through other cards, and ties by the number of areas those cards are in.</p>
+Each is ranked by the number of cards that use it, directly or through other cards, and ties by the number of areas those cards are in.
+They are for the people who own the standard: no document settles them.</p>
 {decide_first(model)}
+
+<h2 id="lookup">Look these up first</h2>
+<p class="sub">These questions ask what a specification the guide cites says. This project has not read that specification yet,
+so they need a reader with the document, and no decision. They are ranked the same way. If the clause turns out not to
+settle a question, it becomes a decision.</p>
+{decide_first(model, lookup=True)}
 
 <h2 id="found">Open questions</h2>
 <p class="sub">A guarantee a business reader would expect to hold, and an example where the guide as written does not give it.

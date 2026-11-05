@@ -10,6 +10,8 @@ Run by scripts/build-site.sh after `lake exe status`.  It fails when:
   - an entry the survey grades vague or silent is not marked \\notready in the
     blueprint, or a clear one is;
   - a vague or silent entry has no open point;
+  - the survey names a clause that would settle an entry and its blueprint
+    node has no Lookup: paragraph, or the other way round;
   - the counts in the survey's table differ from its rows;
   - the survey, the blueprint or a source key cites a section the guide does
     not have (sources/outline.json).
@@ -45,13 +47,13 @@ def survey_rows():
         if not m:
             continue
         cells = [c.strip() for c in re.split(r"(?<!\\)\|", m.group(2))]
-        if len(cells) != 8:
+        if len(cells) != 9:
             continue  # the table of blocked guarantees repeats the IDs with other columns
-        rule, level, kind, grade, shows, point, model, source = cells
+        rule, level, kind, grade, shows, point, lookup, model, source = cells
         if m.group(1) in rows:
             sys.exit(f"survey: {m.group(1)} is listed twice")
         rows[m.group(1)] = {"rule": rule, "level": level, "kind": kind, "grade": grade, "open": point,
-                            "model": model, "source": source}
+                            "lookup": lookup, "model": model, "source": source}
     return rows
 
 
@@ -92,6 +94,11 @@ def main():
             if undecided != node["notready"]:
                 errors.append(f"{cid}: the survey says {r['grade']} and the blueprint node is "
                               f"{'marked' if node['notready'] else 'not marked'} \\notready")
+        if node and not node["lean"] and bool(r["lookup"]) != bool(node["lookup"]):
+            errors.append(f"{cid}: the survey {'names' if r['lookup'] else 'does not name'} a clause that would "
+                          f"settle it, and the blueprint node {'has' if node['lookup'] else 'has no'} Lookup: paragraph")
+        if r["lookup"] and r["grade"] == "Clear":
+            errors.append(f"{cid}: graded Clear and still waiting on a clause to be read")
         if r["grade"] in ("Vague", "Silent") and not r["open"]:
             errors.append(f"{cid}: graded {r['grade']} with no open point")
         for number in cited(r["source"]):

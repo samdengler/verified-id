@@ -209,7 +209,8 @@ def covers(show, m, rules, criteria):
              f"stated: <strong>{grades['Clear']}</strong> clear, <strong>{grades['Vague']}</strong> vague and "
              f"<strong>{grades['Silent']}</strong> silent. The presentation of credentials to a relying party (§4.2) and "
              f"the requirements of §3 are candidates for Lean: {plural(by_status['decision'], 'needs', 'need')} a "
-             f"decision first, {plural(by_status['ready'], 'is', 'are')} ready to build and "
+             f"decision first, {plural(by_status['source'], 'needs', 'need')} a source to be read, "
+             f"{plural(by_status['ready'], 'is', 'are')} ready to build and "
              f"{plural(by_status['waiting'], 'waits', 'wait')} on others.</p>"),
         part(None, "Left out by the guide",
              "<p>The guide puts three matters out of scope. The model does not fill them in; it records which "
@@ -219,7 +220,7 @@ def covers(show, m, rules, criteria):
 
 def page(show, m):
     decls = m.decls
-    counts = {k: sum(1 for n in show if n["status"] == k) for k in ("open", "decision")}
+    counts = {k: sum(1 for n in show if n["status"] == k) for k in ("open", "decision", "source")}
     in_lean = sum(1 for n in show if n["lean"])
     rules = [d for d in decls.values() if d.get("earsId")]
     criteria = [c for d in rules for c in d.get("criteria", [])]
@@ -229,6 +230,7 @@ def page(show, m):
     relied = sum(1 for a in assumptions if a["usedBy"])
     confirmed = status["provenance"]["confirmed"]
     deps = sum(1 for n in m.nodes for u in n["uses"])
+    lookup_count = len(m.ranking(lookup=True))
     confirmed_text = ("No rule has been confirmed by a subject matter expert yet." if confirmed == 0 else
                       f"{plural(confirmed, 'rule has', 'rules have')} been confirmed by a subject matter expert so far.")
     routes = "".join([
@@ -254,8 +256,10 @@ def page(show, m):
              f"<p>Every rule, guarantee and candidate rule with its status, grouped by area: "
              f"{plural(in_lean, 'card', 'cards')} in Lean and {plural(len(show) - in_lean, 'candidate', 'candidates')} "
              f"from the survey. Of these, {plural(counts['open'], 'is an open question', 'are open questions')}, "
-             f"and {plural(counts['decision'], 'candidate needs', 'candidates need')} a decision.</p>",
-             ['<a href="progress/#decide">Decide these first</a>', '<a href="progress/#found">Open questions</a>',
+             f"{plural(counts['decision'], 'candidate needs', 'candidates need')} a decision, "
+             f"and {plural(counts['source'], 'needs', 'need')} a source to be read.</p>",
+             ['<a href="progress/#decide">Decide these first</a>', '<a href="progress/#lookup">Look these up first</a>',
+              '<a href="progress/#found">Open questions</a>',
               '<a href="progress/#today">In the model today</a>', '<a href="progress/#next">Candidates</a>']),
         part("review/", "Review document",
              f"<p>The rules in plain words, a chapter per requirement: {plural(len(rules), 'requirement', 'requirements')} "
@@ -314,13 +318,15 @@ Lean. The credentials are in Lean now. The presentation flows come next.</p>
 <h2 id="status">The model's status today</h2>
 <p class="sub">The model is a set of cards: rules written in Lean, guarantees about those rules, and candidate rules from
 the survey. A proven guarantee holds for every input and every reading of the guide. An open question is a guarantee the
-guide as written does not give. A candidate rule needs a decision, is ready to build, or waits on other rules.</p>
+guide as written does not give. A candidate rule needs a decision from the people who own the standard, needs a source
+to be read because its question is about a specification the guide cites, is ready to build, or waits on other rules.</p>
 {tiles_html(show)}
 
 <h2 id="decide-top">Decide these first</h2>
 <p class="sub">The three open questions and decisions with the most cards depending on them, so an answer reaches furthest.</p>
 <div class="top3">{decide_first(m, 3, "progress/")}</div>
-<p class="more"><a href="progress/#decide">See the top ten on the progress page</a></p>
+<p class="more"><a href="progress/#decide">See the top ten on the progress page</a> ·
+<a href="progress/#lookup">{lookup_count} {"question" if lookup_count == 1 else "questions"} a cited specification would settle</a></p>
 
 <h2 id="trust">What the model takes on trust</h2>
 <p class="sub">The guide refers to ISO, OpenID, W3C, IETF, ICAO and IATA specifications that were not read for this project.

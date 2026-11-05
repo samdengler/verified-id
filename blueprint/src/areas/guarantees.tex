@@ -61,16 +61,16 @@
 
 \begin{theorem}[An expired credential is never accepted (G-04)]
   \label{thm:g04}
-  \uses{def:expired, def:c62, def:c78, def:c89, thm:valid-at-validuntil, def:c02}
+  \uses{def:expired, def:c62, def:c78, def:c89, def:c101, thm:valid-at-validuntil, def:c02}
   A relying party never accepts a credential whose validity has ended.
 
-  The time validity check is a must in the mdoc profile (C-62), not named in
-  the OpenID4VP profile (C-78) and a should in proximity (C-89). And within
-  the guide's rules a credential from a trusted issuer ends only by expiry
-  (C-02).
+  The time validity check is a must in the mdoc profile (C-62). The other two
+  profiles require issuer data authentication by a clause that may or may not
+  include it (C-101). And within the guide's rules a credential from a
+  trusted issuer ends only by expiry (C-02).
 
-  Open point: Blocked until C-78 and C-89 are answered. Even then it covers
-  expiry only, since revocation is out of scope.
+  Open point: Blocked until C-101 is looked up. Even then it covers expiry
+  only, since revocation is out of scope.
 
   Source:
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One

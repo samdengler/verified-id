@@ -353,6 +353,9 @@
   Open point: Must a verifier in the mdoc profile check that the response
   matches its request and its nonce, as the OpenID4VP profile requires?
 
+  Lookup: ISO/IEC TS 18013-7:2025 Annex C §C.3 to §C.5; ISO/IEC 18013-5:2021
+  §9.1.3.
+
   Source:
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
   ID guide} §4.2.1.2, step 6.
@@ -484,6 +487,8 @@
   Open point: Is \texttt{state} required over the DC API? What is the minimum
   entropy of the nonce in this profile?
 
+  Lookup: OpenID4VP 1.0 §5.2 and Appendix A; OpenID4VC HAIP 1.0 §5.
+
   External: OpenID4VP 1.0 §5.2.
 
   Source:
@@ -585,20 +590,18 @@
 
 \begin{definition}[Issuer and device checks in the OpenID4VP profile (C-78)]
   \label{def:c78}
-  \uses{def:c76, def:c15, def:c03, def:expired}
+  \uses{def:c76, def:c15, def:c03, def:expired, def:c101}
   \notready
   The verifier must authenticate the issuer against a trusted list, which it
   'should' have access to, authenticate the issuer data, and authenticate the
   mdoc, which the guide calls holder binding. This profile's text does not
-  name a time validity check.
+  name a time validity check (C-101).
 
   An accepted response comes from a trusted issuer and the holder's device.
-  That it is not expired holds only if the ISO clause cited includes the
-  validity check.
+  That it is not expired depends on C-101.
 
   Open point: §3.2 says a relying party must have the list of trusted
-  issuers, this step says should. And is the time validity check part of this
-  profile?
+  issuers, this step says should. Which holds?
 
   External: ISO/IEC 18013-5:2021 §9.1.2, §9.1.3; ISO/IEC TS 23220-4:2026
   Annex A §A.3.1.
@@ -658,4 +661,30 @@
   Source:
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
   ID guide} §1.4, §4.2.1.1.
+\end{definition}
+
+\begin{definition}[Whether issuer data authentication includes the validity check (C-101)]
+  \label{def:c101}
+  \uses{def:expired}
+  \notready
+  The mdoc profile cites one clause of ISO/IEC 18013-5 for issuer data
+  authentication and says it covers time validity. The OpenID4VP profile and
+  the proximity profile cite a different clause with must, and do not say
+  whether it covers time validity; proximity adds the first clause with
+  should.
+
+  If the clause cited with must includes the validity check, an expired
+  credential is refused in all three profiles. If it does not, two profiles
+  accept one.
+
+  Open point: Does the clause the OpenID4VP and proximity profiles cite with
+  must include the time validity check?
+
+  Lookup: ISO/IEC 18013-5:2021 §9.1.2 and §9.3.1.
+
+  External: ISO/IEC 18013-5:2021 §9.1.2, §9.3.1.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.2.1.3 step 5, §4.2.2 step 5.
 \end{definition}

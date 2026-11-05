@@ -155,18 +155,16 @@
 
 \begin{definition}[Issuer checks in proximity (C-89)]
   \label{def:c89}
-  \uses{def:c88, def:c15, def:expired}
-  \notready
+  \uses{def:c88, def:c15, def:expired, def:c101}
   The reader must validate the issuer data, which the guide says ensures a
   trusted issuer, a valid document type and the data elements that were
   requested, and the certificate chain up to a trusted root. It must discard
   the response if the certificate check fails. It 'should' refer to the
   clause that holds the validity checks.
 
-  An accepted response comes from a trusted issuer. That it is not expired is
-  only a 'should' in this profile's text.
-
-  Open point: Is the time validity check required in proximity?
+  An accepted response comes from a trusted issuer. That it is not expired
+  depends on whether the clause cited with must includes the validity check
+  (C-101).
 
   External: ISO/IEC 18013-5:2021 §9.1.2, §9.3.1.
 
