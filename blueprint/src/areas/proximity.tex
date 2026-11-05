@@ -1,0 +1,207 @@
+% Candidate rules: proximity presentation (§4.2.2).  Written by hand; see docs/one-id-survey.md.
+
+\section{Proximity presentation}
+
+\begin{definition}[When proximity presentation is used (C-80)]
+  \label{def:c80}
+  \uses{thm:photoid-has-portrait}
+  Proximity presentation is required for one-to-one face matching when the
+  face image was not shared in advance, and should be used whenever
+  credentials are shared on demand or offline.
+
+  The touchpoint needs a portrait from the photoid at that moment, so the
+  profile depends on the portrait being present.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.2.2.
+\end{definition}
+
+\begin{definition}[Device engagement (C-81)]
+  \label{def:c81}
+  The wallet must build a device engagement structure with a fresh public key
+  and present it by QR code or NFC. The guide writes the QR content as
+  starting with \texttt{mdoc://}.
+
+  Each engagement has a fresh key of the device.
+
+  External: ISO/IEC 18013-5:2021 §8.2.1.1, §8.2.2.1, §8.2.2.3.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.2.2, step 1.
+\end{definition}
+
+\begin{definition}[Session establishment (C-82)]
+  \label{def:c82}
+  \uses{def:c81}
+  The reader must generate a fresh key pair before each engagement, and both
+  sides must derive the session keys that encrypt the request and the
+  response.
+
+  A session is tied to one fresh key of each side. This profile has no nonce:
+  the fresh keys play its part.
+
+  External: ISO/IEC 18013-5:2021 §9.1.1.4, §9.1.1.5.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.2.2, step 2.
+\end{definition}
+
+\begin{definition}[Transfer methods (C-83)]
+  \label{def:c83}
+  \uses{def:c82}
+  The reader should pick a transfer method the device offers: Bluetooth low
+  energy, NFC or Wi-Fi Aware. Server retrieval shall not be used.
+
+  Data comes from the device only.
+
+  External: ISO/IEC 18013-5:2021 §8.3.3.1.1 to §8.3.3.1.3.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.2.2, step 2.
+\end{definition}
+
+\begin{definition}[The proximity request (C-84)]
+  \label{def:c84}
+  \uses{def:c82, def:element}
+  The reader must send a device request as ISO/IEC 18013-5 defines it,
+  encrypted with the session key. Reader authentication should be present,
+  and when it is its structure must follow the same standard.
+
+  A request lists a document type, namespaces and data elements, as in the
+  remote profiles.
+
+  External: ISO/IEC 18013-5:2021 §8.3.2.1.2.1, §9.1.4.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.2.2, step 3.
+\end{definition}
+
+\begin{definition}[The wallet's checks in proximity (C-85)]
+  \label{def:c85}
+  \uses{def:c84, def:c16}
+  \notready
+  After decrypting, the wallet must check that the document type matches a
+  credential it holds, that the requested data elements match what is stored,
+  and must perform reader authentication and validate the session transcript.
+
+  The wallet must authenticate the reader, while a request need only 'should'
+  carry reader authentication (C-84).
+
+  Open point: What does a wallet do with a proximity request that has no
+  reader authentication: refuse it, or answer it?
+
+  External: ISO/IEC 18013-5:2021 §9.1.4, §9.1.5.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.2.2, step 4.
+\end{definition}
+
+\begin{definition}[The proximity response (C-86)]
+  \label{def:c86}
+  \uses{def:c85}
+  For each item requested, the wallet must return the issuer-signed data it
+  holds, and must add device-signed data with device authentication. The
+  response is encrypted with the session key. Status and error codes must
+  follow ISO/IEC 18013-5.
+
+  The response holds data that was requested and that the holder has. This is
+  the profile whose text comes closest to stating G-01.
+
+  External: ISO/IEC 18013-5:2021 §8.3.2.1.2.2, §8.3.2.1.2.3, §9.1.2.4,
+  §9.1.3.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.2.2, step 4.
+\end{definition}
+
+\begin{definition}[Consent in proximity (C-87)]
+  \label{def:c87}
+  \uses{def:c22, def:c86}
+  Informed consent must be taken before the response is sent to the reader.
+
+  No response without consent. This step does not repeat that the wallet
+  shows what is shared with whom, and does not mention holder authentication
+  (C-22).
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.2.2, step 4.
+\end{definition}
+
+\begin{definition}[Decrypting the proximity response (C-88)]
+  \label{def:c88}
+  \uses{def:c86, def:c47}
+  \notready
+  The reader 'should' decrypt the response with the session keys and rebuild
+  the session transcript.
+
+  Taken as must: nothing can be validated otherwise.
+
+  Open point: 'Should' for a step every later check needs. Is it must?
+
+  External: ISO/IEC 18013-5:2021 §9.1.5, §9.1.5.1.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.2.2, step 5.
+\end{definition}
+
+\begin{definition}[Issuer checks in proximity (C-89)]
+  \label{def:c89}
+  \uses{def:c88, def:c15, def:expired}
+  \notready
+  The reader must validate the issuer data, which the guide says ensures a
+  trusted issuer, a valid document type and the data elements that were
+  requested, and the certificate chain up to a trusted root. It must discard
+  the response if the certificate check fails. It 'should' refer to the
+  clause that holds the validity checks.
+
+  An accepted response comes from a trusted issuer. That it is not expired is
+  only a 'should' in this profile's text.
+
+  Open point: Is the time validity check required in proximity?
+
+  External: ISO/IEC 18013-5:2021 §9.1.2, §9.3.1.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.2.2, step 5.
+\end{definition}
+
+\begin{definition}[The device signature in proximity (C-90)]
+  \label{def:c90}
+  \uses{def:c88, def:c82, def:c03}
+  The reader must validate the device signature, to ensure the mdoc is not
+  cloned and the response comes from the device it was issued to.
+
+  An accepted response was signed by the device key over this session's
+  transcript.
+
+  External: ISO/IEC 18013-5:2021 §9.1.3.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.2.2, step 5.
+\end{definition}
+
+\begin{definition}[Ending the session (C-91)]
+  \label{def:c91}
+  \uses{def:c82}
+  The session shall be terminated when the steps are done or on a condition
+  such as a timeout, and all session data made for it must be deleted.
+
+  A session's keys are not used again.
+
+  External: ISO/IEC 18013-5:2021 §9.1.1.4.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.2.2, step 7.
+\end{definition}

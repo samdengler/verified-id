@@ -1,0 +1,90 @@
+name: CI
+# The same steps as scripts/build-site.sh, in the same order.  The repository
+# is private and has no site: the build uploads site/ as an artifact, and the
+# deploy job runs only once the repository variable PAGES_ENABLED is true.
+on:
+  # A push that changes only the README or CLAUDE.md leaves the site unchanged.
+  push: { branches: [main], paths-ignore: ["README.md", "CLAUDE.md"] }
+  pull_request:
+  workflow_dispatch:
+permissions: { contents: read, pages: write, id-token: write }
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # This repository's compiled Lean from the last run.  Lake rebuilds only
+      # the modules whose sources changed.
+      - uses: actions/cache@v4
+        with:
+          path: .lake/build
+          key: lake-build-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml', '*.lean', 'Rules/**/*.lean', 'Review/**/*.lean', 'Status/**/*.lean') }}
+          restore-keys: lake-build-${{ runner.os }}-
+      - uses: leanprover/lean-action@v1
+        with: { use-mathlib-cache: true }
+      # Compiled Verso and checkdecls, restored after lake has cloned the
+      # packages.  Mathlib comes from its own cache above.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .lake/packages/verso/.lake
+            .lake/packages/subverso/.lake
+            .lake/packages/MD4Lean/.lake
+            .lake/packages/illuminate/.lake
+            .lake/packages/checkdecls/.lake
+          key: lake-deps-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}
+      # Graphviz draws the blueprint's dependency graph.
+      - run: sudo apt-get update && sudo apt-get install -y graphviz libgraphviz-dev
+      # Fails on any sorry not tagged @[open_question], a rule with no
+      # @[source], or a malformed requirement, before anything renders.
+      - run: lake exe status
+      - run: python3 scripts/render_status.py
+      # The survey, the blueprint, the model and the citations agree.
+      - run: python3 scripts/check_survey.py
+      # The specs are committed; a change to the model must commit them too.
+      - name: Check .kiro/specs is up to date
+        run: |
+          if [ -n "$(git status --porcelain -- .kiro/specs)" ]; then
+            git status --porcelain -- .kiro/specs
+            git diff -- .kiro/specs
+            echo "::error::.kiro/specs differs from the model; run lake exe status && python3 scripts/render_status.py and commit .kiro/specs"
+            exit 1
+          fi
+      - run: lake build Review && lake exe review-doc --output build/review
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Install TinyTeX
+        run: |
+          curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+          "$HOME/bin/tlmgr" update --self
+          # Every package the PDF build loads, from blueprint/print/print.fls.
+          "$HOME/bin/tlmgr" install latexmk xetex lm lm-math zapfding \
+            amscls amsfonts amsmath mathtools tools geometry fontspec unicode-math \
+            l3kernel l3packages etoolbox graphics graphics-cfg graphics-def \
+            hyperref hycolor url iftex infwarerr intcalc kvdefinekeys kvoptions \
+            kvsetkeys ltxcmds pdfescape pdftexcmds refcount rerunfilecheck \
+            stringenc uniquecounter bigintcalc bitset gettitlestring
+      - run: pip install leanblueprint==0.0.20
+      # web writes blueprint/lean_decls, which checkdecls reads.
+      - run: leanblueprint web && leanblueprint checkdecls && leanblueprint pdf
+      # The progress page, which is the site's home page, and the ranking.
+      - run: python3 scripts/render_progress.py
+      - run: scripts/assemble-site.sh
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: site }
+  # Deploys only once Pages is available for the repository and Sam has
+  # decided to publish: set the repository variable PAGES_ENABLED to true.
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

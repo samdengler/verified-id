@@ -1,0 +1,70 @@
+% Blueprint content for the One ID rules.
+%
+% Do not write \leanok here.  scripts/render_status.py reads build/status.json
+% and writes content.generated.tex with \leanok added to every environment
+% whose declaration the build reports as defined or proven.
+%
+% A node with \lean{} is a Lean declaration.  A node without it is a candidate
+% from the survey in docs/one-id-survey.md, with its ID in the title; one the
+% guide states vaguely or not at all is marked \notready.  The progress page
+% reads the paragraphs that start with Counterexample:, Open point:, Blocks:,
+% External: and Source:.
+
+\chapter{One ID credentials and their presentation}
+
+This blueprint follows IATA's One ID Technical Implementation Guide, version
+26.3: the credentials a passenger's wallet holds, the photoid and the boarding
+pass, and how a wallet presents them to a relying party.  A node with a Lean
+name is a definition or a theorem in the model.  A green node is defined or
+proven in Lean; an uncolored theorem is open, which means the guide as written
+does not give the guarantee, and an example the build computes shows the case.
+The other nodes are candidate rules from a survey of every rule in the guide.
+They have no Lean yet.  A candidate the guide states vaguely or not at all is
+marked not ready, and its open point says what has to be decided.
+
+The guide is cited by section number.  It builds on ISO, OpenID, W3C, IETF,
+ICAO and IATA specifications that this project has not read; a node that
+depends on one names it under External.
+
+The review document, under \texttt{review/} on the site, shows the Lean
+declarations with their docstrings, the examples the build computes, and the
+open questions.
+
+\section{Core concepts}
+
+\begin{definition}[Instant]
+  \label{def:instant}
+  \lean{Rules.Core.Instant}
+  A point in time, as whole seconds since the Unix epoch.  All times are UTC.
+\end{definition}
+
+\begin{definition}[Credential]
+  \label{def:mdoc}
+  \lean{Rules.OneId.Mdoc, Rules.OneId.NameSpace, Rules.OneId.DataElement, Rules.OneId.Value}
+  \uses{def:instant}
+  A digital credential in the ISO mdoc format, as far as the guide describes
+  one: a document type, namespaces of data elements, and the instant its
+  validity ends.  The guide uses claim, data element and data attribute for
+  the same thing.
+\end{definition}
+
+\begin{definition}[Findings and recommendations]
+  \label{def:finding}
+  \lean{Rules.OneId.Finding, Rules.OneId.Advisory}
+  \uses{def:mdoc}
+  A finding is a reason a credential breaks something the guide says with
+  MUST or SHALL.  An advisory is something the guide says with SHOULD or
+  RECOMMENDED that a credential does not follow; it does not make the
+  credential unacceptable.
+\end{definition}
+
+\input{areas/credentials}
+\input{areas/credentials-candidates}
+\input{areas/requirements}
+\input{areas/remote}
+\input{areas/proximity}
+\input{areas/scope}
+\input{areas/contactless}
+\input{areas/guarantees}
+
+\input{ears.generated}

@@ -1,0 +1,47 @@
+name = "verified-id"
+version = "0.1.0"
+defaultTargets = ["Rules"]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+autoImplicit = false
+relaxedAutoImplicit = false
+maxSynthPendingDepth = 3
+doc.verso = true
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.35.0"
+
+[[require]]
+name = "verso"
+git = "https://github.com/leanprover/verso.git"
+rev = "v4.35.0"
+
+[[require]]
+name = "checkdecls"
+git = "https://github.com/PatrickMassot/checkdecls.git"
+
+# The model: shared concepts in Rules/Core, the One ID rules in Rules/OneId.
+[[lean_lib]]
+name = "Rules"
+
+# Computes every status from the compiled model (Status/Main.lean).
+[[lean_exe]]
+name = "status"
+root = "Status.Main"
+supportInterpreter = true
+
+# The review document, written in Verso.
+[[lean_lib]]
+name = "Review"
+srcDir = "Review"
+roots = ["Review"]
+
+[[lean_exe]]
+name = "review-doc"
+srcDir = "Review"
+root = "Main"
+# It loads the document's modules when it runs; see Review/Main.lean.
+supportInterpreter = true

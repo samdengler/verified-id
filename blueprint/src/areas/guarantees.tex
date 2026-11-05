@@ -1,0 +1,78 @@
+% Candidate rules: candidate guarantees (the four guarantees this project was asked to check).  Written by hand; see docs/one-id-survey.md.
+
+\section{Candidate guarantees}
+
+\begin{theorem}[Only requested and consented data is received (G-01)]
+  \label{thm:g01}
+  \uses{def:c26, def:c07, def:c12, def:c22, def:c58, def:c60, def:c65, def:c75, def:c76, def:c86, def:c87, def:c89, def:element, thm:names-unique, def:c31}
+  A relying party receives only the data elements it requested and the holder
+  consented to.
+
+  Stated by the guide as a consequence of the ISO security model (C-26). To
+  prove it the model needs the wallet to send no more than was requested and
+  consented, and the verifier to refuse a response that holds more. The mdoc
+  profile lists no such check (C-65).
+
+  Open point: Blocked until C-65 and C-12 are answered, and until the trust
+  model says how a wallet knows whom it shares with (C-01, C-16).
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.1.1, §3.1.
+\end{theorem}
+
+\begin{theorem}[An accepted presentation is bound to the device and the request (G-02)]
+  \label{thm:g02}
+  \uses{def:c63, def:c78, def:c90, def:c77, def:c65, def:c72, def:c56, def:c59, def:c74, def:c82, def:c03, def:c24, def:c02}
+  An accepted presentation is bound to the holder's device key and to the
+  verifier's request: its nonce in the remote profiles, its session in
+  proximity.
+
+  Device binding is stated in all three profiles (C-63, C-78, C-90). The
+  nonce check is stated only in the OpenID4VP profile (C-77). Proximity has
+  no nonce, so the guarantee must name the session there.
+
+  Open point: Blocked until C-65 and C-72 are answered, and resting on
+  issuance (C-03) for what the device key is bound to.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.2.
+\end{theorem}
+
+\begin{theorem}[A photoid and a boarding pass presented together are one traveler's (G-03)]
+  \label{thm:g03}
+  \uses{thm:matched-pair-same-traveler, thm:same-traveler-matches, def:c53, def:c19, def:c42, def:c93, def:c94, def:c01, def:c02, def:c03}
+  A photoid and a boarding pass presented together refer to the same
+  traveler, under a defined matching rule.
+
+  The guide defines no matching rule, so the guarantee is open in the model
+  today (OID-107.1). A matching rule is not enough by itself: no check of the
+  two credentials' content can tell who each was issued about, so the
+  guarantee also needs a rule about issuance.
+
+  Open point: Blocked until the matching rule is decided (C-41) and issuance
+  says what ties a credential to its traveler (C-03).
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.1.2, §3.2.
+\end{theorem}
+
+\begin{theorem}[An expired credential is never accepted (G-04)]
+  \label{thm:g04}
+  \uses{def:expired, def:c62, def:c78, def:c89, thm:valid-at-validuntil, def:c02}
+  A relying party never accepts a credential whose validity has ended.
+
+  The time validity check is a must in the mdoc profile (C-62), not named in
+  the OpenID4VP profile (C-78) and a should in proximity (C-89). And within
+  the guide's rules a credential from a trusted issuer ends only by expiry
+  (C-02).
+
+  Open point: Blocked until C-78 and C-89 are answered. Even then it covers
+  expiry only, since revocation is out of scope.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §4.1.2, §4.2.
+\end{theorem}

@@ -1,0 +1,250 @@
+% Candidate rules: functional requirements and assumptions (§3).  Written by hand; see docs/one-id-survey.md.
+
+\section{Functional requirements and assumptions}
+
+\begin{definition}[Requesting the minimum (C-11)]
+  \label{def:c11}
+  \uses{def:element}
+  \notready
+  A relying party must request the minimum disclosable attributes and verify
+  them.
+
+  A request is a set of data elements, and 'minimum' needs a purpose to be
+  measured against. With one, the guarantee is that a request holds nothing
+  its purpose does not need.
+
+  Open point: What is the minimum for each use case: booking, advance
+  passenger information, an e-gate, a boarding gate? §3.1 says the relying
+  party must request the minimum, while §4.2.1.2 says it should request only
+  what it needs, and §4.2.1.3 says the claims of a query must be the minimum.
+  Which word holds?
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §3.1, item 3.
+\end{definition}
+
+\begin{definition}[Sharing in full or selectively (C-12)]
+  \label{def:c12}
+  \uses{def:c11, def:c07}
+  \notready
+  The passenger must share credentials securely, either in full or as the
+  minimum selectively disclosable attributes.
+
+  Both alternatives satisfy the sentence, so it does not limit what a wallet
+  sends.
+
+  Open point: May a wallet send a whole credential when the relying party
+  asked for part of it?
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §3.1, item 4.
+\end{definition}
+
+\begin{definition}[Authenticity and integrity (C-13)]
+  \label{def:c13}
+  \uses{def:c01}
+  What a relying party receives must be checked to be authentic and
+  unaltered. §4.2 gives the checks for each profile.
+
+  A response is accepted only when the issuer and device checks of its
+  profile pass.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §3.1, item 5.
+\end{definition}
+
+\begin{definition}[Security considerations (C-14)]
+  \label{def:c14}
+  \notready
+  Security considerations must be followed for the request and the response
+  of a presentation.
+
+  Not a rule on its own. The model takes the security considerations to be
+  the checks §4.2 lists.
+
+  Open point: Which security considerations are meant: only those written in
+  §4.2, or also those of the referenced specifications?
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §3.1, item 6.
+\end{definition}
+
+\begin{definition}[A list of trusted issuers (C-15)]
+  \label{def:c15}
+  \uses{def:c01}
+  \notready
+  The trust model is out of scope, but a relying party must have a mechanism
+  to obtain the list of trusted issuers and intermediate certificate
+  authorities.
+
+  The list is an input of every issuer check.
+
+  Open point: What is the mechanism, and what does a relying party do when
+  the list cannot be obtained or is stale?
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §3.2, item 1.
+\end{definition}
+
+\begin{definition}[A list of trusted verifiers (C-16)]
+  \label{def:c16}
+  \uses{def:c01, def:c08}
+  \notready
+  Wallets must have access to a list of trusted verifiers or readers for
+  authentication.
+
+  If the list is required, a wallet refuses a request from a verifier that is
+  not on it. The profiles do not say that.
+
+  Open point: Is verifier authentication required? §3.2 says wallets must
+  have the list. §4.2.1.2 says a wallet should be able to check verifier
+  certificates, calls reader authentication recommended, and notes that not
+  every wallet can process it. §4.2.2 says reader authentication should be
+  present in a request. May a wallet answer a request it cannot authenticate?
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §3.2, item 2.
+\end{definition}
+
+\begin{definition}[Secure issuance (C-17)]
+  \label{def:c17}
+  \uses{def:c03}
+  \notready
+  Issuance of credentials to the wallet must be secure.
+
+  An assumption with no rule in the guide behind it.
+
+  Open point: What does 'securely issued' require? See C-03.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §3.2, item 3.
+\end{definition}
+
+\begin{definition}[All credential types in the wallet (C-18)]
+  \label{def:c18}
+  \uses{def:photoid, def:boarding-pass, def:c42}
+  \notready
+  All credential types required for the passenger's journey must be present
+  in the holder's wallet.
+
+  A request for two document types can only be answered by a wallet that
+  holds both.
+
+  Open point: Which credential types does a journey require, and must they be
+  in one wallet? A passenger with a photoid in one wallet and a boarding pass
+  in an airline's app holds both and cannot present them together.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §3.2, item 4.
+\end{definition}
+
+\begin{definition}[The holder is a passenger (C-19)]
+  \label{def:c19}
+  \uses{def:c03}
+  \notready
+  Whoever holds the wallet must be a passenger.
+
+  Nothing in a credential says who holds the wallet. The model keeps the
+  subject of each credential as a fact the issuer knows.
+
+  Open point: Must every credential in a wallet be about its holder? A
+  parent's wallet may hold the boarding passes of the children travelling
+  with them. If that is allowed, holding a boarding pass does not make the
+  holder its passenger.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §3.2, item 5.
+\end{definition}
+
+\begin{definition}[Discovering contactless travel (C-20)]
+  \label{def:c20}
+  An airline may be able to find out which airports offer contactless travel.
+  Annex B gives informative examples.
+
+  Optional, and outside the credential and presentation rules.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §3.2, item 6.
+\end{definition}
+
+\begin{definition}[Directing the passenger to the relying party (C-21)]
+  \label{def:c21}
+  \uses{def:c20}
+  \notready
+  Airlines must direct or prompt the passenger to the relying party's web
+  page during the journey, if it is available.
+
+  Outside the credential and presentation rules.
+
+  Open point: What makes the page 'available', and what must an airline do
+  when several relying parties serve one journey?
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §3.2, item 7.
+\end{definition}
+
+\begin{definition}[Authentication and consent before every presentation (C-22)]
+  \label{def:c22}
+  \uses{def:c07}
+  \notready
+  Every presentation of a credential must happen only after holder
+  authentication and consent.
+
+  A response exists only if the holder authenticated and consented to exactly
+  the data elements in it.
+
+  Open point: Is holder authentication required before every presentation?
+  §3.2 says must. §4.2.1.3 says the response should be released after
+  authentication, and §4.2.2 requires consent and does not mention
+  authentication.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §3.2, item 8.
+\end{definition}
+
+\begin{definition}[Terms and conditions (C-23)]
+  \label{def:c23}
+  \notready
+  Terms and conditions must be explicitly mentioned to the passenger during
+  the presentation process.
+
+  Not modelled.
+
+  Open point: Who shows the terms and conditions: the wallet, the relying
+  party's page or the airline? Annex B mentions both the airline's and the
+  relying party's.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §3.2, item 9.
+\end{definition}
+
+\begin{definition}[Keys in a secure area (C-24)]
+  \label{def:c24}
+  \uses{def:c03}
+  \notready
+  Keys used for cryptography must be kept in a secure area.
+
+  The model takes a device key to be usable only on the device it was issued
+  to.
+
+  Open point: Whose keys, and what counts as a secure area: hardware-backed
+  storage on the phone, or any protected store? Does it apply to a verifier's
+  request-signing and decryption keys?
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §3.2, item 10.
+\end{definition}

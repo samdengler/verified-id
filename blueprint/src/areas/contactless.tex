@@ -1,0 +1,84 @@
+% Candidate rules: issuance and contactless travel (Annexes A and B, informative).  Written by hand; see docs/one-id-survey.md.
+
+\section{Issuance and contactless travel}
+
+\begin{definition}[The issuance protocol (C-92)]
+  \label{def:c92}
+  \uses{def:c03}
+  Issuance with OpenID4VCI 1.0, profiled by the high assurance profile, is
+  recommended. The annex is informative.
+
+  Does not fill the gap of C-03: nothing here is a requirement.
+
+  External: OpenID4VCI 1.0; OpenID4VC HAIP 1.0 §4.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} Annex A, §5.1.
+\end{definition}
+
+\begin{definition}[A boarding pass string sent by the airline (C-93)]
+  \label{def:c93}
+  \uses{thm:matched-pair-same-traveler, def:boarding-pass}
+  \notready
+  In the informative flow an airline may send the boarding pass string to the
+  relying party's API itself, with the time consent was recorded, before the
+  passenger presents anything.
+
+  A boarding pass string that arrives this way is not signed by an issuer and
+  not bound to a device. It is matched to the photoid by the session alone.
+
+  Open point: When the airline sends the boarding pass string, what ties it
+  to the photoid the passenger presents later, and whose consent does the
+  recorded time stand for?
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} Annex B, §6.2.1, step 2.
+\end{definition}
+
+\begin{definition}[What a contactless relying party requests (C-94)]
+  \label{def:c94}
+  \uses{def:c11, def:c53, thm:photoid-has-portrait, thm:matched-pair-same-traveler, def:c93}
+  The relying party requests the boarding pass and selected photoid data
+  elements including the portrait, or only the photoid data elements when the
+  airline already sent the boarding pass string.
+
+  The one place the guide says what a minimum request is for a use case: the
+  portrait is always in it.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} Annex B, §6.2.1, step 5.
+\end{definition}
+
+\begin{definition}[The session nonce of the relying party's API (C-95)]
+  \label{def:c95}
+  \uses{def:c56, def:c72}
+  \notready
+  The relying party's API returns a session identifier, a nonce unique to the
+  session, issue and expiry times, and the address of its page.
+
+  The annex does not say whether this nonce is the one in the presentation
+  request.
+
+  Open point: Is the session nonce the presentation nonce? If not, what ties
+  the presentation to the airline's session?
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} Annex B, §6.2.1, step 3.
+\end{definition}
+
+\begin{definition}[Several relying parties in one journey (C-96)]
+  \label{def:c96}
+  \uses{def:c21, def:c22}
+  When a journey has several relying parties, the passenger presents to each
+  in turn.
+
+  Each presentation is its own request with its own consent.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} Annex B, §6.2.1, step 7.
+\end{definition}

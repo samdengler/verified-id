@@ -1,0 +1,151 @@
+% Candidate rules: what the guide leaves out (§1.4 and §2).  Written by hand; see docs/one-id-survey.md.
+
+\section{What the guide leaves out}
+
+\begin{definition}[The trust model (C-01)]
+  \label{def:c01}
+  \notready
+  The guide puts the trust model out of scope: how trust is anchored,
+  delegated and verified between issuer, wallet and verifier. It still relies
+  on lists of trusted issuers and trusted verifiers throughout §3.2 and §4.2.
+
+  Every check that says 'trusted' takes the list as an input the guide does
+  not define. A guarantee about authenticity holds only relative to that
+  list.
+
+  Open point: Who accredits an issuer of photoids, and who accredits an
+  issuer of boarding passes? Is it one list or two, who publishes it, and how
+  does a relying party or a wallet obtain it and know it is current?
+
+  Blocks: G-01 (the wallet cannot say whom data is shared with unless
+  verifiers are on a list it trusts), G-02 (a device key proves holder
+  binding only if the issuer that signed it is trusted), G-03 (a boarding
+  pass and a photoid come from different issuers, and matching them assumes
+  both are trusted), G-04 (the validity a verifier checks is the one a
+  trusted issuer signed).
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §1.4, §2.
+\end{definition}
+
+\begin{definition}[Revocation (C-02)]
+  \label{def:c02}
+  \notready
+  The guide puts revocation out of scope. Within its rules a credential stops
+  being accepted when the validity its issuer signed ends, or when its issuer
+  is no longer trusted.
+
+  No rule can refuse a credential that is still within its validity. A
+  guarantee that an expired credential is refused says nothing about a
+  cancelled boarding pass or a revoked passport.
+
+  Open point: How does a boarding pass credential stop being accepted when
+  the passenger is rebooked, offloaded or cancels, and a photoid when the
+  passport is reported lost or the phone is stolen? Is short validity the
+  intended answer, and if so how short?
+
+  Blocks: G-04 (an expired credential is refused, a withdrawn one is not),
+  G-03 (a boarding pass that was reissued to a rebooked passenger still
+  matches the photoid), G-02 (a device key on a stolen phone stays bound).
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §1.4.
+\end{definition}
+
+\begin{definition}[Issuance to the wallet (C-03)]
+  \label{def:c03}
+  \notready
+  The guide puts normative issuance out of scope and gives only an
+  informative annex. It assumes credentials are securely issued (§3.2). The
+  rules it does give that are fixed at issuance are the content of each
+  credential (§4.1.1, §4.1.2) and the end of validity of a boarding pass.
+
+  Facts fixed at issuance, such as which device key a credential is bound to
+  and who its subject is, enter the model as inputs with no rule behind them.
+
+  Open point: Which issuance requirements does a relying party depend on? At
+  the least: that the device key is bound to the holder's device, that the
+  issuer checked the holder against the passport, and that a boarding pass is
+  issued to the passenger it names.
+
+  Blocks: G-02 (binding to the device key starts at issuance), G-03 (the
+  subject of each credential is set at issuance).
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §1.4.
+\end{definition}
+
+\begin{definition}[The data elements of a photoid (C-04)]
+  \label{def:c04}
+  \notready
+  The guide puts the data modelling and schema of credentials out of scope,
+  except for the boarding pass. The data elements of a photoid are in tables
+  of ISO/IEC TS 23220-4 that the guide refers to.
+
+  The photoid rules take the three tables as a parameter. Each guarantee is
+  proven for every content the tables could have, or is open.
+
+  Open point: Which data elements does One ID require in a photoid beyond
+  what the ISO tables require? The guide names only the portrait, and its
+  examples request the names and an age attestation.
+
+  External: ISO/IEC TS 23220-4:2026 Annex C, Tables C.1 to C.3.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §1.4.
+\end{definition}
+
+\begin{definition}[User interface and user experience (C-05)]
+  \label{def:c05}
+  \notready
+  The guide puts user interface and experience out of scope, and also
+  requires wallets to show what data is shared with whom (§4.2.1.2, §4.2.1.3)
+  and to display a boarding pass in a user-friendly way (§4.1.2).
+
+  The display obligations cannot be stated precisely while the interface is
+  out of scope. The model treats consent as a recorded decision about a set
+  of data elements and a named verifier.
+
+  Open point: Are the display obligations in §4.1.2 and §4.2 requirements a
+  wallet is tested against, or guidance?
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §1.4.
+\end{definition}
+
+\begin{definition}[What a presentation may contain (C-07)]
+  \label{def:c07}
+  \uses{def:element}
+  A presentation may include selectively disclosed claims or all claims, from
+  one or more credentials.
+
+  A presentation is a set of data elements drawn from one or more
+  credentials. Needed by every guarantee about disclosure.
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §2.
+\end{definition}
+
+\begin{definition}[Who a trust list covers (C-08)]
+  \label{def:c08}
+  \uses{def:c01}
+  \notready
+  A trust list publishes accredited issuers and may be extended to verifiers
+  and wallet providers.
+
+  Whether a list of trusted verifiers exists at all is left open here, while
+  §3.2 requires wallets to have one.
+
+  Open point: Does the One ID trust list cover verifiers and wallet
+  providers, or issuers only?
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
+  ID guide} §2.
+\end{definition}
