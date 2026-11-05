@@ -33,21 +33,6 @@
   ID guide} §4.2.1.1.
 \end{definition}
 
-\begin{definition}[Validating the response (C-47)]
-  \label{def:c47}
-  \uses{def:c45, def:c13}
-  A response must be verified and validated, and should be sent to the
-  verifier's backend for decryption and verification.
-
-  Acceptance is the outcome of the profile's checks: C-61 to C-63 and C-65 in
-  the mdoc profile, C-76 to C-78 in the OpenID4VP profile, C-88 to C-90 in
-  proximity.
-
-  Source:
-  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
-  ID guide} §4.2.1.1.
-\end{definition}
-
 \begin{definition}[Registering the wallet with the operating system (C-48)]
   \label{def:c48}
   \notready
@@ -110,28 +95,9 @@
   ID guide} §4.2.1.2, prerequisite 4.
 \end{definition}
 
-\begin{definition}[The mdoc request (C-52)]
-  \label{def:c52}
-  \uses{def:c45, def:element}
-  A relying party shall build its request in the format of ISO/IEC TS 18013-7
-  Annex C: a device request and encryption information that names the
-  protocol \texttt{dcapi} and carries a nonce and the recipient's public key.
-  The protocol value must be \texttt{org-iso-mdoc}.
-
-  A request has a nonce and an encryption key of the verifier, and lists
-  document types, namespaces and data elements.
-
-  External: ISO/IEC TS 18013-7:2025 Annex C §C.2; ISO/IEC 18013-5:2021
-  §8.3.2.1.2.1.
-
-  Source:
-  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
-  ID guide} §4.2.1.2, step 1.
-\end{definition}
-
 \begin{definition}[Several document types in one request (C-53)]
   \label{def:c53}
-  \uses{def:c52, def:photoid, def:boarding-pass}
+  \uses{def:mdoc-request, def:photoid, def:boarding-pass}
   One request may name several document types, such as the photoid and the
   boarding pass.
 
@@ -145,7 +111,7 @@
 
 \begin{definition}[Requesting only what is needed (C-54)]
   \label{def:c54}
-  \uses{def:c11, def:c52}
+  \uses{def:c11, def:mdoc-request}
   \notready
   A relying party should request only the namespaces and data elements it
   needs.
@@ -161,7 +127,7 @@
 
 \begin{definition}[Reader authentication in the mdoc request (C-55)]
   \label{def:c55}
-  \uses{def:c16, def:c52}
+  \uses{def:c16, def:mdoc-request}
   \notready
   Reader authentication is recommended so the wallet can tell the request
   comes from a valid verifier. The guide notes not every wallet can process
@@ -174,22 +140,6 @@
   Open point: See C-16: is a request without reader authentication answered?
 
   External: ISO/IEC TS 23220-4:2026 Annex A §A.1.4.
-
-  Source:
-  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
-  ID guide} §4.2.1.2, step 1.
-\end{definition}
-
-\begin{definition}[The nonce of the mdoc request (C-56)]
-  \label{def:c56}
-  \uses{def:c52}
-  The nonce should be pseudorandom and must have at least 16 bytes of
-  entropy.
-
-  Two requests of a verifier have different nonces, except with negligible
-  chance.
-
-  External: ISO/IEC TS 18013-7:2025 Annex C §C.2.
 
   Source:
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
@@ -216,7 +166,7 @@
 
 \begin{definition}[The wallet's check of the request's content (C-58)]
   \label{def:c58}
-  \uses{def:c52}
+  \uses{def:mdoc-request}
   A wallet should validate the request's syntax, document type, namespaces
   and data element identifiers, and may apply its own disclosure policies to
   accept or refuse the request.
@@ -230,7 +180,7 @@
 
 \begin{definition}[The mdoc response (C-59)]
   \label{def:c59}
-  \uses{def:c52, def:c56}
+  \uses{def:mdoc-request}
   The response must follow Annex C: it names the protocol \texttt{dcapi}, is
   encrypted to the verifier's key, and uses the session transcript of Annex
   C.
@@ -245,65 +195,14 @@
   ID guide} §4.2.1.2, step 4.
 \end{definition}
 
-\begin{definition}[Consent in the mdoc profile (C-60)]
-  \label{def:c60}
-  \uses{def:c22, def:c57, def:c59}
-  Informed consent must be obtained before the response is sent, and the
-  wallet must show what data is shared with whom. The response is released
-  after the user authorizes and authenticates.
-
-  No response without consent to its data elements. 'With whom' needs the
-  verifier's identity, which the wallet has only if it authenticated the
-  request.
-
-  Source:
-  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
-  ID guide} §4.2.1.2, step 5.
-\end{definition}
-
 \begin{definition}[Decrypting the mdoc response (C-61)]
   \label{def:c61}
-  \uses{def:c59, def:c47}
+  \uses{def:c59}
   The verifier must decrypt the response with the mechanism of Annex C.
 
   Only the verifier that made the request can read the response.
 
   External: ISO/IEC TS 18013-7:2025 Annex C §C.4; IETF RFC 9180.
-
-  Source:
-  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
-  ID guide} §4.2.1.2, step 6.
-\end{definition}
-
-\begin{definition}[Issuer data authentication in the mdoc profile (C-62)]
-  \label{def:c62}
-  \uses{def:c49, def:c61, def:expired}
-  The verifier must authenticate the issuer data: that a trusted issuer
-  issued the mdoc, that the signature is valid, and that the mdoc is within
-  its validity. Certificate validation as ISO/IEC TS 23220-4 describes it is
-  recommended.
-
-  An accepted response comes from a trusted issuer and is not expired. This
-  is the only profile whose text names the time validity check.
-
-  External: ISO/IEC 18013-5:2021 §9.3.1.
-
-  Source:
-  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
-  ID guide} §4.2.1.2, step 6.
-\end{definition}
-
-\begin{definition}[Mdoc authentication in the mdoc profile (C-63)]
-  \label{def:c63}
-  \uses{def:c61, def:c59, def:c03}
-  The verifier must authenticate the mdoc, to ensure the data comes from the
-  holder's device and to prevent cloning, replay and man-in-the-middle
-  attacks.
-
-  An accepted response was signed by the device key the issuer bound the
-  credential to, over the transcript of this request.
-
-  External: ISO/IEC 18013-5:2021 §9.1.3.
 
   Source:
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
@@ -334,7 +233,7 @@
 
 \begin{definition}[What the mdoc profile does not check (C-65)]
   \label{def:c65}
-  \uses{def:c52, def:c56, def:c63}
+  \uses{def:mdoc-request}
   \notready
   The verifier's list of checks in the mdoc profile has no step that compares
   the response with the request: that it holds only the document types and
@@ -363,7 +262,7 @@
 
 \begin{definition}[Reporting the result (C-66)]
   \label{def:c66}
-  \uses{def:c47}
+  \uses{def:acceptance}
   \notready
   After processing a response, 'successful or error handled', the verifier
   must set the error structure that the ISO device response defines, and
@@ -383,7 +282,7 @@
 
 \begin{definition}[Passing validated data on (C-67)]
   \label{def:c67}
-  \uses{def:c47}
+  \uses{def:acceptance}
   After a successful validation the verifier should send the data to the
   identity management system through IATA's CUWS APIs.
 
@@ -443,25 +342,6 @@
   ID guide} §4.2.1.3, step 1.
 \end{definition}
 
-\begin{definition}[The signed authorization request (C-70)]
-  \label{def:c70}
-  \uses{def:c69, def:c45, def:c68}
-  The request must be signed by the verifier. It sets the response type, a
-  client identifier that is the hash of the verifier's certificate, the
-  response mode, the expected origins, an encryption key made for this
-  request, the formats supported, and the query. The protocol value must be
-  \texttt{openid4vp-v1-signed}.
-
-  A request names its verifier by certificate and carries a key only that
-  verifier holds.
-
-  External: OpenID4VP 1.0 §5, §5.1, §5.9.3, §A.2, §A.3.2, §B.2.2.
-
-  Source:
-  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
-  ID guide} §4.2.1.3, steps 2 and 3.
-\end{definition}
-
 \begin{definition}[Trusted authorities in the query (C-71)]
   \label{def:c71}
   \uses{def:c69, def:c15}
@@ -479,7 +359,6 @@
 
 \begin{definition}[The nonce and state of the authorization request (C-72)]
   \label{def:c72}
-  \uses{def:c70}
   \notready
   The nonce and state must be set as OpenID4VP says. OpenID4VP requires a
   nonce that is fresh and random for every request, and asks for 'sufficient
@@ -502,53 +381,9 @@
   ID guide} §4.2.1.3, step 2.
 \end{definition}
 
-\begin{definition}[The wallet's checks of the authorization request (C-73)]
-  \label{def:c73}
-  \uses{def:c70, def:c16}
-  \notready
-  The wallet validates the parameters, checks the request's origin against
-  the expected origins, validates the signature, and checks the client
-  identifier against trusted verifiers. The list is introduced with 'should',
-  three items say must, and the signature item has no keyword. A failed check
-  must produce an OpenID4VP error. OpenID4VP, which the guide requires, makes
-  the origin check and the check of the signature and the certificate chain a
-  must for the wallet (OpenID4VP §A.2, §5.9.3).
-
-  Taken as must. Then no response is made for a request whose origin,
-  signature or verifier fails.
-
-  Open point: Are all four checks required by the guide, as OpenID4VP requires
-  two of them? And against which list is the client identifier checked
-  (C-16)?
-
-  External: OpenID4VP 1.0 §8.5, §A.2, §5.9.3 (read).
-
-  Source:
-  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
-  ID guide} §4.2.1.3, step 4.
-\end{definition}
-
-\begin{definition}[The OpenID4VP response (C-74)]
-  \label{def:c74}
-  \uses{def:c70, def:c72}
-  The wallet must build the token for the query, set the mdoc session
-  transcript from the origin, the nonce and the verifier's key, with its
-  first two members set to null, and encrypt the response to the verifier's
-  key.
-
-  The response is tied to this request's nonce and origin, and readable only
-  by the verifier.
-
-  External: OpenID4VP 1.0 §8.1, §B.2.5, §B.2.6.2.
-
-  Source:
-  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
-  ID guide} §4.2.1.3, step 4.
-\end{definition}
-
 \begin{definition}[Consent in the OpenID4VP profile (C-75)]
   \label{def:c75}
-  \uses{def:c22, def:c73, def:c74}
+  \uses{def:c22, def:openid4vp-wallet-checks, def:openid4vp-binding}
   \notready
   Informed consent must be taken and the wallet must show what data is shared
   with whom. After user authentication and authorization the response
@@ -565,44 +400,9 @@
   ID guide} §4.2.1.3, step 4.
 \end{definition}
 
-\begin{definition}[Decrypting and validating the token (C-76)]
-  \label{def:c76}
-  \uses{def:c74, def:c47, def:c69}
-  The verifier must decrypt the response with the private key of this
-  request, and validate that the token holds credentials of the right format
-  that match the query.
-
-  An accepted response answers the query. OpenID4VP requires the wallet to
-  send no selectively disclosable claim the query did not select (OpenID4VP
-  §6.4), and the verifier to check that what came back meets the query
-  (OpenID4VP §8.6). It does not tell the verifier to refuse a response that
-  holds more.
-
-  External: OpenID4VP 1.0 §6.4, §8.6 (read).
-
-  Source:
-  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
-  ID guide} §4.2.1.3, step 5.
-\end{definition}
-
-\begin{definition}[The nonce check (C-77)]
-  \label{def:c77}
-  \uses{def:c76, def:c72}
-  The verifier must rebuild the session transcript and validate the nonce
-  against the request, to prevent replay.
-
-  An accepted response was made for this request.
-
-  External: OpenID4VP 1.0 §B.2.6.2.
-
-  Source:
-  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
-  ID guide} §4.2.1.3, step 5.
-\end{definition}
-
 \begin{definition}[Issuer and device checks in the OpenID4VP profile (C-78)]
   \label{def:c78}
-  \uses{def:c76, def:c15, def:c03, def:expired, def:c101}
+  \uses{def:c15, def:c03, def:expired, def:c101}
   \notready
   The verifier must authenticate the issuer against a trusted list, which it
   'should' have access to, authenticate the issuer data, and authenticate the
@@ -625,7 +425,7 @@
 
 \begin{definition}[Errors in the OpenID4VP profile (C-79)]
   \label{def:c79}
-  \uses{def:c76}
+  \uses{def:acceptance}
   Errors in processing a response should follow the OpenID4VP error
   responses.
 
@@ -700,3 +500,399 @@
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One
   ID guide} §4.2.1.3 step 5, §4.2.2 step 5.
 \end{definition}
+
+\begin{definition}[Checking the data model on what is received (C-107)]
+  \label{def:c107}
+  \uses{def:acceptance, def:photoid, def:boarding-pass}
+  \notready
+  The guide's lists of a relying party's checks hold no step that checks a
+  response against the credential data model of §4.1: the mandatory data
+  elements, their encodings, the format of the boarding pass string.  With
+  selective disclosure a relying party sees only the data elements it
+  requested.
+
+  A relying party cannot tell from a response whether the credential behind
+  it holds every mandatory data element.  The data model requirements can be
+  checked in full only by the issuer, and by a wallet that holds the whole
+  credential.
+
+  Case to check: A relying party requests the family name of a photoid.  The
+  photoid behind the response has no portrait, which one reading of the guide
+  requires.  The response is the same as one from a complete photoid.
+
+  Open point: Does a relying party check anything of §4.1 on a response, such
+  as the encoding of what it received or the format of the boarding pass
+  string?  Or are the data model requirements the issuer's duty alone?
+
+  Source:
+  \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §4.1.1, §4.1.2, §4.2.1.3.
+\end{definition}
+
+% The presentation rules in Lean.
+
+\begin{definition}[What a wallet and a relying party exchange]
+  \label{def:exchange}
+  \lean{Rules.OneId.Request, Rules.OneId.Consent, Rules.OneId.Response, Rules.OneId.Presented, Rules.OneId.Credential, Rules.OneId.ElementRef, Rules.OneId.Profile, Rules.OneId.SessionTranscript, Rules.OneId.DeviceSignature, Rules.OneId.Key, Rules.OneId.Nonce, Rules.OneId.Origin, Rules.OneId.Issuer, Rules.OneId.Mdoc.refs, Rules.OneId.Mdoc.disclose, Rules.OneId.Response.refs}
+  \uses{def:mdoc, def:element}
+  All three profiles have the same parts: a request that names data elements by
+  document type, namespace and identifier, the holder's consent, a response
+  that discloses data elements of credentials, and the relying party's checks.
+  A credential as issued has an issuer and the key of the device it was issued
+  to.  A presented credential has the data elements disclosed, the issuer's
+  signature and a device signature.
+
+  No cryptography is modelled.  Keys, nonces and origins are values that can
+  only be compared, and a device signature is the key that made it and the
+  session transcript it was made over.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §4.2.1.1, §4.2.1.2, §4.2.1.3, §4.2.2.
+\end{definition}
+
+\begin{definition}[The session transcript of each profile]
+  \label{def:session-transcript}
+  \lean{Rules.OneId.IsoTranscripts, Rules.OneId.expectedTranscript}
+  \uses{def:exchange, def:openid4vp-binding, def:c59}
+  A device signs its response over a session transcript, and each profile
+  defines the transcript differently.  The OpenID4VP profile's is in a public
+  specification.  The other two are in ISO clauses this project has not read,
+  so the model takes them as given: for a request, some value, with no
+  assumption about which parts of the request it depends on.
+
+  External: ISO/IEC TS 18013-7:2025 Annex C §C.5; ISO/IEC 18013-5:2021
+  §9.1.5.1.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §4.2.1.2, §4.2.2.
+\end{definition}
+
+\begin{definition}[A wallet's answer to a request (C-60)]
+  \label{def:wallet-respond}
+  \lean{Rules.OneId.Wallet.respond, Rules.OneId.Credential.present, Rules.OneId.ConsentReading, Rules.OneId.Request.wanted}
+  \uses{def:exchange, def:session-transcript, def:c22}
+  A wallet answers a request with the data elements that the request names and
+  the holder approved, and with nothing of a credential that has none of them.
+  It signs each credential it presents with that credential's device key, over
+  the session transcript of the request as the wallet received it.
+
+  The guide requires informed consent before every response, in all three
+  profiles.  What a wallet does when the holder approves only some of the data
+  elements requested is a reading: it sends those, or it sends nothing of that
+  credential.
+
+  External: OpenID4VP §6.4; ISO/IEC 18013-5:2021 §8.3.2.1.2.2, §9.1.3.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §3.1, §3.2, §4.2.1.2, §4.2.1.3, §4.2.2.
+\end{definition}
+
+\begin{theorem}[A wallet discloses only what was requested and approved]
+  \label{thm:wallet-discloses}
+  \lean{Rules.OneId.wallet_discloses_only_requested_and_approved, Rules.OneId.wallet_presents_nothing_without_consent, Rules.OneId.wallet_signs_with_device_key}
+  \uses{def:wallet-respond}
+  Every data element a wallet discloses was named by the request and approved
+  by the holder, under both readings of partial approval.  A wallet presents
+  nothing when the holder approved nothing, and signs each credential it
+  presents with that credential's device key over the transcript of the request
+  it received.
+\end{theorem}
+\begin{proof}
+  \uses{def:wallet-respond}
+  The wallet discloses the requested data elements filtered by the approved ones.
+\end{proof}
+
+\begin{theorem}[Partial approval withholds the credential (C-105)]
+  \label{thm:partial-consent}
+  \lean{Rules.OneId.partial_consent_withholds_credential}
+  \uses{def:wallet-respond}
+  A wallet presents nothing of a credential when the holder approved only some
+  of the data elements requested from it.  Not proven.
+
+  Counterexample: a check-in page requests the family name and the portrait.
+  The traveler approves the family name and declines the portrait.  A wallet
+  that sends what was approved sends the family name.
+
+  Open point: the guide requires informed consent and that the wallet show what
+  is shared with whom, and does not say what happens when a holder agrees to a
+  part.  OpenID4VP says a wallet that cannot deliver every claim asked of a
+  credential must not return it (OpenID4VP §6.4.1).  When a holder approves
+  only some of the data elements requested, does the wallet send those, or
+  nothing from that credential?  Is the answer the same in all three profiles?
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §3.2, §4.2.1.3.
+\end{theorem}
+
+\begin{definition}[A relying party's decision on a response (C-47)]
+  \label{def:acceptance}
+  \lean{Rules.OneId.refusals, Rules.OneId.Presented.refusals, Rules.OneId.AcceptanceReading, Rules.OneId.AcceptanceReading.checksValidity, Rules.OneId.AcceptanceReading.checksTranscript, Rules.OneId.Refusal}
+  \uses{def:exchange, def:session-transcript, def:expired, def:c03, def:c13, def:c15, def:c45, def:c49, def:c61, def:c65, def:c78, def:c88, def:c101}
+  A relying party accepts a response only if every credential in it comes from
+  an issuer on its list of trusted issuers, has an issuer's signature that
+  verifies, and has a device signature made with the device key the issuer
+  signed.  All three profiles require these.
+
+  The profiles differ on three more checks, and the differences are readings:
+  whether the device signature must be over the transcript of this request
+  (required in the OpenID4VP profile), whether the end of validity is checked
+  (required in the mdoc profile), and whether a response with a data element
+  that was not requested is refused (stated nowhere).  Who is on the list of
+  trusted issuers is given to the rule.  Decryption and revocation are not
+  modelled.
+
+  External: ISO/IEC 18013-5:2021 §9.1.2, §9.1.3, §9.3.1; ISO/IEC TS
+  18013-7:2025 Annex C; OpenID4VP §8.6.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §3.1, §3.2, §4.2.1.1, §4.2.1.2, §4.2.1.3, §4.2.2.
+\end{definition}
+
+\begin{theorem}[An accepted response comes from a trusted issuer]
+  \label{thm:accepted-trusted-issuer}
+  \lean{Rules.OneId.accepted_from_trusted_issuer}
+  \uses{def:acceptance}
+  Every credential in an accepted response comes from an issuer on the relying
+  party's list and has an issuer's signature that verifies, in every profile
+  and under every reading.
+\end{theorem}
+\begin{proof}
+  \uses{def:acceptance}
+  An issuer off the list and a signature that does not verify are each a reason to refuse.
+\end{proof}
+
+\begin{theorem}[An accepted response is signed with the device key]
+  \label{thm:accepted-device-key}
+  \lean{Rules.OneId.accepted_signed_by_device_key}
+  \uses{def:acceptance}
+  Every credential in an accepted response has a device signature made with the
+  device key its issuer signed, in every profile and under every reading.  This
+  is the device half of the guarantee G-02.
+\end{theorem}
+\begin{proof}
+  \uses{def:acceptance}
+  A missing device signature and one made with another key are each a reason to refuse.
+\end{proof}
+
+\begin{theorem}[A wallet cannot be checked for consent]
+  \label{thm:no-check-shows-consent}
+  \lean{Rules.OneId.no_check_shows_consent}
+  \uses{def:acceptance, def:wallet-respond}
+  Whatever a relying party checks on a request and its response, it cannot tell
+  whether the holder approved what was sent.  The consent half of the guarantee
+  G-01 rests on the wallet, and on whoever vouches for wallets.
+\end{theorem}
+\begin{proof}
+  \uses{def:wallet-respond}
+  The same response could have been sent with nothing approved.
+\end{proof}
+
+\begin{theorem}[An honest response is accepted]
+  \label{thm:wallet-response-accepted}
+  \lean{Rules.OneId.wallet_response_accepted}
+  \uses{def:acceptance, def:wallet-respond}
+  A response a wallet makes for the relying party's own request, from
+  credentials of trusted issuers that have not expired, is accepted in every
+  profile and under every reading.
+\end{theorem}
+\begin{proof}
+  \uses{def:acceptance, def:wallet-respond}
+  Each reason to refuse fails for such a response.
+\end{proof}
+
+\begin{definition}[A photoid and a boarding pass presented together (C-106)]
+  \label{def:pair}
+  \lean{Rules.OneId.pairRefusals, Rules.OneId.pairMatch, Rules.OneId.PairReading, Rules.OneId.PairRefusal, Rules.OneId.Presented.isOf}
+  \uses{def:acceptance, def:traveler-match, def:c03, def:c53}
+  A relying party accepts a photoid and a boarding pass presented together only
+  if each is accepted on its own and the two pass a check that they are one
+  traveler's.  The guide states no such check.  The content of the two can be
+  compared, as in the credential data model, and a presentation adds the device
+  keys: a reading in which the two credentials must carry the same device key.
+
+  External: IATA Resolution 792; ISO/IEC 18013-5:2021 §9.1.3.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §4.1.2, §3.2, §4.2.1.2.
+\end{definition}
+
+\begin{theorem}[In an accepted pair each credential is accepted]
+  \label{thm:pair-each-accepted}
+  \lean{Rules.OneId.accepted_pair_each_accepted}
+  \uses{def:pair}
+  In an accepted pair each credential is accepted on its own, the first is a
+  photoid and the second is a boarding pass.
+\end{theorem}
+\begin{proof}
+  \uses{def:pair}
+  Each reason to refuse one credential is a reason to refuse the pair.
+\end{proof}
+
+\begin{theorem}[No check of a presentation identifies the traveler]
+  \label{thm:no-presentation-check}
+  \lean{Rules.OneId.no_presentation_check_identifies_the_traveler}
+  \uses{def:pair, thm:no-content-check}
+  Whatever a relying party checks on a presented photoid and a presented
+  boarding pass, device keys included, a pair it accepts can be presentations
+  of credentials issued about two different travelers.  A check of device keys
+  gives one traveler only together with a rule about issuance.
+\end{theorem}
+\begin{proof}
+  \uses{def:pair}
+  The same two presentations could come from credentials issued about different people.
+\end{proof}
+
+\begin{theorem}[One traveler's pair is accepted]
+  \label{thm:same-traveler-pair-accepted}
+  \lean{Rules.OneId.same_traveler_pair_accepted}
+  \uses{def:pair, thm:same-traveler-matches}
+  A photoid and a boarding pass about the same traveler, each accepted on its
+  own, are accepted together.  Not proven.
+
+  Counterexample: a traveler holds a photoid on a phone and a boarding pass on
+  a tablet.  Under the reading that the two credentials must carry the same
+  device key, the pair is refused.
+
+  Open point: if the device key is what ties the two credentials together, a
+  traveler must hold both in one wallet on one device, and both issuers must
+  issue to the same key.  Does One ID require a photoid and a boarding pass to
+  be issued to the same device key, and what does a traveler do who holds them
+  on two devices?
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §4.1.2, §3.2.
+\end{theorem}
+
+\begin{definition}[The OpenID4VP request (C-70)]
+  \label{def:openid4vp-request}
+  \lean{Rules.OneId.OpenId4Vp.requestFindings, Rules.OneId.OpenId4Vp.AuthorizationRequest, Rules.OneId.OpenId4Vp.CredentialQuery, Rules.OneId.OpenId4Vp.Certificate, Rules.OneId.OpenId4Vp.RequestReading, Rules.OneId.OpenId4Vp.RequestFinding, Rules.OneId.OpenId4Vp.AuthorizationRequest.shared, Rules.OneId.OpenId4Vp.protocolValue, Rules.OneId.OpenId4Vp.responseTypeValue, Rules.OneId.OpenId4Vp.responseModeValue, Rules.OneId.OpenId4Vp.clientIdPrefixValue, Rules.OneId.OpenId4Vp.mdocFormat}
+  \uses{def:exchange, def:c45, def:c68, def:c69, def:c72}
+  An OpenID4VP request is accepted only if it has the protocol value, response
+  type, response mode and client identifier prefix the guide names, is signed
+  with the key of the certificate its client identifier names, names its
+  expected origins, carries an encryption key and a nonce, and asks only for
+  mdoc credentials.  Whether it must also carry a state value is a reading.
+
+  The rule does not check that the key and the nonce are new for each request,
+  the minimum set of claims (C-69), or the entropy of the nonce (C-72).
+
+  External: OpenID4VP §5, §5.1, §5.2, §5.9.3, §6, §A.2, §A.3.2; OpenID4VC HAIP
+  §5, §5.2; W3C Digital Credentials API §5.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §4.2.1.3.
+\end{definition}
+
+\begin{theorem}[An accepted OpenID4VP request has its required parts]
+  \label{thm:openid4vp-request-parts}
+  \lean{Rules.OneId.OpenId4Vp.accepted_request_parts}
+  \uses{def:openid4vp-request}
+  An accepted request has the four values the guide names, is signed with the
+  key of the certificate its client identifier names, names an expected origin,
+  carries an encryption key and a nonce, and asks only for mdoc credentials.
+\end{theorem}
+\begin{proof}
+  \uses{def:openid4vp-request}
+  Each missing part is a finding.
+\end{proof}
+
+\begin{theorem}[An accepted OpenID4VP request carries a state value]
+  \label{thm:openid4vp-state}
+  \lean{Rules.OneId.OpenId4Vp.accepted_request_has_state}
+  \uses{def:openid4vp-request, def:c72}
+  An accepted OpenID4VP request carries a state value.  Not proven.
+
+  Counterexample: a signed request with every part the guide's step 2 lists and
+  no state value, as in the guide's own example, is accepted under the reading
+  that follows OpenID4VP.
+
+  Open point: the guide says the nonce and state must be set as OpenID4VP §5.2
+  says.  That clause requires state only for a presentation without a holder
+  binding proof, §5.3 exempts the Digital Credentials API, and Appendix A, which
+  the guide says must be followed, does not list the parameter.  Is the must
+  for state meant, and if so what does a relying party or a wallet do with it?
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §4.2.1.3.
+\end{theorem}
+
+\begin{definition}[The wallet's checks of an OpenID4VP request (C-73)]
+  \label{def:openid4vp-wallet-checks}
+  \lean{Rules.OneId.OpenId4Vp.walletFindings, Rules.OneId.OpenId4Vp.WalletFinding}
+  \uses{def:openid4vp-request, def:c16}
+  A wallet answers an OpenID4VP request only if the request is well formed,
+  came from an origin it names, is signed with the key of the certificate its
+  client identifier names, and that certificate is a trusted relying party's.
+
+  The guide introduces its list of four checks with should and marks three of
+  them with must.  OpenID4VP, which the guide makes mandatory, requires the
+  origin check and the check of the signature and the certificate chain of a
+  wallet, so the model treats the checks as required.  Which list a wallet
+  checks a relying party against is given to the rule (C-16).
+
+  External: OpenID4VP §A.2, §5.9.3.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §4.2.1.3, §3.2.
+\end{definition}
+
+\begin{theorem}[A wallet answers only a trusted, signed request from an expected origin]
+  \label{thm:openid4vp-answered}
+  \lean{Rules.OneId.OpenId4Vp.answered_request_parts}
+  \uses{def:openid4vp-wallet-checks}
+  A request a wallet answers came from an origin it names, is signed with the
+  key of the certificate its client identifier names, and that certificate is
+  on the wallet's list of trusted relying parties.
+\end{theorem}
+\begin{proof}
+  \uses{def:openid4vp-wallet-checks}
+  Each failed check is a finding.
+\end{proof}
+
+\begin{definition}[What an OpenID4VP response is bound to (C-77)]
+  \label{def:openid4vp-binding}
+  \lean{Rules.OneId.OpenId4Vp.transcript, Rules.OneId.OpenId4Vp.deviceResponses}
+  \uses{def:exchange}
+  In the OpenID4VP profile the wallet signs its response over the origin of the
+  request, the nonce and the relying party's encryption key, and the relying
+  party rebuilds that transcript and validates the nonce.  Each mdoc is
+  returned in a device response of its own.
+
+  The specification hashes the three values.  The model keeps the values, so it
+  does not model two inputs with one hash.
+
+  External: OpenID4VP §B.2.5, §B.2.6.2; OpenID4VC HAIP §5.3.1.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §4.2.1.3.
+\end{definition}
+
+\begin{theorem}[An OpenID4VP response cannot be used for another request]
+  \label{thm:openid4vp-refuses-other-request}
+  \lean{Rules.OneId.OpenId4Vp.refuses_other_request, Rules.OneId.OpenId4Vp.accepted_for_one_request, Rules.OneId.OpenId4Vp.one_mdoc_per_deviceResponse}
+  \uses{def:openid4vp-binding, def:acceptance}
+  In the OpenID4VP profile a response signed for another nonce, another origin
+  or another encryption key is refused, under every reading.  A response
+  accepted for two requests was made for one nonce, so a captured response
+  cannot answer a later request.
+\end{theorem}
+\begin{proof}
+  \uses{def:openid4vp-binding, def:acceptance}
+  The transcript the relying party rebuilds differs when any of the three values differs.
+\end{proof}
+
+\begin{definition}[The request of the mdoc profile (C-52)]
+  \label{def:mdoc-request}
+  \lean{Rules.OneId.MdocProfile.requestFindings, Rules.OneId.MdocProfile.DeviceRequest, Rules.OneId.MdocProfile.RequestFinding, Rules.OneId.MdocProfile.DeviceRequest.shared, Rules.OneId.MdocProfile.protocolValue, Rules.OneId.MdocProfile.encryptionProtocolValue, Rules.OneId.MdocProfile.minimumNonceEntropy}
+  \uses{def:exchange, def:c45, def:element}
+  A request of the mdoc profile is accepted only if it has the protocol value
+  \texttt{org-iso-mdoc}, its encryption information names \texttt{dcapi}, and it
+  carries a nonce of at least 16 bytes of entropy and the recipient's public
+  key.  The entropy of a nonce is taken as given.  Reader authentication is
+  recommended and is not checked by this rule.
+
+  External: ISO/IEC TS 18013-7:2025 Annex C §C.2; W3C Digital Credentials API
+  §5.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §4.2.1.2.
+\end{definition}
+
+\begin{theorem}[An accepted mdoc request has its required parts]
+  \label{thm:mdoc-request-parts}
+  \lean{Rules.OneId.MdocProfile.accepted_deviceRequest_parts}
+  \uses{def:mdoc-request}
+  An accepted request of the mdoc profile names both protocol values and
+  carries a nonce of at least 16 bytes of entropy and a recipient key.
+\end{theorem}
+\begin{proof}
+  \uses{def:mdoc-request}
+  Each missing part is a finding.
+\end{proof}

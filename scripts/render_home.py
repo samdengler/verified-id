@@ -58,7 +58,7 @@ ONE_ID = "https://www.iata.org/en/programs/passenger/one-id/"
 FIND = "review/find/?domain=Verso.Genre.Manual.section&name="
 
 HOME_CSS = """
-.parts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.parts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .part { position: relative; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--ring);
   border-radius: 10px; padding: 16px 18px 14px; transition: border-color .15s; }
 .part:hover { border-color: color-mix(in srgb, var(--ready) 45%, var(--ring)); }
@@ -190,9 +190,14 @@ allows and the guarantee forbids, so someone who owns the standard has to say wh
 
 
 def covers(show, m, rules, criteria, guide):
-    """Three cards: what is in Lean, what is surveyed, and what the guide leaves out."""
-    proven = sum(1 for c in criteria if c.get("status") == "proven")
-    open_ = sum(1 for c in criteria if c.get("status") == "open")
+    """Four cards: the two areas in Lean, what is surveyed, and what the guide leaves out."""
+    def area(prefixes):
+        rs = [d for d in rules if d["earsId"].startswith(prefixes)]
+        cs = [c for d in rs for c in d.get("criteria", [])]
+        return (f"{plural(len(rs), 'requirement', 'requirements')} with "
+                f"{plural(len(cs), 'acceptance criterion', 'acceptance criteria')}: "
+                f"<strong>{sum(1 for c in cs if c.get('status') == 'proven')}</strong> proven and "
+                f"<strong>{sum(1 for c in cs if c.get('status') == 'open')}</strong> open.")
     candidates = [n for n in show if not n["lean"]]
     by_status = Counter(n["status"] for n in candidates)
     grades = Counter(r["grade"] for cid, r in survey_rows().items() if cid.startswith("C-"))
@@ -207,14 +212,16 @@ def covers(show, m, rules, criteria, guide):
     return "".join([
         part("review/", "In Lean: the two credentials",
              f"<p>What a photoid and a boarding pass must contain, how long each stays valid, and how the two are "
-             f"matched to one traveler (§4.1 of the guide). {plural(len(rules), 'requirement', 'requirements')} with "
-             f"{plural(len(criteria), 'acceptance criterion', 'acceptance criteria')}: <strong>{proven}</strong> proven "
-             f"and <strong>{open_}</strong> open.</p>"),
+             f"matched to one traveler (§4.1 of the guide). {area('OID-1')}</p>"),
+        part(f"{FIND}oid-201", "In Lean: presenting them",
+             f"<p>What a wallet discloses, what a relying party checks before it accepts a response, and what a "
+             f"response is bound to in the guide's three presentation profiles (§4.2). Signatures and keys are "
+             f"symbolic: no cryptography is modelled. {area(('OID-2', 'OID-3'))}</p>"),
         part("progress/#next", "Surveyed: every other rule",
              f"<p>A survey graded {plural(sum(grades.values()), 'rule', 'rules')} of the guide by how clearly it is "
              f"stated: <strong>{grades['Clear']}</strong> clear, <strong>{grades['Vague']}</strong> vague and "
-             f"<strong>{grades['Silent']}</strong> silent. The presentation of credentials to a relying party (§4.2) and "
-             f"the requirements of §3 are candidates for Lean: {plural(by_status['decision'], 'needs', 'need')} a "
+             f"<strong>{grades['Silent']}</strong> silent. The rules of §4.2 that rest on ISO documents this project has not "
+             f"read and the requirements of §3 are candidates for Lean: {plural(by_status['decision'], 'needs', 'need')} a "
              f"decision first, {plural(by_status['source'], 'needs', 'need')} a source to be read, "
              f"{plural(by_status['ready'], 'is', 'are')} ready to build and "
              f"{plural(by_status['waiting'], 'waits', 'wait')} on others.</p>"),
@@ -324,7 +331,7 @@ This page is generated from the model on every build.</p>
 
 <h2 id="covers">What the model covers</h2>
 <p class="sub">The work goes in milestones: every rule of the guide is surveyed first, then one area at a time is written in
-Lean. The credentials are in Lean now. The presentation flows come next.</p>
+Lean. The credentials and their presentation are in Lean now.</p>
 <div class="parts">{covers(show, m, rules, criteria, guide)}</div>
 
 <h2 id="status">The model's status today</h2>

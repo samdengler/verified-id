@@ -10,6 +10,7 @@ IATA's One ID Technical Implementation Guide as a Lean model, with a survey of i
 - Never state what a specification the guide refers to says from general knowledge, in Lean, in a docstring, in the survey or on the site. A dependency is a parameter of the rule (such as `PhotoidTables` or `Resolution792`) or an entry in `Rules/Core/Assumptions.lean`, named on the declaration with `@[assumes "<key>"]`. Each entry says whether the specification was read.
 - The public specifications were fetched and read: OpenID4VP, the OpenID4VC high assurance profile, the W3C Digital Credentials draft, ICAO Doc 9303 parts 10 and 11, IATA's BCBP implementation guide, and RFCs 8949, 9052, 9180 and 5280. A statement about one of them comes from the fetched text and names the document and the clause, such as "OpenID4VP §6.4". `docs/external-survey.md` records each clause the guide cites, and only those clauses and what they depend on were read: do not state what another clause says without reading it first and adding it there. Several of these documents forbid copying, so describe a clause in our own words and quote at most a few words.
 - The ISO/IEC documents (18013-5, TS 18013-7, TS 23220-2, TS 23220-4) and IATA Resolution 792 are sold, and the One ID business requirements are not public. They were not read. Model only what the guide itself says about them, and do not look for unofficial copies. If Sam provides one, add it to `scripts/external_sources.py`, survey its cited clauses, and change the assumption's `read` field.
+- No cryptography is modelled. Keys, nonces and origins are values that can only be compared, the outcome of a signature check is a field, and what an unread ISO clause defines (such as a session transcript, `IsoTranscripts`) is a parameter. Say so wherever a guarantee about presentation is shown, and never claim that a signature or a protocol is verified.
 - The guide puts the trust model, revocation and issuance out of scope. They are silent entries in the survey (C-01 to C-03), each with the guarantees it blocks. Do not fill them in.
 
 ## Survey first, then Lean
@@ -26,7 +27,7 @@ IATA's One ID Technical Implementation Guide as a Lean model, with a survey of i
 - Statuses, counts, rankings and example values are computed by the build. Never type one by hand: change the Lean or the blueprint and rebuild.
 - Proven means Lean checked a proof that holds for every input, every reading and every content of the external parameters. Open means the theorem has no proof and is tagged `@[open_question]`.
 - Nothing in the build searches for counterexamples. Examples are written by hand and Lean computes their results, so say "an example shows the case", never "Lean found".
-- The stand-in tables and the stand-in boarding pass format in `Rules/OneId/Examples.lean` are invented. Say so wherever they are shown.
+- The stand-in tables and the stand-in boarding pass format in `Rules/OneId/Examples.lean`, and the stand-in session transcripts in `Rules/OneId/PresentationExamples.lean`, are invented. Say so wherever they are shown.
 - This is a proof of concept, not affiliated with IATA.
 
 ## Authored and generated files
@@ -64,7 +65,7 @@ IATA's One ID Technical Implementation Guide as a Lean model, with a survey of i
 | Area | Guide | IDs | Blueprint file |
 | --- | --- | --- | --- |
 | Credential data model | §4.1 | OID-101 to OID-199 | `areas/credentials.tex` |
-| Remote presentation | §4.2.1 | OID-201 to OID-299 | `areas/remote.tex` |
+| Remote presentation, and the core all three profiles share | §4.2, §4.2.1 | OID-201 to OID-299 | `areas/remote.tex` |
 | Proximity presentation | §4.2.2 | OID-301 to OID-399 | `areas/proximity.tex` |
 | Functional requirements and assumptions | §3 | OID-401 to OID-499 | `areas/requirements.tex` |
 
@@ -73,7 +74,9 @@ Requirement IDs and survey IDs (C-01, G-01) never renumber. A concept used by mo
 ## Milestones
 
 - Work proceeds in milestones: a survey round, then an area's rules in Lean. Each milestone ends with `scripts/build-site.sh` passing, a commit, and an annotated tag `milestone/<name>`.
-- Milestone one, `credential-data-model`: the source conversion, the survey and the credential data model. Next: the presentation flows of §4.2, where the four candidate guarantees G-01 to G-04 are stated in Lean.
+- Milestone one, `credential-data-model`: the source conversion, the survey and the credential data model.
+- Milestone two, `presentation-flows`: the shared core of §4.2 (OID-201, OID-202, OID-207), the OpenID4VP profile (OID-203 to OID-205), the mdoc profile's request (OID-206) and the keys of a proximity session (OID-301), with G-01 to G-04 stated as theorems. Its tag is set after the critique's findings are handled.
+- Next: the ISO documents, if they are obtained, which settle the lookups and the session transcripts; the requirements of §3 that are still candidates.
 - An independent critique pass follows each milestone's Lean: a reviewer who has not seen the reasoning compares every criterion with its theorems and the survey with the guide. Its findings and what was done about each go in the README's decisions.
 
 ## Versions

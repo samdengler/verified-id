@@ -7,5 +7,11 @@ import Rules.OneId.Photoid
 import Rules.OneId.BoardingPass
 import Rules.OneId.Validity
 import Rules.OneId.Traveler
+import Rules.OneId.Exchange
+import Rules.OneId.OpenId4Vp
+import Rules.OneId.IsoProfiles
+import Rules.OneId.Presentation
 import Rules.OneId.Theorems
+import Rules.OneId.PresentationTheorems
 import Rules.OneId.Examples
+import Rules.OneId.PresentationExamples

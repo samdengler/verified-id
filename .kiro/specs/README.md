@@ -4,9 +4,9 @@
 
 Each folder is a requirement spec with one `requirements.md`, generated from the rules in one Lean module. The acceptance criteria are in EARS notation, and the folders follow the layout Kiro reads. The rule's docstring holds the user story and the acceptance criteria; the build computes each criterion's status from the theorems and examples tagged `@[checks]` with its ID. To change a requirement, edit the docstring and rebuild.
 
-35 acceptance criteria: 21 proven, 0 example only, 14 open, 0 not checked.
+68 acceptance criteria: 47 proven, 0 example only, 21 open, 0 not checked.
 
-9 rules: 0 confirmed, 0 confirmed but out of date, 9 written from a source, 0 assumed by the modeller.
+17 rules: 0 confirmed, 0 confirmed but out of date, 17 written from a source, 0 assumed by the modeller.
 
 | Spec | Requirement | User story | Criteria | Proven | Example only | Open | Not checked |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -19,6 +19,14 @@ Each folder is a requirement spec with one `requirements.md`, generated from the
 | [How long a credential stays valid](one-id-how-long-a-credential-stays-valid/requirements.md) | OID-108 | As a border authority, I want a photoid to stop being valid when the passport it was derived from expires, so that an expired passport is not accepted in digital form. | 1 | 0 | 0 | 1 | 0 |
 | [Credentials and their data elements](one-id-credentials-and-their-data-elements/requirements.md) | OID-106 | As a relying party, I want to name one data element of a credential by its namespace and its identifier, so that I can request only that element and the wallet can disclose it without the others. | 3 | 2 | 0 | 1 | 0 |
 | [Matching a photoid to a boarding pass](one-id-matching-a-photoid-to-a-boarding-pass/requirements.md) | OID-107 | As an airport touchpoint, I want the face I match and the boarding pass I admit to belong to one traveler, so that nobody boards on another person's boarding pass. | 2 | 0 | 0 | 2 | 0 |
+| [Presenting credentials and accepting a presentation](one-id-presenting-credentials-and-accepting-a-presentation/requirements.md) | OID-201 | As a passenger, I want my wallet to share what I was asked for and agreed to and nothing else, so that a relying party learns no more about me than I chose. | 5 | 4 | 0 | 1 | 0 |
+| [Presenting credentials and accepting a presentation](one-id-presenting-credentials-and-accepting-a-presentation/requirements.md) | OID-202 | As a relying party, I want to act only on data a trusted issuer signed and the holder's own device presented for my request, so that I can rely on it at a touchpoint. | 6 | 3 | 0 | 3 | 0 |
+| [Presenting credentials and accepting a presentation](one-id-presenting-credentials-and-accepting-a-presentation/requirements.md) | OID-207 | As an airport touchpoint, I want the face I match and the boarding pass I admit to come from one traveler's wallet, so that nobody boards on another person's boarding pass. | 3 | 1 | 0 | 2 | 0 |
+| [The OpenID4VP profile](one-id-the-openid4vp-profile/requirements.md) | OID-203 | As a wallet provider, I want every request to have the same required parts, so that my wallet can tell who asks, for what, and where to send the answer. | 6 | 5 | 0 | 1 | 0 |
+| [The OpenID4VP profile](one-id-the-openid4vp-profile/requirements.md) | OID-204 | As a passenger, I want my wallet to answer only the relying party that signed the request on the page I am on, so that a copied request on another site gets nothing. | 3 | 3 | 0 | 0 | 0 |
+| [The OpenID4VP profile](one-id-the-openid4vp-profile/requirements.md) | OID-205 | As a relying party, I want a response to be usable only for the request it answers, so that a response captured elsewhere or earlier is refused. | 4 | 4 | 0 | 0 | 0 |
+| [The two profiles that rest on ISO documents](one-id-the-two-profiles-that-rest-on-iso-documents/requirements.md) | OID-206 | As a wallet provider, I want every request of this profile to carry a strong nonce and a key to answer to, so that a response can be encrypted to the relying party and tied to its request. | 3 | 3 | 0 | 0 | 0 |
+| [The two profiles that rest on ISO documents](one-id-the-two-profiles-that-rest-on-iso-documents/requirements.md) | OID-301 | As a passenger, I want every tap or scan at a touchpoint to start a session of its own, so that what I present at one gate cannot be linked to or reused at another. | 3 | 3 | 0 | 0 | 0 |
 
 ## Acceptance criteria
 
@@ -59,5 +67,38 @@ Each folder is a requirement spec with one `requirements.md`, generated from the
 | OID-106.3 | IF two namespaces of a credential have the same name, or two data elements of one namespace have the same identifier THEN THE SYSTEM SHALL reject the credential. | open | open theorem `boardingPass_names_unique`; open theorem `photoid_names_unique`; counterexample `repeatedIdentifier`; counterexample `twoBoardingPassStrings` |
 | OID-107.1 | IF a photoid and a boarding pass presented together are about different travelers THEN THE SYSTEM SHALL reject the pair. | open | open theorem `matched_pair_same_traveler`; counterexample `anotherTravelersBoardingPass`; counterexample `twoTravelersWithOneName` |
 | OID-107.2 | WHEN a photoid and a boarding pass presented together are about the same traveler THE SYSTEM SHALL accept the pair. | open | open theorem `same_traveler_matches`; counterexample `ownBoardingPassRefused` |
+| OID-201.1 | THE SYSTEM SHALL disclose no data element that the request did not name. | proven | proven theorem `wallet_discloses_only_requested_and_approved`; example `checkInPresentation` |
+| OID-201.2 | THE SYSTEM SHALL disclose no data element that the holder did not approve. | proven | proven theorem `wallet_discloses_only_requested_and_approved`; example `checkInPresentation` |
+| OID-201.3 | IF the holder approves nothing THEN THE SYSTEM SHALL present no credential. | proven | proven theorem `wallet_presents_nothing_without_consent` |
+| OID-201.4 | THE SYSTEM SHALL sign each credential it presents with that credential's device key, over the session transcript of the request as the wallet received it. | proven | proven theorem `wallet_signs_with_device_key`; example `checkInPresentation` |
+| OID-201.5 | IF the holder approves only some of the data elements requested from a credential THEN THE SYSTEM SHALL not present that credential. | open | open theorem `partial_consent_withholds_credential`; counterexample `partialConsent` |
+| OID-202.1 | IF the issuer of a presented credential is not on the relying party's list of trusted issuers THEN THE SYSTEM SHALL reject the response. | proven | proven theorem `accepted_from_trusted_issuer`; example `checkInPresentation` |
+| OID-202.2 | IF the issuer's signature on a presented credential does not verify THEN THE SYSTEM SHALL reject the response. | proven | proven theorem `accepted_from_trusted_issuer`; example `checkInPresentation` |
+| OID-202.3 | IF a presented credential has no device signature made with the device key its issuer signed THEN THE SYSTEM SHALL reject the response. | proven | proven theorem `accepted_signed_by_device_key`; example `checkInPresentation` |
+| OID-202.4 | IF a presented credential's device signature was made for another request THEN THE SYSTEM SHALL reject the response. | open | open theorem `accepted_answers_this_request`; counterexample `replayedResponse` |
+| OID-202.5 | IF the validity of a presented credential has ended THEN THE SYSTEM SHALL reject the response. | open | open theorem `accepted_not_expired`; counterexample `expiredBoardingPassAccepted` |
+| OID-202.6 | IF a response holds a data element the request did not name THEN THE SYSTEM SHALL reject the response. | open | open theorem `accepted_holds_only_requested`; counterexample `extraElementAccepted` |
+| OID-207.1 | IF a photoid and a boarding pass presented together are about different travelers THEN THE SYSTEM SHALL reject the pair. | open | open theorem `accepted_pair_same_traveler`; counterexample `twoTravelersOneDevice` |
+| OID-207.2 | IF either credential is refused on its own THEN THE SYSTEM SHALL reject the pair. | proven | proven theorem `accepted_pair_each_accepted` |
+| OID-207.3 | WHEN a photoid and a boarding pass presented together are about the same traveler and each is accepted on its own THE SYSTEM SHALL accept the pair. | open | open theorem `same_traveler_pair_accepted`; counterexample `twoDevicesOneTraveler` |
+| OID-203.1 | IF a request's protocol value, response type, response mode or client identifier prefix is not the one the guide names THEN THE SYSTEM SHALL reject it. | proven | proven theorem `accepted_request_parts` |
+| OID-203.2 | IF a request is not signed with the key of the certificate its client identifier names THEN THE SYSTEM SHALL reject it. | proven | proven theorem `accepted_request_parts` |
+| OID-203.3 | IF a request names no expected origin THEN THE SYSTEM SHALL reject it. | proven | proven theorem `accepted_request_parts` |
+| OID-203.4 | IF a request carries no encryption key or no nonce THEN THE SYSTEM SHALL reject it. | proven | proven theorem `accepted_request_parts` |
+| OID-203.5 | IF a credential query asks for a format other than mdoc THEN THE SYSTEM SHALL reject the request. | proven | proven theorem `accepted_request_parts` |
+| OID-203.6 | IF a request carries no state value THEN THE SYSTEM SHALL reject it. | open | open theorem `accepted_request_has_state`; counterexample `requestWithoutState` |
+| OID-204.1 | IF a request comes from an origin that is not among its expected origins THEN THE SYSTEM SHALL refuse it. | proven | proven theorem `answered_request_parts`; example `requestFromAnotherOrigin` |
+| OID-204.2 | IF a request is not signed with the key of the certificate its client identifier names THEN THE SYSTEM SHALL refuse it. | proven | proven theorem `answered_request_parts` |
+| OID-204.3 | IF the certificate a request's client identifier names is not a trusted relying party's THEN THE SYSTEM SHALL refuse it. | proven | proven theorem `answered_request_parts` |
+| OID-205.1 | IF a response was signed for a nonce other than the one of this request THEN THE SYSTEM SHALL reject it. | proven | proven theorem `refuses_other_request`; example `replayedResponse` |
+| OID-205.2 | IF a response was signed for an origin other than the relying party's THEN THE SYSTEM SHALL reject it. | proven | proven theorem `refuses_other_request`; example `requestFromAnotherOrigin` |
+| OID-205.3 | IF a response was signed for an encryption key other than the one of this request THEN THE SYSTEM SHALL reject it. | proven | proven theorem `refuses_other_request` |
+| OID-205.4 | THE SYSTEM SHALL return each mdoc in a device response of its own. | proven | proven theorem `one_mdoc_per_deviceResponse` |
+| OID-206.1 | IF a request's protocol value or the protocol its encryption information names is not the one the guide requires THEN THE SYSTEM SHALL reject it. | proven | proven theorem `accepted_deviceRequest_parts` |
+| OID-206.2 | IF a request carries no nonce, or a nonce of less than 16 bytes of entropy THEN THE SYSTEM SHALL reject it. | proven | proven theorem `accepted_deviceRequest_parts` |
+| OID-206.3 | IF a request carries no recipient public key THEN THE SYSTEM SHALL reject it. | proven | proven theorem `accepted_deviceRequest_parts` |
+| OID-301.1 | IF a session retrieves data from a server THEN THE SYSTEM SHALL reject it. | proven | proven theorem `accepted_sessions` |
+| OID-301.2 | IF a reader's key is used in more than one session THEN THE SYSTEM SHALL reject the sessions. | proven | proven theorem `accepted_sessions` |
+| OID-301.3 | IF a device's engagement key is used in more than one session THEN THE SYSTEM SHALL reject the sessions. | proven | proven theorem `accepted_sessions` |
 
 The build writes the same rows to `build/ears-criteria.csv`, one row per rule to `build/ears.csv`, each rule's sources and confirmation to `build/provenance.csv`, and the assumptions about external specifications to `build/assumptions.csv`. The site serves all four at its root.

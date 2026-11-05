@@ -90,7 +90,10 @@ def sources : List Source := [
     url := "https://github.com/samdengler/verified-id/blob/main/Rules/OneId/Traveler.lean" },
   { key := "model-photoid-validity", kind := .modeller,
     title := "Readings of how long a photoid stays valid, where the guide states no rule",
-    url := "https://github.com/samdengler/verified-id/blob/main/Rules/OneId/Validity.lean" }
+    url := "https://github.com/samdengler/verified-id/blob/main/Rules/OneId/Validity.lean" },
+  { key := "model-pair-device-key", kind := .modeller,
+    title := "A reading that compares the device keys of a photoid and a boarding pass, where the guide states no rule",
+    url := "https://github.com/samdengler/verified-id/blob/main/Rules/OneId/Presentation.lean" }
 ]
 
 /-- The source a key names, if the list has it. -/

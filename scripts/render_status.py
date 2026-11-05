@@ -370,7 +370,8 @@ def words(name):
         return last
     spaced = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", last)
     # A one-letter word: ifAPassport is "if a passport".
-    return re.sub(r"\b([A-Z])([A-Z][a-z])", r"\1 \2", spaced).replace("_", " ").lower()
+    w = re.sub(r"\b([A-Z])([A-Z][a-z])", r"\1 \2", spaced).replace("_", " ").lower()
+    return w.replace("open id4 vp", "OpenID4VP").replace("open id4vp", "OpenID4VP")
 
 
 def field_label(name):
@@ -397,6 +398,39 @@ PHRASES = {
     "missingRecommendedNameSpace": "the recommended namespace {0} is absent",
     "missingRecommendedElement": "the recommended data element {1} is absent from {0}",
     "notDerivedFromPassport": "the photoid was not derived from a passport",
+    # Reasons a relying party refuses a response.
+    "untrustedIssuer": "the issuer {0} is not on the list of trusted issuers",
+    "issuerSignatureInvalid": "the issuer's signature on {0} does not verify",
+    "expired": "the validity of {0} has ended",
+    "noDeviceSignature": "{0} has no device signature",
+    "wrongDeviceKey": "the device signature on {0} was not made with its device key",
+    "otherRequest": "the device signature on {0} was made for another request",
+    "notRequested": "the data element {0} was not requested",
+    "refused": "{0}",
+    "notAPhotoid": "the first credential has the document type {0}",
+    "notABoardingPass": "the second credential has the document type {0}",
+    "notOneTraveler": "the two credentials do not pass the check that they are one traveler's",
+    # Findings about a request.
+    "wrongProtocol": "the protocol value is {0}",
+    "wrongResponseType": "the response type is {0}",
+    "wrongResponseMode": "the response mode is {0}",
+    "wrongClientIdPrefix": "the client identifier prefix is {0}",
+    "notSigned": "the request is not signed",
+    "signedWithAnotherKey": "the request is signed with the key of another certificate",
+    "noExpectedOrigins": "the request names no expected origin",
+    "noEncryptionKey": "the request carries no encryption key",
+    "wrongFormat": "the query for {0} asks for a format other than mdoc",
+    "noNonce": "the request carries no nonce",
+    "noState": "the request carries no state value",
+    "malformed": "the request does not carry what the guide requires",
+    "originNotExpected": "the request came from {0}, which is not an origin it names",
+    "untrustedVerifier": "the relying party {0} is not on the wallet's list",
+    "wrongEncryptionProtocol": "the encryption information names {0}",
+    "weakNonce": "the nonce has {0} bytes of entropy",
+    "noRecipientKey": "the request carries no recipient key",
+    "serverRetrieval": "a session retrieves data from a server",
+    "readerKeyReused": "a reader's key is used in more than one session",
+    "deviceKeyReused": "a device's engagement key is used in more than one session",
 }
 
 
@@ -417,6 +451,10 @@ def inline(v):
         if set(f) == {"epochSeconds"} and isinstance(f["epochSeconds"], int):
             t = datetime.datetime.fromtimestamp(f["epochSeconds"], datetime.UTC)
             return t.strftime("%Y-%m-%d %H:%M UTC")
+        if set(f) == {"docType", "nameSpace", "identifier"}:
+            return f"{inline(f['identifier'])} of {inline(f['nameSpace'])}"
+        if len(f) == 1 and set(f) <= {"name", "value"}:
+            return inline(next(iter(f.values())))
         return ", ".join(f"{words(k)} {inline(x)}" for k, x in f.items())
     if "id" in v:
         return {"true": "yes", "false": "no", "none": "none"}.get(v["id"]) or phrase(v["id"], []) or words(v["id"])
@@ -446,6 +484,7 @@ def record_table(rows):
 def is_record_list(v):
     return (isinstance(v, dict) and "list" in v and v["list"]
             and all(isinstance(x, dict) and "record" in x for x in v["list"])
+            and not all(set(x["record"]) == {"docType", "nameSpace", "identifier"} for x in v["list"])
             and len({tuple(x["record"]) for x in v["list"]}) == 1)
 
 
@@ -844,6 +883,7 @@ def module_doc(module):
 
 
 def kebab(s):
+    s = s.replace("OpenID4VP", "Openid4vp")
     s = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "-", s)
     return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
 

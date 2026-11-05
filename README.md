@@ -31,22 +31,22 @@ The method and the tooling come from [verified-air](https://github.com/samdengle
 
 ## What is modelled
 
-Milestone one covers the source conversion, the survey, and the credential data model of §4.1. The counts below are from the build of 2026-11-05; the progress page has the current ones.
+Milestone one covers the source conversion, the survey, and the credential data model of §4.1. Milestone two covers the presentation flows of §4.2: a core the three profiles share, the OpenID4VP profile from its public specifications, and the rules the guide itself states for the mdoc profile and proximity, whose ISO documents were not read. The counts below are from the build of 2026-11-05; the progress page has the current ones.
 
 | | Count |
 | --- | --- |
-| Rules of the guide surveyed | 104: 44 clear, 43 vague, 17 silent |
-| Requirements in Lean | 9, OID-101 to OID-109 |
-| Acceptance criteria | 35: 21 proven, 14 open |
-| Open questions in Lean, each with a computed example | 14, from 15 open theorems (two are the same question for the two credentials) |
+| Rules of the guide surveyed | 107: 44 clear, 43 vague, 20 silent |
+| Requirements in Lean | 17: OID-101 to OID-109, OID-201 to OID-207, OID-301 |
+| Acceptance criteria | 68: 47 proven, 21 open |
+| Open questions in Lean, each with a computed example | 21, from 22 open theorems (two are the same question for the two credentials) |
 | Candidates that need a decision before they can be modelled | 43 |
-| Candidates that need a source to be read, and no decision | 5, with 3 of the open questions in Lean |
-| Theorems proven | 37, of which 21 check a criterion; the others hold under one reading or support another proof |
-| Dependencies on external specifications recorded | 29: 10 relied on by the model, 19 for the presentation flows |
+| Candidates that need a source to be read, and no decision | 5, with 4 of the open questions in Lean |
+| Theorems proven | 63, of which 33 check a criterion; the others hold under one reading or support another proof |
+| Dependencies on external specifications recorded | 29: 19 relied on by the model, 10 not yet modelled |
 | Of those, from specifications that were read | 10, from 10 public documents; the other 19 are from documents that are sold or not public |
-| Clauses of public specifications surveyed | 45, in 11 documents |
+| Clauses of public specifications surveyed | 47, in 11 documents |
 
-The nine requirements:
+The seventeen requirements:
 
 | ID | Rule | Guide |
 | --- | --- | --- |
@@ -59,8 +59,25 @@ The nine requirements:
 | OID-107 | Whether a photoid and a boarding pass are one traveler's | §4.1.2, §3.2 |
 | OID-108 | How long a photoid stays valid | not stated in the guide |
 | OID-109 | Which kind of document a photoid may be derived from | §2, §4.1.1 |
+| OID-201 | What a wallet discloses in answer to a request | §3.1, §3.2, §4.2 |
+| OID-202 | What a relying party checks before it accepts a response | §3.1, §3.2, §4.2 |
+| OID-203 | What an OpenID4VP request must carry | §4.2.1.3 |
+| OID-204 | What a wallet checks before it answers an OpenID4VP request | §4.2.1.3, §3.2 |
+| OID-205 | What an OpenID4VP response is bound to | §4.2.1.3 |
+| OID-206 | What a request of the mdoc profile must carry | §4.2.1.2 |
+| OID-207 | Whether a photoid and a boarding pass presented together are one traveler's | §4.1.2, §3.2, §4.2.1.2 |
+| OID-301 | The keys and the retrieval method of a proximity session | §4.2.2 |
 
-The presentation flows of §4.2 are surveyed and not yet in Lean. The four candidate guarantees (only requested and consented data is received; a presentation is bound to the device and the request; a photoid and a boarding pass presented together are one traveler's; an expired credential is never accepted) are blueprint nodes G-01 to G-04, each waiting on the rules and decisions it depends on.
+The four candidate guarantees are stated in Lean, and none is proven for every profile and every reading:
+
+| Guarantee | Proven | Open |
+| --- | --- | --- |
+| G-01 Only requested and consented data is received | A wallet that follows the rules discloses only what was requested and approved. No check a relying party makes can show that the holder approved what was sent. | An accepted response holds only what was requested: true only if a relying party refuses extra data, which no text that was read requires. |
+| G-02 A presentation is bound to the device and the request | Every accepted credential is signed with the device key its issuer signed, in all three profiles. In the OpenID4VP profile a response made for one origin, nonce and key is refused for any other. | The same for the mdoc profile and proximity, where the guide does not state the comparison and the ISO transcripts were not read. |
+| G-03 A photoid and a boarding pass presented together are one traveler's | One traveler follows where the device keys are compared and issuance gives each device key to one traveler. No check of what is presented can do without a rule about issuance. | Every reading of the check, since the guide puts issuance out of scope. |
+| G-04 An expired credential is never accepted | The mdoc profile. | The OpenID4VP profile and proximity, until the clause they cite is read. |
+
+Signatures, keys, nonces and origins are symbolic: values that can only be compared, with the outcome of a signature check as a field. The model says what a relying party compares, and nothing about how hard a signature is to forge.
 
 ## What the guide leaves out
 
@@ -68,9 +85,9 @@ The guide puts the trust model, revocation and normative issuance out of scope (
 
 ## External specifications
 
-The guide builds on ISO/IEC 18013-5, ISO/IEC TS 18013-7, ISO/IEC TS 23220-2 and 23220-4, OpenID4VP, OpenID4VC HAIP, the W3C Digital Credentials API, IATA Resolution 792, ICAO Doc 9303 and several IETF RFCs. None was read for this project. The model takes from each only what the guide says about it:
+The guide builds on ISO/IEC 18013-5, ISO/IEC TS 18013-7, ISO/IEC TS 23220-2 and 23220-4, OpenID4VP, OpenID4VC HAIP, the W3C Digital Credentials API, IATA Resolution 792, ICAO Doc 9303 and several IETF RFCs. The public ones were read (decision 22), and a statement about one of them names its clause. The ISO documents and Resolution 792 were not read, and the model takes from each of those only what the guide says about it:
 
-- Where a rule depends on the content of an external table or format, that content is a parameter of the rule. `PhotoidTables` stands for Tables C.1 to C.3 of ISO/IEC TS 23220-4, and `Resolution792` for what IATA Resolution 792 decides about a boarding pass string. A guarantee is proven only if it holds for every value of the parameter.
+- Where a rule depends on the content of an external table or format, that content is a parameter of the rule. `PhotoidTables` stands for Tables C.1 to C.3 of ISO/IEC TS 23220-4, and `Resolution792` for what IATA Resolution 792 decides about a boarding pass string. `IsoTranscripts` stands for the session transcripts that ISO/IEC TS 18013-7 Annex C and ISO/IEC 18013-5 define for the mdoc profile and proximity. A guarantee is proven only if it holds for every value of the parameter.
 - Every dependency is listed once in [`Rules/Core/Assumptions.lean`](Rules/Core/Assumptions.lean) with the clause the guide cites, and a declaration that relies on one names it with `@[assumes "<key>"]`. The attribute rejects an unknown key.
 - The examples need some table and some boarding pass format to compute with. [`Rules/OneId/Examples.lean`](Rules/OneId/Examples.lean) uses stand-ins that are invented and labelled as such.
 
@@ -151,7 +168,7 @@ Choices made where the request left room, in the order they came up.
 7. **Requirement words decide findings and advisories.** What the guide says with MUST or SHALL is a finding, and a credential with one is rejected. What it says with SHOULD or RECOMMENDED is an advisory, reported and not rejected. A lower-case "must" is not a requirement, as §1.2 of the guide says.
 8. **Facts only the issuer knows are inputs of the rules.** The subject of a credential, the departure of the last leg, and the expiry of the passport are known to the issuer and are not data elements the guide defines. The model takes them as inputs of the rules that need them (`Issued`, `Journey`, the document expiry). A relying party sees only the credential.
 9. **A credential has an end of validity and no start.** The guide names `validUntil` and nothing else from the validity information.
-10. **Survey IDs.** C-01 to C-104 are rules, G-01 to G-04 the candidate guarantees. C-97 to C-100 were added by the critique, C-101 to C-103 when lookups were separated from decisions, and C-104 when the public specifications were read. Several requirement words of the guide share one entry when they state one rule. A Lean-backed blueprint node carries the ID of its main survey entry; the survey's Model column names the requirement for the others it covers.
+10. **Survey IDs.** C-01 to C-107 are rules, G-01 to G-04 the candidate guarantees. C-97 to C-100 were added by the critique, C-101 to C-103 when lookups were separated from decisions, and C-104 when the public specifications were read. Several requirement words of the guide share one entry when they state one rule. A Lean-backed blueprint node carries the ID of its main survey entry; the survey's Model column names the requirement for the others it covers.
 11. **The survey and the blueprint were first written from one list**, then split into the two files, which are maintained by hand from here on as in verified-air. `scripts/check_survey.py` keeps them from drifting.
 12. **The ranking counts dependents in the blueprint graph.** A card depends on a question if its `\uses` reaches the question's node. The edges are written by hand, so the ranking is as good as they are. The candidate guarantees have the status waiting and are left out of the ranking; each lists what blocks it.
 13. **The pre-push hook is the gate.** With no pull requests, the only place to stop a push to `main` is before it. `.githooks/pre-push` runs `scripts/build-site.sh` and refuses when it fails or when the working tree differs from what is pushed.
@@ -184,3 +201,10 @@ Choices made where the request left room, in the order they came up.
     - One entry was added, C-104: the public guide says some airlines issue one boarding pass for an adult with an infant, and the One ID guide does not say whether a credential may cover two travelers. It blocks G-03.
     - `PhotoidTables` and `Resolution792` stay parameters. No definition was added from a read document: the two a rule depends on are still in documents that were not read.
     - The addresses differ in one case worth knowing. The address the guide gives for OpenID4VP holds the latest revision with errata, and on the day of reading it differed from the approved text in one reference line.
+23. **Presentation is modelled symbolically.** A key, a nonce and an origin are values that can only be compared. Whether an issuer's signature verifies is a field of the presented credential, and a device signature is the key that made it and the session transcript it was made over. The OpenID4VP transcript keeps the origin, the nonce and the key where the specification hashes them (OpenID4VP §B.2.6.2), so two inputs with one hash are not modelled. There is no attacker in the model: a theorem says what a relying party that makes the guide's comparisons can conclude.
+24. **One core for three profiles, with the differences as readings.** A request, a consent, a response and a decision are defined once (`Rules/OneId/Exchange.lean`, `Presentation.lean`). The three profiles require issuer authentication, issuer data authentication and mdoc authentication alike. They differ on whether the response is compared with the request, whether validity is checked, and whether extra data is refused, and `AcceptanceReading` holds those. The OpenID4VP profile is written from its public specifications. For the mdoc profile and proximity the model has the rules the guide itself states, and takes the session transcript the ISO documents define as a parameter with no assumption about its content.
+25. **A relying party's decision does not run the data model checks of §4.1.** With selective disclosure a relying party sees only what it requested, so it cannot tell whether a credential holds every mandatory data element, and the guide's lists of a relying party's checks hold no such step. The decision checks the issuer, the signatures, the validity and the request. Whether a relying party checks anything of §4.1 is the new survey entry C-107.
+26. **Candidates the Lean covers were folded into Lean-backed nodes.** Eighteen candidate nodes of the remote and proximity areas were replaced by ten definition nodes with their theorems, and every dependency on a folded node now points at the node that replaced it. Five dependencies were dropped because they would have made a cycle: C-61, C-65, C-78 and C-88 no longer depend on the relying party's decision, which now depends on them, and C-72 no longer depends on the OpenID4VP request. The shared nodes depend only on decisions that bear on every profile: the wallet's answer does not inherit the dependencies of one profile's consent step, and the session transcript does not inherit those of the OpenID4VP request, so the ranking does not count a profile's decision against the other two. G-01 to G-04 each carry the open theorem that states them.
+27. **Two regrades and three new entries.** C-73, the wallet's checks of an OpenID4VP request, went from vague to clear: the guide introduces the list with should, and the specification it makes mandatory requires the origin check and the signature and chain check of a wallet (OpenID4VP §A.2, §5.9.3). C-76 went from clear to vague: "matches the query" does not say whether a response with more than was asked is refused. C-105 (partial consent), C-106 (the same device key for both credentials) and C-107 are new.
+28. **Not modelled in this milestone.** Encryption and decryption; error structures and codes (C-66, C-79); that a nonce and a key are new for each request, which takes more than one request to see; the entropy of a nonce, which is taken as given; reader authentication in the mdoc profile and proximity (C-55, C-57, C-84, C-85); the trusted authorities query (C-71); feature detection and the choice of protocol (C-45, C-46); the end of a proximity session (C-91); the hand-off to the identity management system (C-67); and a response that lacks something requested.
+29. **The milestone tag waits for the critique.** The presentation rules are committed without `milestone/presentation-flows`. An independent reviewer compares every criterion with its theorems and the survey with the guide first, and the tag follows the fixes.

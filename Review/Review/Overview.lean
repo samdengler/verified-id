@@ -8,8 +8,8 @@ tag := "overview"
 %%%
 
 IATA's One ID Technical Implementation Guide says how a passenger's wallet holds two digital credentials, a photoid and a boarding pass, and how it presents them to an airline or an airport.
-This document covers the first part: what each credential must contain, how long it stays valid, and how the two are matched to one traveler.
-The presentation flows come next.
+This document covers both parts: what each credential must contain, how long it stays valid and how the two are matched to one traveler; and what a wallet discloses, what a relying party checks before it accepts a response, and what a response is bound to in each of the guide's three presentation profiles.
+Cryptography is not modelled: a signature either verifies or does not, and keys, nonces and origins are values that can only be compared.
 
 The rules are written as a Lean model.
 Each object is a Lean type, each rule is a Lean function, and each guarantee is a Lean theorem.
