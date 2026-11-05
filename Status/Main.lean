@@ -278,7 +278,7 @@ def usedBy (es : Array Entry) (key : String) : Array Entry :=
 that rely on it, as JSON. -/
 def assumptionsJson (es : Array Entry) : Json :=
   Json.arr (Rules.Core.assumptions.toArray.map fun a => Json.mkObj
-    [("key", toJson a.key), ("spec", toJson a.spec), ("clause", toJson a.clause),
+    [("key", toJson a.key), ("spec", toJson a.spec), ("url", toJson a.url), ("clause", toJson a.clause),
      ("guide", toJson a.guide), ("statement", toJson a.statement),
      ("usedBy", toJson ((usedBy es a.key).map (·.name.toString)))])
 
@@ -346,13 +346,11 @@ def provenanceCsv (es : Array Entry) : String := Id.run do
 
 /-- One row per assumption about an external specification. -/
 def assumptionsCsv (es : Array Entry) : String := Id.run do
-  let mut s := "key,specification,clause,guide_section,what_the_model_takes,used_by
-"
+  let mut s := "key,specification,address,clause,guide_section,what_the_model_takes,used_by\n"
   for a in Rules.Core.assumptions do
-    let row := [a.key, a.spec, a.clause, a.guide, a.statement,
+    let row := [a.key, a.spec, a.url, a.clause, a.guide, a.statement,
       "; ".intercalate ((usedBy es a.key).toList.map (·.name.toString))]
-    s := s ++ ",".intercalate (row.map csvField) ++ "
-"
+    s := s ++ ",".intercalate (row.map csvField) ++ "\n"
   return s
 
 end Status

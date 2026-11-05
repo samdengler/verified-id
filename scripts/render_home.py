@@ -49,6 +49,10 @@ QUESTION = "Rules.OneId.matched_pair_same_traveler"
 # What the guide puts out of scope: the survey entries, by blueprint label.
 LEFT_OUT = ["def:c01", "def:c02", "def:c03"]
 
+# IATA's own page about One ID.  The guide's address comes from the model's
+# list of sources (Rules/Core/Sources.lean), through build/status.json.
+ONE_ID = "https://www.iata.org/en/programs/passenger/one-id/"
+
 # Sections of the review document, by their Verso tags, found through Verso's
 # own lookup so a renamed chapter keeps working.
 FIND = "review/find/?domain=Verso.Genre.Manual.section&name="
@@ -69,6 +73,8 @@ HOME_CSS = """
 .top3 + .more { margin: 10px 0 0; font-size: 14px; }
 .lede + .lede { margin-top: 0; }
 .lede + .kicker { margin: 4px 0 0; }
+.kicker a { color: inherit; }
+.part p a { position: relative; z-index: 1; }
 .worked h2 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
 .worked h2 .chip { font-size: 13px; font-weight: 600; }
 .worked-panel { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 4px 20px;
@@ -183,7 +189,7 @@ allows and the guarantee forbids, so someone who owns the standard has to say wh
 </section>"""
 
 
-def covers(show, m, rules, criteria):
+def covers(show, m, rules, criteria, guide):
     """Three cards: what is in Lean, what is surveyed, and what the guide leaves out."""
     proven = sum(1 for c in criteria if c.get("status") == "proven")
     open_ = sum(1 for c in criteria if c.get("status") == "open")
@@ -213,7 +219,8 @@ def covers(show, m, rules, criteria):
              f"{plural(by_status['ready'], 'is', 'are')} ready to build and "
              f"{plural(by_status['waiting'], 'waits', 'wait')} on others.</p>"),
         part(None, "Left out by the guide",
-             "<p>The guide puts three matters out of scope. The model does not fill them in; it records which "
+             f'<p>The guide puts three matters out of scope in <a href="{guide}">§1.4</a>. The model does not fill '
+             "them in; it records which "
              f"guarantees each one blocks.</p><ul>{''.join(left)}</ul>"),
     ])
 
@@ -229,6 +236,7 @@ def page(show, m):
     assumptions = status["assumptions"]
     relied = sum(1 for a in assumptions if a["usedBy"])
     confirmed = status["provenance"]["confirmed"]
+    guide = next(s["url"] for s in status["sources"] if s["key"].startswith("tig-"))
     deps = sum(1 for n in m.nodes for u in n["uses"])
     lookup_count = len(m.ranking(lookup=True))
     confirmed_text = ("No rule has been confirmed by a subject matter expert yet." if confirmed == 0 else
@@ -292,17 +300,20 @@ def page(show, m):
 {topbar(None, "")}
 <main>
 <h1>Checking the rules of One ID travel credentials</h1>
-<p class="lede">IATA's One ID Technical Implementation Guide describes how a passenger travels with digital credentials.
-A wallet on the passenger's phone holds a photoid, with identity data and a face image taken from the passport, and a
-boarding pass. It presents them to an airline or an airport, which checks them and may match the passenger's face. The
-guide is written in prose and builds on ISO, OpenID and W3C specifications, and prose leaves gaps that two implementers
-can fill differently.</p>
+<p class="lede"><a href="{ONE_ID}">One ID</a> is IATA's programme for a passenger journey without paper documents,
+based on digital identity and biometric recognition. Its <a href="{guide}">Technical Implementation Guide</a> describes
+how a passenger travels with digital credentials. A wallet on the passenger's phone holds a
+<a href="{FIND}oid-101">photoid</a>, with identity data and a face image taken from the passport, and a
+<a href="{FIND}oid-103">boarding pass</a>. It presents them to an airline or an airport, which checks them and may match
+the passenger's face. The guide is written in prose and builds on
+<a href="{FIND}assumptions">ISO, OpenID and W3C specifications</a>, and prose leaves gaps that two implementers can fill
+differently.</p>
 <p class="lede">This project writes each rule of the guide as code in <a href="https://lean-lang.org">Lean</a>, a language
-that checks proofs. A guarantee that Lean proves holds in every possible case, under every way the guide can be read.
-Where the guide as written does not give a guarantee, the gap becomes a question for the people who own the standard,
-with an example that shows it.</p>
-<p class="kicker">A proof of concept built from version 26.3 of the guide, not affiliated with IATA. This page is generated
-from the model on every build.</p>
+that checks proofs. A guarantee that Lean proves holds in every possible case, under
+<a href="{FIND}overview">every way the guide can be read</a>. Where the guide as written does not give a guarantee, the gap
+becomes <a href="progress/#decide">a question for the people who own the standard</a>, with an example that shows it.</p>
+<p class="kicker">A proof of concept built from <a href="{guide}">version 26.3 of the guide</a>, not affiliated with IATA.
+This page is generated from the model on every build.</p>
 
 {worked(m)}
 
@@ -313,7 +324,7 @@ from the model on every build.</p>
 <h2 id="covers">What the model covers</h2>
 <p class="sub">The work goes in milestones: every rule of the guide is surveyed first, then one area at a time is written in
 Lean. The credentials are in Lean now. The presentation flows come next.</p>
-<div class="parts">{covers(show, m, rules, criteria)}</div>
+<div class="parts">{covers(show, m, rules, criteria, guide)}</div>
 
 <h2 id="status">The model's status today</h2>
 <p class="sub">The model is a set of cards: rules written in Lean, guarantees about those rules, and candidate rules from

@@ -18,7 +18,8 @@ Each open guarantee has a counterexample: an example the build computes shows th
 
 # Sources
 
-The model is written from the approved version 26.3 of the guide, section by section.
+The model is written from the approved version 26.3 of IATA's One ID Technical Implementation Guide, section by section.
+IATA publishes [the same text](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide), and describes the programme the guide belongs to on its [One ID page](https://www.iata.org/en/programs/passenger/one-id/).
 The guide states no license, so this document cites it by section number, describes its rules in its own words, and quotes at most a few words.
 This is a proof of concept. It is not affiliated with or endorsed by IATA, and it is not an implementation of the standard.
 

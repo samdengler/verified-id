@@ -48,6 +48,7 @@ IATA's One ID Technical Implementation Guide as a Lean model, with a survey of i
 
 - Work locally. `scripts/preview.sh` rebuilds the documents and serves the site at http://localhost:8000.
 - For a visual change, take screenshots (headless Chrome works) and show them before committing.
+- Where a page names something a reader may not know, link it in the sentence: the guide and an external specification through the model's own lists (`Rules/Core/Sources.lean`, and the `url` of each entry in `Rules/Core/Assumptions.lean`, which come from the guide's reference list), a credential or a concept to its chapter in the review document by its Verso tag. Check that an outside address answers before adding it.
 - `scripts/build-site.sh` must pass before anything lands on `main`. It runs everything CI runs. Commit `.kiro/specs` whenever `scripts/render_status.py` changes it; CI and the pre-push hook fail if the committed specs are stale.
 - Turn the hook on once per clone with `git config core.hooksPath .githooks`. It runs `scripts/build-site.sh` before a push to `main`.
 - Commit straight to `main`. No pull requests, no merge commits. Push to `main` once a private remote exists.

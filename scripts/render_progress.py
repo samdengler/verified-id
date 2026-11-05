@@ -265,6 +265,7 @@ a { color: var(--ready); }
 code { font: 0.86em ui-monospace, SFMono-Regular, Menlo, monospace; background: color-mix(in srgb, var(--ink) 6%, transparent);
   padding: 0 4px; border-radius: 4px; white-space: nowrap; }
 .kicker { color: var(--muted); font-size: 13px; letter-spacing: .02em; margin: 0 0 6px; }
+.kicker a { color: inherit; }
 h1 { font-size: 30px; line-height: 1.2; margin: 0 0 10px; letter-spacing: -0.01em; }
 .lede { color: var(--ink-2); max-width: 760px; margin: 0 0 14px; }
 .links { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; margin-bottom: 28px; }
@@ -600,7 +601,7 @@ def page(show, decls, model):
 <div class="layout">
 {contents}
 <main>
-<p class="kicker">Proof of concept · built from IATA's One ID Technical Implementation Guide 26.3 · not affiliated with IATA</p>
+<p class="kicker">Proof of concept · built from IATA's <a href="{guide_url()}">One ID Technical Implementation Guide 26.3</a> · not affiliated with IATA</p>
 <h1>One ID credentials and their presentation, rule by rule</h1>
 <p class="lede">Every rule and guarantee in the Lean model, and every candidate rule from a survey of the guide, with the
 status the build gives it. A <strong>proven</strong> guarantee holds for every possible input, under every reading of the
@@ -642,6 +643,11 @@ Statuses are computed; nothing on this page is typed by hand.</footer>
 </body>
 </html>
 """
+
+
+def guide_url():
+    """The address of the guide's public copy, from the model's list of sources."""
+    return next(s["url"] for s in json.loads(STATUS.read_text())["sources"] if s["key"].startswith("tig-"))
 
 
 def load():

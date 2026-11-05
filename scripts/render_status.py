@@ -710,8 +710,11 @@ def relies_on_lines(rule, assumptions):
     keys = rule.get("assumes", [])
     if not keys:
         return []
-    named = "; ".join(f"{assumptions[k]['spec']}, {assumptions[k]['clause']}" for k in keys)
-    return [f"It relies on specifications this project has not read: {verso_escape(named)}. "
+    def one(a):
+        clause = verso_escape(f"{a['spec']}, {a['clause']}")
+        return f"[{clause}]({a['url']})" if a.get("url") else clause
+    named = "; ".join(one(assumptions[k]) for k in keys)
+    return [f"It relies on specifications this project has not read: {named}. "
             f"[{ASSUMPTIONS_TITLE}]({slug(ASSUMPTIONS_TITLE)}/) says what the model takes from each.", ""]
 
 
@@ -724,6 +727,7 @@ def render_assumptions(decls, titles, assumptions):
         "The One ID guide builds on ISO, OpenID, W3C, IETF, ICAO and IATA specifications. "
         "This project has not read them. The model takes from each only what the guide itself says about it, "
         "and each dependency is listed here with the clause the guide cites. "
+        "A specification's name links to where it is published or sold, as the guide's reference list gives it. "
         f"{len(assumptions)} are recorded: {len(used)} that rules in the model rely on, and {len(later)} that "
         "belong to the presentation flows, which are not modelled yet.",
         "",
@@ -736,7 +740,8 @@ def render_assumptions(decls, titles, assumptions):
         out = [":::table +header", "*", "  * Specification", "  * Clause", "  * Cited in the guide",
                "  * What the model takes from it"] + (["  * Relied on by"] if with_users else [])
         for a in rows:
-            out += ["*", f"  * {verso_escape(a['spec'])}", f"  * {verso_escape(a['clause'])}",
+            spec = verso_escape(a["spec"])
+            out += ["*", f"  * [{spec}]({a['url']})" if a.get("url") else f"  * {spec}", f"  * {verso_escape(a['clause'])}",
                     f"  * {verso_escape(a['guide'])}", f"  * {verso_escape(a['statement'])}"]
             if with_users:
                 users = sorted({titles.get(n, humanize(n.rsplit(".", 1)[-1])) for n in a["usedBy"]})
