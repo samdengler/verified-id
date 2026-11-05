@@ -21,12 +21,14 @@ requested from a credential.  The guide requires informed consent and that
 the wallet show what is shared, and says nothing of a holder who approves a
 part.  For its own profile OpenID4VP says a wallet that cannot deliver every
 claim asked of a credential must not return that credential (§6.4.1); whether
-a holder's refusal counts as that is not said. -/
+a holder's refusal counts as that is not said.  A credential that does not
+hold a requested data element is a separate case, which does not depend on
+consent and is decided where a credential is presented. -/
 inductive ConsentReading
   /-- The wallet sends the data elements the holder approved. -/
   | perElement
   /-- The wallet sends a credential only when the holder approved every data
-  element requested from it and the credential holds them all. -/
+  element requested from it. -/
   | wholeCredential
   deriving DecidableEq, Repr, Inhabited
 
@@ -38,14 +40,19 @@ def Request.wanted (q : Request) (cred : Credential) : List ElementRef :=
 that were requested and approved, signed with the credential's device key over
 the session transcript.  The wallet presents nothing of a credential when no
 data element is left to disclose, and under the whole credential reading also
-when a requested data element is not approved or not held. -/
+when a requested data element is not approved.  In the OpenID4VP profile it
+also presents nothing of a credential that does not hold every data element
+requested from it (OpenID4VP §6.4.1).  In the two ISO profiles it presents
+the requested data elements it holds: the guide says so for proximity
+(§4.2.2 step 4), and the mdoc profile leaves the response to ISO/IEC TS
+18013-7 Annex C §C.3, which was not read. -/
 def Credential.present (c : ConsentReading) (q : Request) (consent : Consent) (t : SessionTranscript)
     (cred : Credential) : Option Presented :=
   let wanted := q.wanted cred
   let view := cred.mdoc.disclose (wanted.filter fun ref => decide (ref ∈ consent.approved))
   if view.nameSpaces = [] then none
-  else if c = .wholeCredential ∧
-      ¬ (wanted.all fun ref => decide (ref ∈ consent.approved) && decide (ref ∈ cred.mdoc.refs)) then none
+  else if q.profile = .openid4vp ∧ ¬ (wanted.all fun ref => decide (ref ∈ cred.mdoc.refs)) then none
+  else if c = .wholeCredential ∧ ¬ (wanted.all fun ref => decide (ref ∈ consent.approved)) then none
   else some { mdoc := view, issuer := cred.issuer, issuerSignatureValid := true, deviceKey := cred.deviceKey,
               deviceSignature := some ⟨cred.deviceKey, t⟩ }
 
@@ -77,8 +84,11 @@ guide requires informed consent before a response in every profile (§3.2,
 disclosure lets a holder share the minimum (§3.1).  OpenID4VP forbids a
 wallet to send a selectively disclosable claim the query did not select
 (§6.4).  What a wallet does with partial approval is the reading
-({name}`ConsentReading`).  How a device signs is in ISO/IEC 18013-5, which was
-not read; the model records which key signed and over what.  The wallet's own
+({name}`ConsentReading`).  The guide also requires holder authentication
+before a presentation (§3.2), which the model does not have: a consent here
+stands for an approval by the authenticated holder.  How a device signs is in
+ISO/IEC 18013-5, which was not read; the model records which key signed and
+over what.  The wallet's own
 checks on a request are separate rules ({name}`OpenId4Vp.walletFindings` for
 the OpenID4VP profile). -/
 @[ears "OID-201", source "tig-3.1 tig-3.2 tig-4.2.1.2 tig-4.2.1.3 tig-4.2.2",
@@ -89,47 +99,90 @@ def Wallet.respond (c : ConsentReading) (x : IsoTranscripts) (held : List Creden
 
 /-! ## The relying party's decision -/
 
-/-- What the guide leaves undecided about a relying party's checks. -/
+/-- What the guide leaves undecided about a relying party's checks.  Each
+point is stated for the profiles whose text leaves it open; where a profile's
+text settles it, the point does not apply there. -/
 structure AcceptanceReading where
-  /-- Whether a relying party refuses a response that holds a data element it
-  did not request.  The OpenID4VP profile says the token must match the query
-  (§4.2.1.3 step 5), and OpenID4VP tells a verifier to check that what came
-  back meets the query and not to rely on the wallet (§8.6, §14.9); neither
-  says a response with more than was asked is refused.  The proximity profile
-  says issuer data validation covers the data elements requested (§4.2.2
-  step 5) and the mdoc profile lists no such check (§4.2.1.2 step 6); both
-  rest on ISO clauses that were not read. -/
-  extrasRefused : Bool
-  /-- Whether the issuer data authentication the OpenID4VP and proximity
-  profiles require includes the check that a credential is within its
-  validity.  The mdoc profile cites ISO/IEC 18013-5 §9.3.1 and says it covers
-  time validity.  The other two cite §9.1.2 with must and do not say, and
-  proximity adds §9.3.1 with should.  Neither clause was read. -/
-  validityInIssuerDataAuthentication : Bool
-  /-- Whether a relying party in the mdoc profile compares the session
-  transcript of a response with its own request.  The guide's list of checks
-  for that profile has no such step (§4.2.1.2 step 6); mdoc authentication by
-  ISO/IEC 18013-5 §9.1.3 may include it. -/
-  mdocProfileComparesRequest : Bool
+  /-- Whether a relying party in the mdoc profile refuses a response that holds
+  a data element it did not request.  The guide's list of checks for that
+  profile has no step that compares the response with the request (§4.2.1.2
+  step 6). -/
+  extrasRefusedInMdocProfile : Bool
+  /-- Whether a relying party in the OpenID4VP profile refuses a response that
+  holds a data element it did not request.  The guide says the token must
+  match the query (§4.2.1.3 step 5).  OpenID4VP requires the verifier to check
+  that the returned presentations satisfy the request as §6.4 describes, where
+  a wallet must not send a selectively disclosable claim that was not
+  selected, and to discard a presentation that fails a check (§8.6, §14.9).
+  Whether that rule of §6.4 is among what the verifier checks is not said in
+  so many words. -/
+  extrasRefusedInOpenId4Vp : Bool
+  /-- Whether a reader in proximity refuses a response that holds a data
+  element it did not request.  The guide says issuer data validation ensures
+  the data elements that were requested (§4.2.2 step 5); what the ISO clause
+  it cites checks was not read. -/
+  extrasRefusedInProximity : Bool
+  /-- Whether a relying party in the mdoc profile refuses a response that lacks
+  a data element it requested.  The guide's list of checks for that profile
+  has no such step (§4.2.1.2 step 6). -/
+  missingRefusedInMdocProfile : Bool
+  /-- Whether a reader in proximity refuses a response that lacks a data
+  element it requested.  The guide says issuer data validation ensures the
+  data elements that were requested (§4.2.2 step 5), from an ISO clause that
+  was not read. -/
+  missingRefusedInProximity : Bool
+  /-- Whether issuer data authentication in the OpenID4VP profile includes the
+  check that a credential is within its validity.  The profile cites ISO/IEC
+  18013-5 §9.1.2 with must and does not say (§4.2.1.3 step 5), and OpenID4VP
+  §8.6 names no such check.  The clause was not read. -/
+  validityCheckedInOpenId4Vp : Bool
+  /-- Whether a reader in proximity refuses a credential past its validity.
+  The profile cites ISO/IEC 18013-5 §9.1.2 with must and §9.3.1, the clause
+  the mdoc profile says covers time validity, with should; its list opens by
+  saying the checks include the validity of what was received (§4.2.2
+  step 5).  Neither clause was read. -/
+  validityCheckedInProximity : Bool
   /-- Whether a reader in proximity rebuilds the session transcript and
-  validates the device signature over it.  The guide lists the rebuilding
-  with no requirement word, after a decryption step it marks should (§4.2.2
-  step 5). -/
+  validates the device signature over it.  The guide lists the rebuilding with
+  no requirement word, after a decryption step it marks should, in a list a
+  verifier is said to need to perform; the device signature must be validated
+  to prevent man in the middle attacks (§4.2.2 step 5). -/
   proximityRebuildsTranscript : Bool
   deriving DecidableEq, Repr, Inhabited
 
-/-- Whether a relying party checks the end of validity, in a profile. -/
+/-- Whether a relying party checks the end of validity, in a profile.  The
+mdoc profile says its issuer data authentication covers time validity
+(§4.2.1.2 step 6). -/
 def AcceptanceReading.checksValidity (r : AcceptanceReading) : Profile → Bool
   | .mdocOverDcApi => true
-  | _ => r.validityInIssuerDataAuthentication
+  | .openid4vp => r.validityCheckedInOpenId4Vp
+  | .proximity => r.validityCheckedInProximity
 
 /-- Whether a relying party compares a response's session transcript with its
-request, in a profile.  The OpenID4VP profile requires it (§4.2.1.3
-step 5). -/
+request, in a profile.  The OpenID4VP profile requires it (§4.2.1.3 step 5).
+The mdoc profile requires mdoc authentication with the session transcript of
+Annex C, to prevent replay (§4.2.1.2 steps 4 and 6). -/
 def AcceptanceReading.checksTranscript (r : AcceptanceReading) : Profile → Bool
   | .openid4vp => true
-  | .mdocOverDcApi => r.mdocProfileComparesRequest
+  | .mdocOverDcApi => true
   | .proximity => r.proximityRebuildsTranscript
+
+/-- Whether a relying party refuses a response with a data element it did not
+request, in a profile. -/
+def AcceptanceReading.refusesExtras (r : AcceptanceReading) : Profile → Bool
+  | .mdocOverDcApi => r.extrasRefusedInMdocProfile
+  | .openid4vp => r.extrasRefusedInOpenId4Vp
+  | .proximity => r.extrasRefusedInProximity
+
+/-- Whether a relying party refuses a response that lacks a data element it
+requested, in a profile.  In the OpenID4VP profile the verifier must check
+that the returned credentials meet the query and that the set returned
+satisfies the request (OpenID4VP §8.6, which the guide requires in §4.2.1.3
+step 5). -/
+def AcceptanceReading.refusesMissing (r : AcceptanceReading) : Profile → Bool
+  | .openid4vp => true
+  | .mdocOverDcApi => r.missingRefusedInMdocProfile
+  | .proximity => r.missingRefusedInProximity
 
 /-- A reason a relying party refuses a response. -/
 inductive Refusal
@@ -147,6 +200,8 @@ inductive Refusal
   | otherRequest (docType : String)
   /-- The response holds a data element the request did not name. -/
   | notRequested (element : ElementRef)
+  /-- The response lacks a data element the request named. -/
+  | missing (element : ElementRef)
   deriving DecidableEq, Repr
 
 /-- The reasons a relying party refuses one presented credential. -/
@@ -161,8 +216,14 @@ def Presented.refusals (r : AcceptanceReading) (e : ExpiryReading) (x : IsoTrans
       (if s.key = d.deviceKey then [] else [.wrongDeviceKey d.mdoc.docType]) ++
       (if r.checksTranscript q.profile = true ∧ s.transcript ≠ expectedTranscript x q
         then [.otherRequest d.mdoc.docType] else [])) ++
-  (if r.extrasRefused = true then
+  (if r.refusesExtras q.profile = true then
     (d.mdoc.refs.filter fun ref => decide (ref ∉ q.elements)).map .notRequested else [])
+
+/-- The data elements a request named that a response lacks, when the
+relying party refuses such a response. -/
+def missingRefusals (r : AcceptanceReading) (q : Request) (response : Response) : List Refusal :=
+  if r.refusesMissing q.profile = true then
+    (q.elements.filter fun ref => decide (ref ∉ response.refs)).map .missing else []
 
 /-- EARS: When a relying party receives a response to its request, the system
 shall accept the response only if every credential in it comes from a trusted
@@ -187,6 +248,8 @@ Acceptance criteria:
   system shall reject the response.
 * OID-202.6: If a response holds a data element the request did not name,
   then the system shall reject the response.
+* OID-202.7: If a response lacks a data element the request named, then the
+  system shall reject the response.
 
 The result lists the reasons for refusal, and an empty list means the response
 is accepted.  All three profiles require issuer authentication against a
@@ -194,16 +257,21 @@ list of trusted issuers, issuer data authentication and mdoc authentication
 (§4.2.1.2 step 6, §4.2.1.3 step 5, §4.2.2 step 5); the ISO clauses that
 define those checks were not read, so the model records only their outcome.
 Who is on the list is part of the trust model, which the guide leaves out, so
-the list is given to the rule.  The three profiles differ on the last three
-criteria, and the differences are the reading
-({name}`AcceptanceReading`).  A response that lacks something requested is
-not refused by this rule.  Revocation is out of the guide's scope and is not
-checked.  Decryption is not modelled. -/
+the list is given to the rule.  The two remote profiles compare the device
+signature with the transcript of the request: the OpenID4VP profile says so,
+and the mdoc profile requires mdoc authentication with the session transcript
+to prevent replay.  The OpenID4VP profile refuses a response that lacks a
+requested data element (OpenID4VP §8.6).  The rest differs by profile and is
+the reading ({name}`AcceptanceReading`).  A reason to refuse one credential
+refuses the whole response; OpenID4VP discards the presentation that fails a
+check and rejects the token only when a check of the whole response fails,
+and the model does not tell the two apart.  Revocation is out of the guide's
+scope and is not checked.  Decryption is not modelled. -/
 @[ears "OID-202", source "tig-3.1 tig-3.2 tig-4.2.1.1 tig-4.2.1.2 tig-4.2.1.3 tig-4.2.2",
   assumes "x-18013-5-issuer-data-auth x-18013-5-mdoc-auth x-18013-5-validity x-18013-7-annex-c x-18013-5-session x-openid4vp"]
 def refusals (r : AcceptanceReading) (e : ExpiryReading) (x : IsoTranscripts) (trusted : List Issuer)
     (q : Request) (response : Response) (now : Instant) : List Refusal :=
-  response.documents.flatMap (Presented.refusals r e x trusted q now)
+  response.documents.flatMap (Presented.refusals r e x trusted q now) ++ missingRefusals r q response
 
 /-! ## A photoid and a boarding pass presented together -/
 

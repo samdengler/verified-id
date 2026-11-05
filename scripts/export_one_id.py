@@ -6,15 +6,17 @@ writes to the same directory.
 The shape follows verified-air's scripts/export_airline.py, so a site that
 shows that model's requirements can show these the same way:
 
-  * source: the commit the files were built from;
+  * source: the commit the files were built from, and whether the working
+    tree had changes that commit does not hold;
   * requirements: every requirement, with its Lean name, its EARS statement in
     Kiro's notation, and its criteria with their statuses;
   * openQuestions: for each criterion an open theorem checks, those theorems,
     each with the start of its question and its example.
 
-It differs from verified-air's in five ways.  The repository is private and
+It differs from verified-air's in six ways.  The repository is private and
 has no remote, and the review document is not published, so source.repository,
-source.site and every "review" are null.  Each open question also names its
+source.site and every "review" are null.  source.dirty says whether the
+working tree had changes at build time.  Each open question also names its
 example, the first @[case] its docstring quotes.  identifiers holds the
 document types, namespaces and data element identifiers with their values,
 from build/one-id-identifiers.json (lake exe oneid-facts), so no identifier is
@@ -80,6 +82,17 @@ def commit():
         return None
 
 
+def dirty():
+    """Whether the working tree differs from the commit: `git status
+    --porcelain` prints anything.  None when git cannot tell."""
+    try:
+        out = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT, capture_output=True, text=True,
+                             check=True).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return out.strip() != ""
+
+
 def main():
     if not STATUS.exists():
         sys.exit("export_one_id: build/status.json is missing; run: lake exe status")
@@ -107,7 +120,7 @@ def main():
             if not q["question"]:
                 sys.exit(f"export_one_id: {q['theorem']} is open and its docstring has no 'Open question for' paragraph")
     model = {
-        "source": {"repository": None, "commit": commit(), "site": None},
+        "source": {"repository": None, "commit": commit(), "dirty": dirty(), "site": None},
         "identifiers": json.loads(IDENTIFIERS.read_text())["identifiers"],
         "requirements": requirements,
         "openQuestions": dict(sorted(questions.items())),

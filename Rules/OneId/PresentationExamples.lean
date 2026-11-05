@@ -23,17 +23,28 @@ def exampleIsoTranscripts : IsoTranscripts :=
   { annexC := fun q => .iso s!"example mdoc profile|{q.origin.value}|{q.nonce.value}|{q.encryptionKey.name}"
     proximity := fun q => .iso s!"example proximity|{q.origin.value}|{q.encryptionKey.name}" }
 
+/-- Another invented stand-in for the session transcript of the mdoc profile,
+one that leaves out the nonce.  Whether the real one includes it is in a
+clause this project has not read. -/
+def transcriptsWithoutNonce : IsoTranscripts :=
+  { annexC := fun q => .iso s!"example mdoc profile without a nonce|{q.origin.value}|{q.encryptionKey.name}"
+    proximity := exampleIsoTranscripts.proximity }
+
 /-- The reading in which a relying party makes every comparison the guide
 could be read to require. -/
 def strictAcceptance : AcceptanceReading :=
-  { extrasRefused := true, validityInIssuerDataAuthentication := true,
-    mdocProfileComparesRequest := true, proximityRebuildsTranscript := true }
+  { extrasRefusedInMdocProfile := true, extrasRefusedInOpenId4Vp := true, extrasRefusedInProximity := true,
+    missingRefusedInMdocProfile := true, missingRefusedInProximity := true,
+    validityCheckedInOpenId4Vp := true, validityCheckedInProximity := true,
+    proximityRebuildsTranscript := true }
 
 /-- The reading in which a relying party makes only the checks the guide
-states with must in its profile. -/
+settles for its profile. -/
 def looseAcceptance : AcceptanceReading :=
-  { extrasRefused := false, validityInIssuerDataAuthentication := false,
-    mdocProfileComparesRequest := false, proximityRebuildsTranscript := false }
+  { extrasRefusedInMdocProfile := false, extrasRefusedInOpenId4Vp := false, extrasRefusedInProximity := false,
+    missingRefusedInMdocProfile := false, missingRefusedInProximity := false,
+    validityCheckedInOpenId4Vp := false, validityCheckedInProximity := false,
+    proximityRebuildsTranscript := false }
 
 /-- An invented issuer of photoids. -/
 def passportOffice : Issuer := ⟨"Utopia passport office"⟩
@@ -51,6 +62,20 @@ def checkInOrigin : Origin := ⟨"https://checkin.example"⟩
 def requestFor (profile : Profile) (nonce : String) (elements : List ElementRef) : Request :=
   { profile, origin := checkInOrigin, nonce := ⟨nonce, 16⟩, encryptionKey := ⟨"key for " ++ nonce⟩,
     engagementKey := none, elements }
+
+/-- The certificate of the check-in page's relying party. -/
+def checkInVerifier : OpenId4Vp.Certificate := ⟨"Example Air check-in"⟩
+
+/-- A request from the check-in page in the OpenID4VP profile for the family
+name of a photoid, with every part the guide's step 2 lists and no state
+value, as in the guide's own example, signed with the key of a certificate. -/
+def checkInRequest (signedWith : OpenId4Vp.Certificate) : OpenId4Vp.AuthorizationRequest :=
+  { protocol := OpenId4Vp.protocolValue, responseType := OpenId4Vp.responseTypeValue,
+    responseMode := OpenId4Vp.responseModeValue, clientIdPrefix := OpenId4Vp.clientIdPrefixValue,
+    clientCertificate := checkInVerifier, signedWith := some signedWith, expectedOrigins := [checkInOrigin],
+    encryptionKey := some ⟨"key for nonce 1"⟩,
+    credentials := [⟨OpenId4Vp.mdocFormat, photoidDocType, [(baseNameSpace, familyNameId)]⟩],
+    nonce := some ⟨"nonce 1", 16⟩, state := none }
 
 /-- A data element of the base identity namespace of a photoid. -/
 def baseRef (identifier : String) : ElementRef := ⟨photoidDocType, baseNameSpace, identifier⟩
@@ -144,6 +169,63 @@ def partialConsent : PartialConsentCheck :=
 #guard partialConsent.sentIfApprovedElementsAreSent == [baseRef familyNameId] &&
   partialConsent.sentIfTheWholeRequestMustBeApproved == []
 
+/-- A response that lacks something requested, checked profile by profile. -/
+structure MissingDataCheck where
+  /-- The data elements the relying party requested. -/
+  requested : List ElementRef
+  /-- The data elements the wallet sent. -/
+  received : List ElementRef
+  /-- The reasons to refuse it in the OpenID4VP profile. -/
+  reasonsInTheOpenId4VpProfile : List Refusal
+  /-- The reasons to refuse it in the mdoc profile, if a relying party there
+  refuses a response that lacks something. -/
+  reasonsInTheMdocProfileIfMissingDataIsRefused : List Refusal
+  /-- The reasons to refuse it in the mdoc profile, if it does not. -/
+  reasonsInTheMdocProfileIfItIsNot : List Refusal
+  /-- The reasons to refuse an empty response in the OpenID4VP profile, from a
+  wallet that sends nothing of a credential the holder approved in part. -/
+  reasonsForAnEmptyResponseInTheOpenId4VpProfile : List Refusal
+  deriving DecidableEq, Repr
+
+/-- The relying party's reasons to refuse the answer of a wallet to a request
+for a family name and a portrait, when the traveler approves the family name
+only, in a profile. -/
+def answerToPartialApproval (profile : Profile) (r : AcceptanceReading) (c : ConsentReading) :
+    Response × List Refusal :=
+  let q := requestFor profile "nonce 1" [baseRef familyNameId, baseRef portraitId]
+  let response := Wallet.respond c exampleIsoTranscripts [heldPhotoid "SMITH" "JOHN" "traveler 1" "phone"] q
+    ⟨[baseRef familyNameId]⟩
+  (response, refusals r ⟨true⟩ exampleIsoTranscripts trustedIssuers q response beforeDeparture)
+
+/-- *Given* a check-in page that requests the family name and the portrait of
+a photoid, and a traveler who approves the family name and declines the
+portrait.
+
+*When* the wallet sends the data element the traveler approved, and the
+relying party checks the response.
+
+*Then* the OpenID4VP profile refuses it for the missing portrait.  The mdoc
+profile refuses it if a relying party there refuses a response that lacks
+something, and accepts it if not.  A wallet that sends nothing at all is
+refused in the OpenID4VP profile for both data elements. -/
+@[case, checks "OID-202.7"]
+def partialResponse : MissingDataCheck :=
+  { requested := [baseRef familyNameId, baseRef portraitId],
+    received := (answerToPartialApproval .openid4vp looseAcceptance .perElement).1.refs,
+    reasonsInTheOpenId4VpProfile := (answerToPartialApproval .openid4vp looseAcceptance .perElement).2,
+    reasonsInTheMdocProfileIfMissingDataIsRefused :=
+      (answerToPartialApproval .mdocOverDcApi strictAcceptance .perElement).2,
+    reasonsInTheMdocProfileIfItIsNot := (answerToPartialApproval .mdocOverDcApi looseAcceptance .perElement).2,
+    reasonsForAnEmptyResponseInTheOpenId4VpProfile :=
+      (answerToPartialApproval .openid4vp looseAcceptance .wholeCredential).2 }
+
+#guard partialResponse.received == [baseRef familyNameId] &&
+  partialResponse.reasonsInTheOpenId4VpProfile == [.missing (baseRef portraitId)] &&
+  partialResponse.reasonsInTheMdocProfileIfMissingDataIsRefused == [.missing (baseRef portraitId)] &&
+  partialResponse.reasonsInTheMdocProfileIfItIsNot == [] &&
+  partialResponse.reasonsForAnEmptyResponseInTheOpenId4VpProfile ==
+    [.missing (baseRef familyNameId), .missing (baseRef portraitId)]
+
 /-! ## A relying party's decision -/
 
 /-- A response checked under two readings of what a relying party refuses. -/
@@ -183,7 +265,8 @@ def extraElementAccepted : ExtraDataCheck :=
 #guard extraElementAccepted.reasonsIfExtraDataIsRefused == [.notRequested (baseRef portraitId)] &&
   extraElementAccepted.reasonsIfExtraDataIsNotRefused == []
 
-/-- One response checked against a later request, profile by profile. -/
+/-- One response checked against a later request, in the two remote
+profiles. -/
 structure ReplayCheck where
   /-- The nonce of the request the response was made for. -/
   madeForNonce : String
@@ -191,42 +274,117 @@ structure ReplayCheck where
   checkedAgainstNonce : String
   /-- The reasons to refuse it in the OpenID4VP profile. -/
   reasonsInTheOpenId4VpProfile : List Refusal
-  /-- The reasons to refuse it in the mdoc profile, if the relying party
-  compares the session transcript. -/
-  reasonsInTheMdocProfileIfTheTranscriptIsCompared : List Refusal
-  /-- The reasons to refuse it in the mdoc profile, if it does not. -/
-  reasonsInTheMdocProfileIfItIsNot : List Refusal
+  /-- The reasons to refuse it in the mdoc profile, with the invented stand-in
+  transcript that holds the nonce. -/
+  reasonsInTheMdocProfile : List Refusal
   deriving DecidableEq, Repr
 
-/-- A wallet's answer to one request, checked against a second request that
-differs in its nonce and key, in a profile. -/
-def replay (profile : Profile) (r : AcceptanceReading) : List Refusal :=
+/-- A wallet's answer to one request, checked against a second request from
+the same page that differs only in its nonce, in a profile, with stand-ins for
+the ISO transcripts. -/
+def replay (profile : Profile) (r : AcceptanceReading) (x : IsoTranscripts) : List Refusal :=
   let wanted := [baseRef familyNameId]
   let first := requestFor profile "nonce 1" wanted
-  let second := requestFor profile "nonce 2" wanted
+  let second := { requestFor profile "nonce 2" wanted with encryptionKey := first.encryptionKey }
+  let held := [heldPhotoid "SMITH" "JOHN" "traveler 1" "phone"]
+  let response := Wallet.respond .perElement x held first ⟨wanted⟩
+  refusals r ⟨true⟩ x trustedIssuers second response beforeDeparture
+
+/-- *Given* a response a wallet made for a request with one nonce, captured
+and sent again in answer to a later request from the same page with another
+nonce and the same encryption key.
+
+*When* the relying party checks it against the later request.
+
+*Then* the OpenID4VP profile refuses it, and so does the mdoc profile, under
+every reading, since both compare the session transcript.  For the mdoc
+profile this rests on the transcript holding the nonce, which the invented
+stand-in here does and the real one may not
+({lit}`nonceOutsideTheTranscript`).  Decryption is not modelled; with the same
+key it would not tell the two requests apart. -/
+@[case, checks "OID-205.1"]
+def replayedResponse : ReplayCheck :=
+  { madeForNonce := "nonce 1", checkedAgainstNonce := "nonce 2",
+    reasonsInTheOpenId4VpProfile := replay .openid4vp looseAcceptance exampleIsoTranscripts,
+    reasonsInTheMdocProfile := replay .mdocOverDcApi looseAcceptance exampleIsoTranscripts }
+
+#guard replayedResponse.reasonsInTheOpenId4VpProfile == [.otherRequest photoidDocType] &&
+  replayedResponse.reasonsInTheMdocProfile == [.otherRequest photoidDocType]
+
+/-- One response of the mdoc profile checked against a later request, with two
+stand-ins for the session transcript. -/
+structure NonceCheck where
+  /-- The nonce of the request the response was made for. -/
+  madeForNonce : String
+  /-- The nonce of the request it is checked against. -/
+  checkedAgainstNonce : String
+  /-- The reasons to refuse it, if the session transcript holds the nonce. -/
+  reasonsIfTheTranscriptHoldsTheNonce : List Refusal
+  /-- The reasons to refuse it, if it does not. -/
+  reasonsIfItDoesNot : List Refusal
+  deriving DecidableEq, Repr
+
+/-- *Given* a response a wallet made in the mdoc profile for a request with one
+nonce, captured and sent again in answer to a later request from the same
+page with another nonce and the same encryption key.
+
+*When* the relying party checks it against the later request, comparing the
+session transcript as the profile requires.
+
+*Then* it is refused if the session transcript holds the nonce, and accepted
+if it does not.  Both transcripts are invented stand-ins for ISO/IEC TS
+18013-7 Annex C, which this project has not read. -/
+@[case]
+def nonceOutsideTheTranscript : NonceCheck :=
+  { madeForNonce := "nonce 1", checkedAgainstNonce := "nonce 2",
+    reasonsIfTheTranscriptHoldsTheNonce := replay .mdocOverDcApi strictAcceptance exampleIsoTranscripts,
+    reasonsIfItDoesNot := replay .mdocOverDcApi strictAcceptance transcriptsWithoutNonce }
+
+#guard nonceOutsideTheTranscript.reasonsIfTheTranscriptHoldsTheNonce == [.otherRequest photoidDocType] &&
+  nonceOutsideTheTranscript.reasonsIfItDoesNot == []
+
+/-- One response of a proximity session checked in a later session. -/
+structure ProximityReplayCheck where
+  /-- The reader's key in the session the response was made in. -/
+  madeWithReaderKey : String
+  /-- The reader's key in the session it is checked in. -/
+  checkedWithReaderKey : String
+  /-- The reasons to refuse it, if the reader rebuilds the session
+  transcript. -/
+  reasonsIfTheReaderRebuildsTheTranscript : List Refusal
+  /-- The reasons to refuse it, if it does not. -/
+  reasonsIfItDoesNot : List Refusal
+  deriving DecidableEq, Repr
+
+/-- A gate reader, as the origin of a proximity request. -/
+def gateReader : Origin := ⟨"gate B12 reader"⟩
+
+/-- A wallet's answer in one proximity session, checked in a later session with
+a new reader key. -/
+def replayInProximity (r : AcceptanceReading) : List Refusal :=
+  let wanted := [baseRef familyNameId]
+  let first := Proximity.Session.shared ⟨⟨"engagement 1"⟩, ⟨"reader key 1"⟩, .bluetoothLowEnergy⟩ gateReader wanted
+  let second := Proximity.Session.shared ⟨⟨"engagement 2"⟩, ⟨"reader key 2"⟩, .bluetoothLowEnergy⟩ gateReader wanted
   let held := [heldPhotoid "SMITH" "JOHN" "traveler 1" "phone"]
   let response := Wallet.respond .perElement exampleIsoTranscripts held first ⟨wanted⟩
   refusals r ⟨true⟩ exampleIsoTranscripts trustedIssuers second response beforeDeparture
 
-/-- *Given* a response a wallet made for a request with one nonce, captured
-and sent again in answer to a later request with another nonce.
+/-- *Given* a response a wallet made in one proximity session at a gate reader,
+captured and sent again in a later session with a new reader key.
 
-*When* the relying party checks it against the later request.
+*When* the reader checks it in the later session.
 
-*Then* the OpenID4VP profile refuses it under every reading.  The mdoc profile
-refuses it if the relying party compares the session transcript, which the
-guide's list of checks for that profile does not say, and accepts it if not.
-The transcript of the mdoc profile here is an invented stand-in. -/
-@[case, checks "OID-202.4 OID-205.1"]
-def replayedResponse : ReplayCheck :=
-  { madeForNonce := "nonce 1", checkedAgainstNonce := "nonce 2",
-    reasonsInTheOpenId4VpProfile := replay .openid4vp looseAcceptance,
-    reasonsInTheMdocProfileIfTheTranscriptIsCompared := replay .mdocOverDcApi strictAcceptance,
-    reasonsInTheMdocProfileIfItIsNot := replay .mdocOverDcApi looseAcceptance }
+*Then* it is refused if the reader rebuilds the session transcript, and
+accepted if not.  The transcript here is an invented stand-in.  Decrypting
+with the session keys, which the guide marks should, is not modelled. -/
+@[case, checks "OID-202.4"]
+def replayedInProximity : ProximityReplayCheck :=
+  { madeWithReaderKey := "reader key 1", checkedWithReaderKey := "reader key 2",
+    reasonsIfTheReaderRebuildsTheTranscript := replayInProximity strictAcceptance,
+    reasonsIfItDoesNot := replayInProximity looseAcceptance }
 
-#guard replayedResponse.reasonsInTheOpenId4VpProfile == [.otherRequest photoidDocType] &&
-  replayedResponse.reasonsInTheMdocProfileIfTheTranscriptIsCompared == [.otherRequest photoidDocType] &&
-  replayedResponse.reasonsInTheMdocProfileIfItIsNot == []
+#guard replayedInProximity.reasonsIfTheReaderRebuildsTheTranscript == [.otherRequest photoidDocType] &&
+  replayedInProximity.reasonsIfItDoesNot == []
 
 /-- A request relayed through another site. -/
 structure RelayCheck where
@@ -247,32 +405,70 @@ another site that shows it to a traveler.
 *When* the traveler's wallet receives the request from the other site's
 origin.
 
-*Then* the wallet refuses, because that origin is not one the request names.
+*Then* the wallet refuses, under every reading, because that origin is not
+one the request names.
 A wallet that answered would sign over the other site's origin, and the
 relying party would refuse the response as made for another request. -/
 @[case, checks "OID-204.1 OID-205.2"]
 def requestFromAnotherOrigin : RelayCheck :=
   let wanted := [baseRef familyNameId]
   let other : Origin := ⟨"https://checkin.example.invalid"⟩
-  let verifier : OpenId4Vp.Certificate := ⟨"Example Air check-in"⟩
-  let a : OpenId4Vp.AuthorizationRequest :=
-    { protocol := OpenId4Vp.protocolValue, responseType := OpenId4Vp.responseTypeValue,
-      responseMode := OpenId4Vp.responseModeValue, clientIdPrefix := OpenId4Vp.clientIdPrefixValue,
-      clientCertificate := verifier, signedWith := some verifier, expectedOrigins := [checkInOrigin],
-      encryptionKey := some ⟨"key for nonce 1"⟩,
-      credentials := [⟨OpenId4Vp.mdocFormat, photoidDocType, [(baseNameSpace, familyNameId)]⟩],
-      nonce := some ⟨"nonce 1", 16⟩, state := none }
   let q := requestFor .openid4vp "nonce 1" wanted
   let held := [heldPhotoid "SMITH" "JOHN" "traveler 1" "phone"]
   let response := Wallet.respond .perElement exampleIsoTranscripts held { q with origin := other } ⟨wanted⟩
   { expectedOrigin := checkInOrigin.value, receivedFrom := other.value,
-    reasonsTheWalletRefuses := OpenId4Vp.walletFindings ⟨false⟩ [verifier] other a,
+    reasonsTheWalletRefuses :=
+      OpenId4Vp.walletFindings ⟨false⟩ ⟨false, false⟩ [checkInVerifier] other (checkInRequest checkInVerifier),
     reasonsTheRelyingPartyRefuses :=
       refusals looseAcceptance ⟨true⟩ exampleIsoTranscripts trustedIssuers q response beforeDeparture }
 
 #guard requestFromAnotherOrigin.reasonsTheWalletRefuses ==
     [.originNotExpected ⟨"https://checkin.example.invalid"⟩] &&
   requestFromAnotherOrigin.reasonsTheRelyingPartyRefuses == [.otherRequest photoidDocType]
+
+/-- An OpenID4VP request checked by a wallet under two readings of one of its
+checks. -/
+structure WalletCheck where
+  /-- The reasons the wallet refuses, if it makes the check. -/
+  reasonsIfTheWalletMakesTheCheck : List OpenId4Vp.WalletFinding
+  /-- The reasons the wallet refuses, if it does not. -/
+  reasonsIfItDoesNot : List OpenId4Vp.WalletFinding
+  deriving DecidableEq, Repr
+
+/-- *Given* a request from the check-in page, received from an origin it
+names, whose client identifier names the airline's certificate and which is
+signed with the key of another certificate.
+
+*When* a wallet receives it.
+
+*Then* a wallet that validates the signature refuses it, and a wallet that
+does not answers it. -/
+@[case, checks "OID-204.2"]
+def wronglySignedRequestAnswered : WalletCheck :=
+  let a := checkInRequest ⟨"Someone else's certificate"⟩
+  { reasonsIfTheWalletMakesTheCheck := OpenId4Vp.walletFindings ⟨false⟩ ⟨true, false⟩ [checkInVerifier] checkInOrigin a,
+    reasonsIfItDoesNot := OpenId4Vp.walletFindings ⟨false⟩ ⟨false, false⟩ [checkInVerifier] checkInOrigin a }
+
+#guard wronglySignedRequestAnswered.reasonsIfTheWalletMakesTheCheck == [.badSignature] &&
+  wronglySignedRequestAnswered.reasonsIfItDoesNot == []
+
+/-- *Given* a well formed request from the check-in page, received from an
+origin it names and signed with the key of the certificate its client
+identifier names, and a wallet whose list of trusted verifiers does not hold
+that certificate.
+
+*When* the wallet receives it.
+
+*Then* a wallet that checks its list refuses the request, and a wallet that
+does not answers it. -/
+@[case, checks "OID-204.3"]
+def untrustedVerifierAnswered : WalletCheck :=
+  let a := checkInRequest checkInVerifier
+  { reasonsIfTheWalletMakesTheCheck := OpenId4Vp.walletFindings ⟨false⟩ ⟨true, true⟩ [] checkInOrigin a,
+    reasonsIfItDoesNot := OpenId4Vp.walletFindings ⟨false⟩ ⟨true, false⟩ [] checkInOrigin a }
+
+#guard untrustedVerifierAnswered.reasonsIfTheWalletMakesTheCheck == [.untrustedVerifier checkInVerifier] &&
+  untrustedVerifierAnswered.reasonsIfItDoesNot == []
 
 /-- An expired credential checked profile by profile. -/
 structure ExpiredCheck where
@@ -282,12 +478,13 @@ structure ExpiredCheck where
   presentedAt : Instant
   /-- The reasons to refuse it in the mdoc profile. -/
   reasonsInTheMdocProfile : List Refusal
-  /-- The reasons to refuse it in the OpenID4VP profile, if the clause that
-  profile cites includes the validity check. -/
-  reasonsInTheOpenId4VpProfileIfTheClauseChecksValidity : List Refusal
+  /-- The reasons to refuse it in the OpenID4VP profile, if a relying party
+  there checks validity. -/
+  reasonsInTheOpenId4VpProfileIfValidityIsChecked : List Refusal
   /-- The reasons to refuse it in the OpenID4VP profile, if it does not. -/
   reasonsInTheOpenId4VpProfileIfItDoesNot : List Refusal
-  /-- The reasons to refuse it in proximity, if it does not. -/
+  /-- The reasons to refuse it in proximity, if a reader there does not
+  check validity. -/
   reasonsInProximityIfItDoesNot : List Refusal
   deriving DecidableEq, Repr
 
@@ -305,19 +502,19 @@ def presentExpired (profile : Profile) (r : AcceptanceReading) : List Refusal :=
 three profiles.
 
 *Then* the mdoc profile refuses it.  The OpenID4VP profile and proximity
-refuse it if the clause they cite for issuer data authentication includes the
-validity check, and accept it if not. -/
+refuse it if a relying party there checks validity, and accept it if not. -/
 @[case, checks "OID-202.5"]
 def expiredBoardingPassAccepted : ExpiredCheck :=
-  let onlyValidity := { strictAcceptance with validityInIssuerDataAuthentication := false }
+  let everyCheckButValidity :=
+    { strictAcceptance with validityCheckedInOpenId4Vp := false, validityCheckedInProximity := false }
   { validityEnds := departure, presentedAt := afterDeparture,
-    reasonsInTheMdocProfile := presentExpired .mdocOverDcApi onlyValidity,
-    reasonsInTheOpenId4VpProfileIfTheClauseChecksValidity := presentExpired .openid4vp strictAcceptance,
-    reasonsInTheOpenId4VpProfileIfItDoesNot := presentExpired .openid4vp onlyValidity,
-    reasonsInProximityIfItDoesNot := presentExpired .proximity onlyValidity }
+    reasonsInTheMdocProfile := presentExpired .mdocOverDcApi everyCheckButValidity,
+    reasonsInTheOpenId4VpProfileIfValidityIsChecked := presentExpired .openid4vp strictAcceptance,
+    reasonsInTheOpenId4VpProfileIfItDoesNot := presentExpired .openid4vp everyCheckButValidity,
+    reasonsInProximityIfItDoesNot := presentExpired .proximity everyCheckButValidity }
 
 #guard expiredBoardingPassAccepted.reasonsInTheMdocProfile == [.expired boardingPassDocType] &&
-  expiredBoardingPassAccepted.reasonsInTheOpenId4VpProfileIfTheClauseChecksValidity ==
+  expiredBoardingPassAccepted.reasonsInTheOpenId4VpProfileIfValidityIsChecked ==
     [.expired boardingPassDocType] &&
   expiredBoardingPassAccepted.reasonsInTheOpenId4VpProfileIfItDoesNot == [] &&
   expiredBoardingPassAccepted.reasonsInProximityIfItDoesNot == []
@@ -343,14 +540,7 @@ nonce and state must be set.
 it. -/
 @[case, checks "OID-203.6"]
 def requestWithoutState : StateCheck :=
-  let verifier : OpenId4Vp.Certificate := ⟨"Example Air check-in"⟩
-  let a : OpenId4Vp.AuthorizationRequest :=
-    { protocol := OpenId4Vp.protocolValue, responseType := OpenId4Vp.responseTypeValue,
-      responseMode := OpenId4Vp.responseModeValue, clientIdPrefix := OpenId4Vp.clientIdPrefixValue,
-      clientCertificate := verifier, signedWith := some verifier, expectedOrigins := [checkInOrigin],
-      encryptionKey := some ⟨"key for nonce 1"⟩,
-      credentials := [⟨OpenId4Vp.mdocFormat, photoidDocType, [(baseNameSpace, familyNameId)]⟩],
-      nonce := some ⟨"nonce 1", 16⟩, state := none }
+  let a := checkInRequest checkInVerifier
   { brokenIfStateIsRequired := OpenId4Vp.requestFindings ⟨true⟩ a,
     brokenIfItIsNot := OpenId4Vp.requestFindings ⟨false⟩ a }
 
@@ -360,7 +550,8 @@ def requestWithoutState : StateCheck :=
 /-! ## A photoid and a boarding pass presented together -/
 
 /-- A photoid and a boarding pass presented together, checked with the device
-keys compared. -/
+keys compared and with nothing compared.  The names are not compared in
+either. -/
 structure DevicePairCheck where
   /-- The traveler the photoid is about. -/
   photoidIsAbout : String
@@ -370,10 +561,12 @@ structure DevicePairCheck where
   boardingPassIsAbout : String
   /-- The device the boarding pass was issued to. -/
   boardingPassIssuedTo : String
-  /-- The reasons to refuse the pair, if the device keys must be the same. -/
-  reasonsIfDeviceKeysMustMatch : List PairRefusal
-  /-- The reasons to refuse the pair, if nothing is compared. -/
-  reasonsIfNothingIsCompared : List PairRefusal
+  /-- The reasons to refuse the pair, if the device keys must be the same;
+  none if the wallet did not present both credentials. -/
+  reasonsIfDeviceKeysMustMatch : Option (List PairRefusal)
+  /-- The reasons to refuse the pair, if nothing is compared; none if the
+  wallet did not present both credentials. -/
+  reasonsIfNothingIsCompared : Option (List PairRefusal)
   deriving DecidableEq, Repr
 
 /-- A photoid and a boarding pass presented together by wallets that follow
@@ -382,12 +575,12 @@ def checkDevicePair (p b : Credential) : DevicePairCheck :=
   let wanted := [baseRef familyNameId, baseRef portraitId, bcbpRef]
   let q := requestFor .openid4vp "nonce 1" wanted
   let t := expectedTranscript exampleIsoTranscripts q
-  let check (pr : PairReading) : List PairRefusal :=
+  let check (pr : PairReading) : Option (List PairRefusal) :=
     match Credential.present .perElement q ⟨wanted⟩ t p, Credential.present .perElement q ⟨wanted⟩ t b with
     | some dp, some db =>
-      pairRefusals strictAcceptance ⟨true⟩ exampleIsoTranscripts trustedIssuers pr exampleResolution792 q
-        dp db beforeDeparture
-    | _, _ => []
+      some (pairRefusals strictAcceptance ⟨true⟩ exampleIsoTranscripts trustedIssuers pr exampleResolution792 q
+        dp db beforeDeparture)
+    | _, _ => none
   { photoidIsAbout := p.subject.id, photoidIssuedTo := p.deviceKey.name,
     boardingPassIsAbout := b.subject.id, boardingPassIssuedTo := b.deviceKey.name,
     reasonsIfDeviceKeysMustMatch := check ⟨.notChecked, true⟩,
@@ -398,21 +591,22 @@ Martin's photoid and Bruno Keller's boarding pass in the wallet of a shared
 phone.
 
 *When* the phone presents both together, under the reading that the two
-credentials must carry the same device key.
+credentials must carry the same device key and their names are not compared.
 
-*Then* the pair is accepted: Alice's face goes with Bruno's boarding pass. -/
+*Then* the pair is accepted: Alice's face goes with Bruno's boarding pass.
+Comparing the names as well would refuse this pair. -/
 @[case, checks "OID-207.1"]
 def twoTravelersOneDevice : DevicePairCheck :=
   checkDevicePair (heldPhotoid "MARTIN" "ALICE" "traveler 1" "shared phone")
     (heldBoardingPass "KELLER/BRUNO" "traveler 2" "shared phone")
 
-#guard twoTravelersOneDevice.reasonsIfDeviceKeysMustMatch == []
+#guard twoTravelersOneDevice.reasonsIfDeviceKeysMustMatch == some []
 
 /-- *Given* one traveler who holds a photoid on a phone and a boarding pass on
 a tablet, each accepted on its own.
 
 *When* the two are presented together, under the reading that the two
-credentials must carry the same device key.
+credentials must carry the same device key and their names are not compared.
 
 *Then* the pair is refused, though both credentials are about the same
 person.  With nothing compared it is accepted. -/
@@ -421,7 +615,7 @@ def twoDevicesOneTraveler : DevicePairCheck :=
   checkDevicePair (heldPhotoid "SMITH" "JOHN" "traveler 1" "phone")
     (heldBoardingPass "SMITH/JOHN" "traveler 1" "tablet")
 
-#guard twoDevicesOneTraveler.reasonsIfDeviceKeysMustMatch == [.notOneTraveler] &&
-  twoDevicesOneTraveler.reasonsIfNothingIsCompared == []
+#guard twoDevicesOneTraveler.reasonsIfDeviceKeysMustMatch == some [.notOneTraveler] &&
+  twoDevicesOneTraveler.reasonsIfNothingIsCompared == some []
 
 end Rules.OneId

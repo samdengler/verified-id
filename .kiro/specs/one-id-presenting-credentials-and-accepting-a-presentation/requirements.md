@@ -22,7 +22,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/Presentati
 
 **Sources:** [One ID Technical Implementation Guide 26.3, §3.1 Functional Requirements](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §3.2 Assumption](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §4.2.1.2 Remote presentation using mdoc over the DC API](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §4.2.1.3 Remote presentation using OpenID4VP with HAIP](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §4.2.2 Proximity presentation](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard)
 
-**External specifications:** OpenID for Verifiable Presentations 1.0, §5, §5.1, §5.2, §5.9.3, §6, §6.1.1.1, §8.1, §8.5, §8.6, Appendix A, §A.2, §A.3.2, §B.2.2, §B.2.4, §B.2.5, §B.2.6.2 (read); ISO/IEC 18013-5:2021, §9.1.3 (not read); ISO/IEC 18013-5:2021, §8.3.2.1.2.1, §8.3.2.1.2.2, §8.3.2.1.2.3 (not read)
+**External specifications:** OpenID for Verifiable Presentations 1.0, §5, §5.1, §5.2, §5.9.3, §6, §6.1.1.1, §6.4, §6.4.1, §8.1, §8.5, §8.6, §14.9, Appendix A, §A.2, §A.3.2, §B.2.2, §B.2.4, §B.2.5, §B.2.6.2 (read); ISO/IEC 18013-5:2021, §9.1.3 (not read); ISO/IEC 18013-5:2021, §8.3.2.1.2.1, §8.3.2.1.2.2, §8.3.2.1.2.3 (not read)
 
 **Confirmation:** Not confirmed yet.
 
@@ -53,7 +53,8 @@ These requirements are generated from the Lean model in [`Rules/OneId/Presentati
 > the wallet must show what is shared with whom.  It does not say what happens
 > when a holder agrees to a part.  OpenID4VP says a wallet that cannot deliver
 > every claim asked of a credential must not return it \(§6.4.1\), which fits the
-> second reading if a refusal counts.  When a holder approves only some of the
+> second reading if a refusal counts, and a relying party in that profile
+> refuses a response that lacks a requested claim \(§8.6\).  When a holder approves only some of the
 > data elements requested, does the wallet send those, or nothing from that
 > credential?  And is the answer the same in all three profiles?
 
@@ -65,7 +66,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/Presentati
 
 **Sources:** [One ID Technical Implementation Guide 26.3, §3.1 Functional Requirements](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §3.2 Assumption](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §4.2.1.1 W3C Digital Credentials API](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §4.2.1.2 Remote presentation using mdoc over the DC API](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §4.2.1.3 Remote presentation using OpenID4VP with HAIP](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §4.2.2 Proximity presentation](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard)
 
-**External specifications:** ISO/IEC 18013-5:2021, §9.1.2, §9.1.2.4, §9.3.1 (not read); ISO/IEC 18013-5:2021, §9.1.3 (not read); ISO/IEC 18013-5:2021, §9.3.1, and the validity information set when an mdoc is signed (not read); ISO/IEC TS 18013-7:2025, Annex C, §C.2 to §C.5 (not read); ISO/IEC 18013-5:2021, §9.1.1.4, §9.1.1.5, §9.1.5, §9.1.5.1, §9.1.5.2 (not read); OpenID for Verifiable Presentations 1.0, §5, §5.1, §5.2, §5.9.3, §6, §6.1.1.1, §8.1, §8.5, §8.6, Appendix A, §A.2, §A.3.2, §B.2.2, §B.2.4, §B.2.5, §B.2.6.2 (read)
+**External specifications:** ISO/IEC 18013-5:2021, §9.1.2, §9.1.2.4, §9.3.1 (not read); ISO/IEC 18013-5:2021, §9.1.3 (not read); ISO/IEC 18013-5:2021, §9.3.1, and the validity information set when an mdoc is signed (not read); ISO/IEC TS 18013-7:2025, Annex C, §C.2 to §C.5 (not read); ISO/IEC 18013-5:2021, §9.1.1.4, §9.1.1.5, §9.1.5, §9.1.5.1, §9.1.5.2 (not read); OpenID for Verifiable Presentations 1.0, §5, §5.1, §5.2, §5.9.3, §6, §6.1.1.1, §6.4, §6.4.1, §8.1, §8.5, §8.6, §14.9, Appendix A, §A.2, §A.3.2, §B.2.2, §B.2.4, §B.2.5, §B.2.6.2 (read)
 
 **Confirmation:** Not confirmed yet.
 
@@ -78,65 +79,90 @@ These requirements are generated from the Lean model in [`Rules/OneId/Presentati
 3. IF a presented credential has no device signature made with the device key its issuer signed THEN THE SYSTEM SHALL reject the response.
    - OID-202.3, proven: proven theorem `accepted_signed_by_device_key`; example `checkInPresentation`
 4. IF a presented credential's device signature was made for another request THEN THE SYSTEM SHALL reject the response.
-   - OID-202.4, open: open theorem `accepted_answers_this_request`; counterexample `replayedResponse`
+   - OID-202.4, open: open theorem `accepted_answers_this_request`; counterexample `replayedInProximity`
 5. IF the validity of a presented credential has ended THEN THE SYSTEM SHALL reject the response.
    - OID-202.5, open: open theorem `accepted_not_expired`; counterexample `expiredBoardingPassAccepted`
 6. IF a response holds a data element the request did not name THEN THE SYSTEM SHALL reject the response.
    - OID-202.6, open: open theorem `accepted_holds_only_requested`; counterexample `extraElementAccepted`
+7. IF a response lacks a data element the request named THEN THE SYSTEM SHALL reject the response.
+   - OID-202.7, open: open theorem `accepted_holds_every_requested`; counterexample `partialResponse`
 
 #### Open question on OID-202.4
 
 > Every credential in an accepted response has a device signature made over
 > the session transcript of the relying party's own request.
 >
-> Not proven: it fails in the mdoc profile and in proximity under the reading
-> that the relying party does not compare the transcript.  The example
-> `replayedResponse` shows a response made for one request and accepted for
-> a later request with another nonce in the mdoc profile, and refused in the
-> OpenID4VP profile.
+> Not proven: it fails in proximity under the reading that the reader does not
+> rebuild the session transcript.  The example `replayedInProximity` shows
+> a response made in one proximity session and accepted in a later session with
+> a new reader key under that reading.  The two remote profiles compare the
+> transcript under every reading.
 >
 > Open question for the business.  The OpenID4VP profile requires the relying
-> party to rebuild the session transcript and validate the nonce.  The mdoc
-> profile's list of checks has no such step, and the proximity profile lists
-> the rebuilding with no requirement word.  Both may be covered by mdoc
-> authentication as ISO/IEC 18013-5 §9.1.3 defines it, which this project has
-> not read.  Must a relying party in the mdoc profile and a reader in proximity
-> check that a response was made for their own request?
+> party to rebuild the session transcript and validate the nonce, and the mdoc
+> profile requires mdoc authentication with the session transcript to prevent
+> replay.  The proximity profile lists the rebuilding with no requirement word,
+> after a decryption step it marks should, in a list of checks a verifier is
+> said to need to perform, and requires the device signature to be validated to
+> prevent man in the middle attacks.  Must a reader in proximity rebuild the
+> session transcript and check that the device signature was made over it?
 
 #### Open question on OID-202.5
 
 > No credential in an accepted response has passed the end of its validity.
 >
 > Not proven: it fails in the OpenID4VP profile and in proximity under the
-> reading that the clause those profiles cite with must has no validity check.
-> The example `expiredBoardingPassAccepted` shows a boarding pass presented
-> an hour after its validity ended, refused in the mdoc profile and accepted in
-> the other two under that reading.
+> reading that the relying party there does not check validity.  The example
+> `expiredBoardingPassAccepted` shows a boarding pass presented an hour
+> after its validity ended, refused in the mdoc profile and accepted in the
+> other two under that reading.
 >
 > Open question for the business.  The mdoc profile cites ISO/IEC 18013-5
 > §9.3.1 for issuer data authentication and says it covers time validity.  The
-> OpenID4VP and proximity profiles cite §9.1.2 with must and do not say whether
-> it does; proximity adds §9.3.1 with should.  OpenID4VP §8.6 names no check of
-> an mdoc's validity.  Neither ISO clause was read.  Is a relying party required
-> to refuse an expired credential in all three profiles?
+> OpenID4VP profile cites §9.1.2 with must and does not say whether it does, and
+> OpenID4VP §8.6 names no check of an mdoc's validity.  Proximity cites §9.1.2
+> with must and §9.3.1 with should, and its list of checks opens by saying they
+> include the validity of what was received.  Neither ISO clause was read.  Is
+> a relying party required to refuse an expired credential in the OpenID4VP
+> profile and in proximity?
 
 #### Open question on OID-202.6
 
 > An accepted response holds only data elements the request named.
 >
-> Not proven: it fails under the reading that a relying party does not refuse
-> extra data.  The example `extraElementAccepted` shows a request for a
-> family name and a response that also holds the portrait, accepted under
-> that reading.
+> Not proven: it fails in each profile under the reading that a relying party
+> there does not refuse extra data.  The example `extraElementAccepted`
+> shows a request for a family name and a response that also holds the
+> portrait, accepted under that reading.
 >
 > Open question for the business.  OpenID4VP forbids a wallet to send a claim
-> the query did not select \(§6.4\) and tells a verifier not to rely on the
-> wallet for it \(§14.9\), without saying that a response with more is refused.
-> The mdoc profile's list of checks has no step that compares the response with
-> the request, and the proximity profile says an ISO clause covers the data
-> elements requested.  Must a relying party refuse a response that holds a data
-> element it did not request, or may it accept the response and discard the
-> extra?
+> the query did not select \(§6.4\), tells a verifier to check that what is
+> returned satisfies the request as §6.4 describes and to discard a
+> presentation that fails a check \(§8.6\), and not to rely on the wallet for it
+> \(§14.9\).  The mdoc profile's list of checks has no step that compares the
+> response with the request.  The proximity profile says issuer data validation
+> ensures the data elements requested.  In each profile, must a relying party
+> refuse a response that holds a data element it did not request, discard the
+> credential that holds it, or may it accept the response and set the extra
+> aside?
+
+#### Open question on OID-202.7
+
+> An accepted response holds every data element the request named.
+>
+> Not proven: it fails in the mdoc profile and in proximity under the reading
+> that a relying party there does not refuse a response that lacks something.
+> The example `partialResponse` shows a request for a family name and a
+> portrait answered with the family name only, refused in the OpenID4VP profile
+> and accepted in the mdoc profile under that reading.
+>
+> Open question for the business.  OpenID4VP requires the verifier to check
+> that the returned credentials meet the query and that what is returned
+> satisfies the request \(§8.6\), which the guide makes a must for its profile.
+> The mdoc profile's list of checks has no such step, and the proximity profile
+> says issuer data validation ensures the data elements requested, from an ISO
+> clause this project has not read.  Must a relying party in the mdoc profile
+> and in proximity refuse a response that lacks a data element it requested?
 
 ### Requirement OID-207
 

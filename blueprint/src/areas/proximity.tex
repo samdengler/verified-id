@@ -59,12 +59,16 @@
   \label{def:c88}
   \uses{def:wallet-respond}
   \notready
-  The reader 'should' decrypt the response with the session keys and rebuild
-  the session transcript.
+  The reader 'should' decrypt the response with the session keys.  The next
+  item, rebuilding the session transcript, has no requirement word, in a list
+  of checks the guide says a verifier needs to perform; a later item requires
+  the device signature to be validated to prevent man-in-the-middle attacks.
 
-  Taken as must: nothing can be validated otherwise.
+  In the model as a reading: a reader that does not rebuild the transcript
+  accepts a response from an earlier session.  Decryption is not modelled.
 
-  Open point: 'Should' for a step every later check needs. Is it must?
+  Open point: 'Should' for decryption and no word for rebuilding, two steps
+  every later check needs.  Are both required?
 
   External: ISO/IEC 18013-5:2021 §9.1.5, §9.1.5.1.
 

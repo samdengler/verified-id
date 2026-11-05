@@ -26,7 +26,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/OpenId4Vp.
 
 **Sources:** [One ID Technical Implementation Guide 26.3, §4.2.1.3 Remote presentation using OpenID4VP with HAIP](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard)
 
-**External specifications:** OpenID for Verifiable Presentations 1.0, §5, §5.1, §5.2, §5.9.3, §6, §6.1.1.1, §8.1, §8.5, §8.6, Appendix A, §A.2, §A.3.2, §B.2.2, §B.2.4, §B.2.5, §B.2.6.2 (read); OpenID4VC High Assurance Interoperability Profile 1.0, §5, §5.2, §5.3.1 (read); W3C Digital Credentials API, draft of 16 July 2026, §1, §2.1 to §2.4, §5 (read)
+**External specifications:** OpenID for Verifiable Presentations 1.0, §5, §5.1, §5.2, §5.9.3, §6, §6.1.1.1, §6.4, §6.4.1, §8.1, §8.5, §8.6, §14.9, Appendix A, §A.2, §A.3.2, §B.2.2, §B.2.4, §B.2.5, §B.2.6.2 (read); OpenID4VC High Assurance Interoperability Profile 1.0, §5, §5.2, §5.3.1 (read); W3C Digital Credentials API, draft of 16 July 2026, §1, §2.1 to §2.4, §5 (read)
 
 **Confirmation:** Not confirmed yet.
 
@@ -44,6 +44,10 @@ These requirements are generated from the Lean model in [`Rules/OneId/OpenId4Vp.
    - OID-203.5, proven: proven theorem `accepted_request_parts`
 6. IF a request carries no state value THEN THE SYSTEM SHALL reject it.
    - OID-203.6, open: open theorem `accepted_request_has_state`; counterexample `requestWithoutState`
+7. IF two requests of a relying party carry the same nonce THEN THE SYSTEM SHALL reject them.
+   - OID-203.7, proven: proven theorem `accepted_requests_fresh`
+8. IF two requests of a relying party carry the same encryption key THEN THE SYSTEM SHALL reject them.
+   - OID-203.8, proven: proven theorem `accepted_requests_fresh`
 
 #### Open question on OID-203.6
 
@@ -71,18 +75,52 @@ These requirements are generated from the Lean model in [`Rules/OneId/OpenId4Vp.
 
 **Sources:** [One ID Technical Implementation Guide 26.3, §4.2.1.3 Remote presentation using OpenID4VP with HAIP](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard); [One ID Technical Implementation Guide 26.3, §3.2 Assumption](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard)
 
-**External specifications:** OpenID for Verifiable Presentations 1.0, §5, §5.1, §5.2, §5.9.3, §6, §6.1.1.1, §8.1, §8.5, §8.6, Appendix A, §A.2, §A.3.2, §B.2.2, §B.2.4, §B.2.5, §B.2.6.2 (read)
+**External specifications:** OpenID for Verifiable Presentations 1.0, §5, §5.1, §5.2, §5.9.3, §6, §6.1.1.1, §6.4, §6.4.1, §8.1, §8.5, §8.6, §14.9, Appendix A, §A.2, §A.3.2, §B.2.2, §B.2.4, §B.2.5, §B.2.6.2 (read)
 
 **Confirmation:** Not confirmed yet.
 
 #### Acceptance Criteria
 
 1. IF a request comes from an origin that is not among its expected origins THEN THE SYSTEM SHALL refuse it.
-   - OID-204.1, proven: proven theorem `answered_request_parts`; example `requestFromAnotherOrigin`
+   - OID-204.1, proven: proven theorem `answered_from_expected_origin`; example `requestFromAnotherOrigin`
 2. IF a request is not signed with the key of the certificate its client identifier names THEN THE SYSTEM SHALL refuse it.
-   - OID-204.2, proven: proven theorem `answered_request_parts`
+   - OID-204.2, open: open theorem `answered_request_signed`; counterexample `wronglySignedRequestAnswered`
 3. IF the certificate a request's client identifier names is not a trusted relying party's THEN THE SYSTEM SHALL refuse it.
-   - OID-204.3, proven: proven theorem `answered_request_parts`
+   - OID-204.3, open: open theorem `answered_by_trusted_verifier`; counterexample `untrustedVerifierAnswered`
+
+#### Open question on OID-204.2
+
+> A wallet answers an OpenID4VP request only if it is signed with the key of
+> the certificate its client identifier names.
+>
+> Not proven: it fails under the reading that a wallet need not validate the
+> signature.  The example `wronglySignedRequestAnswered` shows a request
+> signed with another certificate's key, from an expected origin, refused by a
+> wallet that validates the signature and answered by one that does not.
+>
+> Open question for the business.  The guide introduces the wallet's checks with
+> should and gives the signature check no requirement word.  OpenID4VP leaves
+> it to the wallet whether it validates the signature of a request over the
+> Digital Credentials API \(§5.9.3\), and the profile requires a wallet only to
+> support signed requests \(HAIP §5.2\).  Must a wallet validate the signature of
+> an OpenID4VP request and refuse one it cannot validate?
+
+#### Open question on OID-204.3
+
+> A wallet answers an OpenID4VP request only if the certificate its client
+> identifier names is on the wallet's list of trusted verifiers.
+>
+> Not proven: it fails under the reading that a wallet need not check the list.
+> The example `untrustedVerifierAnswered` shows a well formed, signed
+> request from an expected origin whose certificate is not on the wallet's
+> list, refused under one reading and answered under the other.
+>
+> Open question for the business.  The guide says the client identifier must be
+> checked against trusted verifiers, in a list of checks it introduces with
+> should, and §3.2 says wallets must have a list of trusted verifiers.  For the
+> mdoc profile it says a wallet should be able to check a verifier against such
+> a list, and OpenID4VP names no list.  Must a wallet refuse an OpenID4VP
+> request from a verifier that is not on its list?
 
 ### Requirement OID-205
 
@@ -92,7 +130,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/OpenId4Vp.
 
 **Sources:** [One ID Technical Implementation Guide 26.3, §4.2.1.3 Remote presentation using OpenID4VP with HAIP](https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide) (standard)
 
-**External specifications:** OpenID for Verifiable Presentations 1.0, §5, §5.1, §5.2, §5.9.3, §6, §6.1.1.1, §8.1, §8.5, §8.6, Appendix A, §A.2, §A.3.2, §B.2.2, §B.2.4, §B.2.5, §B.2.6.2 (read); OpenID4VC High Assurance Interoperability Profile 1.0, §5, §5.2, §5.3.1 (read); ISO/IEC 18013-5:2021, §9.1.3 (not read)
+**External specifications:** OpenID for Verifiable Presentations 1.0, §5, §5.1, §5.2, §5.9.3, §6, §6.1.1.1, §6.4, §6.4.1, §8.1, §8.5, §8.6, §14.9, Appendix A, §A.2, §A.3.2, §B.2.2, §B.2.4, §B.2.5, §B.2.6.2 (read); OpenID4VC High Assurance Interoperability Profile 1.0, §5, §5.2, §5.3.1 (read); ISO/IEC 18013-5:2021, §9.1.3 (not read)
 
 **Confirmation:** Not confirmed yet.
 
@@ -104,5 +142,5 @@ These requirements are generated from the Lean model in [`Rules/OneId/OpenId4Vp.
    - OID-205.2, proven: proven theorem `refuses_other_request`; example `requestFromAnotherOrigin`
 3. IF a response was signed for an encryption key other than the one of this request THEN THE SYSTEM SHALL reject it.
    - OID-205.3, proven: proven theorem `refuses_other_request`
-4. THE SYSTEM SHALL return each mdoc in a device response of its own.
-   - OID-205.4, proven: proven theorem `one_mdoc_per_deviceResponse`
+4. IF a device response in a token holds more than one mdoc THEN THE SYSTEM SHALL reject the token.
+   - OID-205.4, proven: proven theorem `accepted_token_one_mdoc_each`

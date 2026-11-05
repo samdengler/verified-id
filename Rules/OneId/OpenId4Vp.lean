@@ -115,6 +115,43 @@ inductive RequestFinding
   | noState
   deriving DecidableEq, Repr
 
+/-- The parts of a request a wallet can check without validating its
+signature: the four values the guide names, the expected origins, the
+encryption key, the formats of the query, the nonce and, under one reading,
+{lit}`state`. -/
+def parameterFindings (r : RequestReading) (a : AuthorizationRequest) : List RequestFinding :=
+  (if a.protocol = protocolValue then [] else [.wrongProtocol a.protocol]) ++
+  (if a.responseType = responseTypeValue then [] else [.wrongResponseType a.responseType]) ++
+  (if a.responseMode = responseModeValue then [] else [.wrongResponseMode a.responseMode]) ++
+  (if a.clientIdPrefix = clientIdPrefixValue then [] else [.wrongClientIdPrefix a.clientIdPrefix]) ++
+  (if a.expectedOrigins = [] then [.noExpectedOrigins] else []) ++
+  (if a.encryptionKey = none then [.noEncryptionKey] else []) ++
+  ((a.credentials.filter fun c => decide (c.format ≠ mdocFormat)).map fun c => .wrongFormat c.docType) ++
+  (if a.nonce = none then [.noNonce] else []) ++
+  (if r.stateRequired = true ∧ a.state = none then [.noState] else [])
+
+/-- Whether a request is signed with the key of the certificate its client
+identifier names.  Only a party that validates the signature can tell. -/
+def signatureFindings (a : AuthorizationRequest) : List RequestFinding :=
+  match a.signedWith with
+  | none => [.notSigned]
+  | some c => if c = a.clientCertificate then [] else [.signedWithAnotherKey]
+
+/-- A nonce or a key that more than one request of a relying party carries. -/
+inductive ReuseFinding
+  /-- Two requests carry the same nonce. -/
+  | nonceReused
+  /-- Two requests carry the same encryption key. -/
+  | encryptionKeyReused
+  deriving DecidableEq, Repr
+
+/-- The nonces and encryption keys the requests of one relying party share.
+A request that lacks one is refused on its own and is not counted
+here. -/
+def reuseFindings (requests : List AuthorizationRequest) : List ReuseFinding :=
+  (if (requests.filterMap (·.nonce)).Nodup then [] else [.nonceReused]) ++
+  (if (requests.filterMap (·.encryptionKey)).Nodup then [] else [.encryptionKeyReused])
+
 /-- EARS: When a relying party makes an OpenID4VP request, the system shall
 accept the request only if it carries what the guide requires of one.
 
@@ -137,6 +174,10 @@ Acceptance criteria:
   the system shall reject the request.
 * OID-203.6: If a request carries no state value, then the system shall
   reject it.
+* OID-203.7: If two requests of a relying party carry the same nonce, then
+  the system shall reject them.
+* OID-203.8: If two requests of a relying party carry the same encryption
+  key, then the system shall reject them.
 
 The guide lists the parts in §4.2.1.3 steps 1 to 3 and says a request must
 always be signed.  OpenID4VP makes the signature optional (§A.3.2) and the
@@ -144,34 +185,44 @@ profile allows a relying party to support signed requests only (HAIP §5.2),
 so the guide's rule is narrower and allowed.  A signed request must be signed
 with the key of the certificate the client identifier names (OpenID4VP
 §5.9.3), must name its expected origins (§A.2), and must carry a nonce
-(§5.2).  The profile requires an encryption key made for each request
-(HAIP §5).  This rule checks that a key and a nonce are present.  It does not
-check that they are new for each request, since that takes more than one
-request to see.  The guide's must for {lit}`state` is the reading
-({name}`RequestReading`).  The minimum set of claims and the entropy of the
-nonce are not checked: the guide gives neither a list nor a number for this
-profile. -/
+(§5.2).  The guide requires an encryption key made for each request (step 2),
+as the profile does (HAIP §5), and OpenID4VP requires a fresh nonce for every
+request (§5.2).  A request on its own shows only that a key and a nonce are
+present; that they are new shows across the requests of one relying party,
+which {name}`reuseFindings` checks.  The guide's must for {lit}`state` is the
+reading ({name}`RequestReading`).  The minimum set of claims and the entropy
+of the nonce are not checked: the guide gives neither a list nor a number for
+this profile. -/
 @[ears "OID-203", source "tig-4.2.1.3", assumes "x-openid4vp x-haip x-w3c-dc-api"]
 def requestFindings (r : RequestReading) (a : AuthorizationRequest) : List RequestFinding :=
-  (if a.protocol = protocolValue then [] else [.wrongProtocol a.protocol]) ++
-  (if a.responseType = responseTypeValue then [] else [.wrongResponseType a.responseType]) ++
-  (if a.responseMode = responseModeValue then [] else [.wrongResponseMode a.responseMode]) ++
-  (if a.clientIdPrefix = clientIdPrefixValue then [] else [.wrongClientIdPrefix a.clientIdPrefix]) ++
-  (match a.signedWith with
-    | none => [.notSigned]
-    | some c => if c = a.clientCertificate then [] else [.signedWithAnotherKey]) ++
-  (if a.expectedOrigins = [] then [.noExpectedOrigins] else []) ++
-  (if a.encryptionKey = none then [.noEncryptionKey] else []) ++
-  ((a.credentials.filter fun c => decide (c.format ≠ mdocFormat)).map fun c => .wrongFormat c.docType) ++
-  (if a.nonce = none then [.noNonce] else []) ++
-  (if r.stateRequired = true ∧ a.state = none then [.noState] else [])
+  parameterFindings r a ++ signatureFindings a
+
+/-- What the guide leaves undecided about a wallet's checks of an OpenID4VP
+request.  The guide introduces its list of four checks with should (§4.2.1.3
+step 4).  The parameter check, the origin check and the check of the client
+identifier against trusted verifiers say must; the signature check has no
+requirement word.  OpenID4VP requires the origin check of a wallet (§A.2) and
+leaves it to the wallet whether it validates the signature of a request over
+the Digital Credentials API (§5.9.3).  The parameters and the origin are
+checked under every reading. -/
+structure WalletReading where
+  /-- Whether a wallet must validate the signature of a request and refuse one
+  not signed with the key of the certificate its client identifier names. -/
+  signatureChecked : Bool
+  /-- Whether a wallet must refuse a request whose client identifier names a
+  certificate that is not on its list of trusted verifiers. -/
+  verifierListChecked : Bool
+  deriving DecidableEq, Repr, Inhabited
 
 /-- A reason a wallet does not answer an OpenID4VP request. -/
 inductive WalletFinding
-  /-- The request does not carry what the guide requires of one. -/
+  /-- The request's parameters are not what the guide requires. -/
   | malformed
   /-- The request did not come from an origin it names. -/
   | originNotExpected (origin : Origin)
+  /-- The request is not signed with the key of the certificate its client
+  identifier names. -/
+  | badSignature
   /-- The certificate the client identifier names is not a trusted
   verifier's. -/
   | untrustedVerifier (certificate : Certificate)
@@ -195,18 +246,23 @@ Acceptance criteria:
   trusted relying party's, then the system shall refuse it.
 
 The guide lists four checks in §4.2.1.3 step 4: the parameters, the origin,
-the signature and the client identifier.  It introduces the list with should
-and marks three of the four with must.  OpenID4VP requires the origin check
-(§A.2) and the signature check (§5.9.3) of a wallet, and the guide requires
-both parties to follow that specification, so the model treats all four as
-required.  Which list a wallet checks a relying party against is part of the
-trust model, which the guide leaves out, so the list is given to the rule. -/
+the signature and the client identifier.  It introduces the list with should,
+marks three of the four with must, and gives the signature check no
+requirement word.  OpenID4VP requires the origin check of a wallet (§A.2), so
+the origin is checked under every reading.  It leaves the signature check over
+the Digital Credentials API to the wallet (§5.9.3), and it names no list of
+trusted verifiers.  Whether a wallet must make the last two checks is the
+reading ({name}`WalletReading`).  Which list a wallet checks a relying party
+against is part of the trust model, which the guide leaves out, so the list is
+given to the rule. -/
 @[ears "OID-204", source "tig-4.2.1.3 tig-3.2", assumes "x-openid4vp"]
-def walletFindings (r : RequestReading) (trustedVerifiers : List Certificate) (seenOrigin : Origin)
-    (a : AuthorizationRequest) : List WalletFinding :=
-  (if requestFindings r a = [] then [] else [.malformed]) ++
+def walletFindings (r : RequestReading) (w : WalletReading) (trustedVerifiers : List Certificate)
+    (seenOrigin : Origin) (a : AuthorizationRequest) : List WalletFinding :=
+  (if parameterFindings r a = [] then [] else [.malformed]) ++
   (if seenOrigin ∈ a.expectedOrigins then [] else [.originNotExpected seenOrigin]) ++
-  (if a.clientCertificate ∈ trustedVerifiers then [] else [.untrustedVerifier a.clientCertificate])
+  (if w.signatureChecked = true ∧ signatureFindings a ≠ [] then [.badSignature] else []) ++
+  (if w.verifierListChecked = true ∧ a.clientCertificate ∉ trustedVerifiers
+    then [.untrustedVerifier a.clientCertificate] else [])
 
 /-- The request as the shared model sees it, for a relying party at an
 origin: the profile, the nonce, the encryption key and the data elements the
@@ -236,8 +292,8 @@ Acceptance criteria:
   party's, then the system shall reject it.
 * OID-205.3: If a response was signed for an encryption key other than the
   one of this request, then the system shall reject it.
-* OID-205.4: The system shall return each mdoc in a device response of its
-  own.
+* OID-205.4: If a device response in a token holds more than one mdoc, then
+  the system shall reject the token.
 
 The wallet sets the session transcript from the three values and the relying
 party rebuilds it and validates the nonce (§4.2.1.3 steps 4 and 5).
@@ -245,14 +301,35 @@ OpenID4VP §B.2.6.2 defines the transcript as a hash of the origin, the nonce
 and the thumbprint of the encryption key; the model keeps the three values in
 place of the hash, so it does not model two different inputs with one hash.
 The device signs over the transcript (§B.2.5).  The profile requires a
-separate device response for each mdoc (HAIP §5.3.1). -/
+separate device response for each mdoc returned (HAIP §5.3.1).  The guide's
+opening of §4.2.1.3 requires both parties to comply with the profile; step 2
+cites the same clause with should, and that sentence is about the request,
+so the rule for the response follows the opening. -/
 @[ears "OID-205", source "tig-4.2.1.3", assumes "x-openid4vp x-haip x-18013-5-mdoc-auth"]
 def transcript (origin : Origin) (nonce : Nonce) (encryptionKey : Key) : SessionTranscript :=
   .handover origin nonce encryptionKey
 
-/-- The device responses of an OpenID4VP token: one for each mdoc returned
-(HAIP §5.3.1). -/
-def deviceResponses (response : Response) : List (List Presented) :=
+/-- The token of an OpenID4VP response with mdocs: its device responses, each
+the list of mdocs it holds (OpenID4VP §B.2.5). -/
+abbrev VpToken := List (List Presented)
+
+/-- A reason a relying party refuses the form of a token. -/
+inductive TokenFinding
+  /-- A device response holds more than one mdoc. -/
+  | severalMdocs (count : Nat)
+  deriving DecidableEq, Repr
+
+/-- The device responses of a token that hold more than one mdoc. -/
+def tokenFindings (token : VpToken) : List TokenFinding :=
+  (token.filter fun dr => decide (1 < dr.length)).map fun dr => .severalMdocs dr.length
+
+/-- The credentials a token presents, as the shared model's response. -/
+def VpToken.response (token : VpToken) : Response :=
+  ⟨token.flatten⟩
+
+/-- The token a wallet builds from its response: one device response for each
+mdoc (HAIP §5.3.1). -/
+def deviceResponses (response : Response) : VpToken :=
   response.documents.map fun d => [d]
 
 end Rules.OneId.OpenId4Vp

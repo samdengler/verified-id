@@ -71,14 +71,14 @@ def passport : DerivedFrom := ⟨.passport, ⟨1924992000⟩⟩
 
 def defaultTrip : Scenario :=
   { id := "default-trip", isDefault := true,
-    title := "Alice Martin checks in with her photoid and her own boarding pass before a 10:00 UTC departure",
+    title := "Alice Martin checks in with a photoid and a boarding pass, both in Alice's name, before a 10:00 UTC departure",
     photoid := some ⟨photoidOf "MARTIN" "ALICE", ⟨"traveler 1"⟩⟩,
     boardingPass := some ⟨boardingPassOf "MARTIN/ALICE", ⟨"traveler 1"⟩⟩,
     journey := some onTime, checkedAt := beforeBoarding, derivedFrom := some passport }
 
 def accentedName : Scenario :=
   { id := "accented-name",
-    title := "José María García's passport name has accents and his boarding pass name does not",
+    title := "José María García's name has accents on the passport and none on the boarding pass",
     photoid := some ⟨photoidOf "GARCÍA" "JOSÉ MARÍA", ⟨"traveler 1"⟩⟩,
     boardingPass := some ⟨boardingPassOf "GARCIA/JOSEMARIA", ⟨"traveler 1"⟩⟩,
     journey := some onTime, checkedAt := beforeBoarding, derivedFrom := some passport,

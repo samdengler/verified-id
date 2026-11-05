@@ -5,15 +5,15 @@
 \begin{theorem}[Only requested and consented data is received (G-01)]
   \label{thm:g01}
   \lean{Rules.OneId.accepted_holds_only_requested}
-  \uses{def:acceptance, thm:wallet-discloses, thm:no-check-shows-consent, thm:partial-consent, def:c26, def:c07, def:c12, def:c22, def:c58, def:c65, def:c75, def:element, thm:names-unique, def:c31}
+  \uses{def:acceptance, thm:wallet-discloses, thm:no-check-shows-consent, thm:partial-consent, def:c26, def:c07, def:c12, def:c22, def:c58, def:c75, def:element, thm:names-unique, def:c31}
   A relying party receives only the data elements it requested and the holder
   consented to.  Not proven.
 
   A wallet that follows the rules discloses only what was requested and
   approved, which is proven.  Whether an accepted response holds only what was
-  requested depends on the relying party refusing extra data, which no text
-  that was read requires.  And no check a relying party makes can show that
-  the holder approved what was sent, so that half rests on the wallet.
+  requested depends, in each profile, on the relying party refusing extra
+  data, which is a reading in all three.  And a response carries no record of
+  consent, so that half rests on the wallet.
 
   Counterexample: a check-in page requests only the family name.  A wallet
   that does not follow the rules also sends the portrait, with valid
@@ -21,12 +21,15 @@
   extra data accepts the response and holds a face image it never asked for.
 
   Open point: OpenID4VP forbids a wallet to send a claim the query did not
-  select and tells a verifier not to rely on the wallet for it, without
-  saying that a response with more is refused (OpenID4VP §6.4, §14.9).  The
+  select, tells a verifier to check that what is returned satisfies the
+  request as that rule describes and to discard a presentation that fails a
+  check, and not to rely on the wallet (OpenID4VP §6.4, §8.6, §14.9).  The
   mdoc profile lists no step that compares the response with the request
-  (C-65).  Must a relying party refuse a response that holds a data element
-  it did not request, or may it accept the response and discard the extra?
-  And who vouches that a wallet asks for consent (C-01, C-08)?
+  (C-108), and proximity says issuer data validation ensures the data
+  elements requested (C-89).  In each profile, must a relying party refuse a
+  response that holds a data element it did not request, discard the
+  credential that holds it, or may it accept the response and set the extra
+  aside?  And who vouches that a wallet asks for consent (C-01, C-08)?
 
   Source:
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §4.1.1, §3.1, §4.2.1.3.
@@ -35,29 +38,32 @@
 \begin{theorem}[An accepted presentation is bound to the device and the request (G-02)]
   \label{thm:g02}
   \lean{Rules.OneId.accepted_answers_this_request}
-  \uses{def:acceptance, thm:accepted-device-key, thm:openid4vp-refuses-other-request, def:c78, def:c65, def:c72, def:c59, def:c88, def:proximity-session, def:c03, def:c24, def:c02}
+  \uses{def:acceptance, thm:accepted-device-key, thm:openid4vp-refuses-other-request, thm:mdoc-nonce, def:c78, def:c72, def:c59, def:c88, def:proximity-session, def:c03, def:c24, def:c02}
   An accepted presentation is bound to the holder's device key and to the
   verifier's request: its nonce in the remote profiles, its session in
   proximity.  Not proven.
 
   The device half is proven for all three profiles: every accepted credential
-  is signed with the device key its issuer signed.  The request half is proven
-  for the OpenID4VP profile, where a response made for one nonce, origin and
-  key is refused for any other.  It is open for the mdoc profile and for
-  proximity.
+  is signed with the device key its issuer signed.  In both remote profiles
+  every accepted credential is signed over the session transcript of the
+  relying party's own request, which is proven.  In the OpenID4VP profile the
+  transcript holds the origin, the nonce and the key, so a response made for
+  one nonce, origin or key is refused for any other, and two requests never
+  share a nonce.  In the mdoc profile, whether the transcript holds the nonce
+  needs a source (C-65).  In proximity the transcript is compared only under
+  one reading, which this card's theorem states.
 
-  Counterexample: a response made for a request with one nonce is captured and
-  sent again in answer to a later request with another nonce.  The OpenID4VP
-  profile refuses it.  The mdoc profile accepts it if the relying party does
-  not compare the session transcript with its own request.
+  Counterexample: a response made in one proximity session is sent again in a
+  later session with a new reader key.  A reader that rebuilds the session
+  transcript refuses it, and one that does not accepts it.
 
-  Open point: the OpenID4VP profile requires the relying party to rebuild the
-  session transcript and validate the nonce.  The mdoc profile's list of
-  checks has no such step (C-65), and the proximity profile lists the
-  rebuilding with no requirement word (C-88).  Must a relying party in the
-  mdoc profile and a reader in proximity check that a response was made for
-  their own request?  The guarantee also rests on issuance for what a device
-  key is bound to (C-03), and on the entropy of the nonce (C-72).
+  Open point: the proximity profile lists the rebuilding of the session
+  transcript with no requirement word, after a decryption step it marks
+  should, in a list of checks a verifier is said to need to perform (C-88).
+  Must a reader in proximity rebuild the session transcript and check the
+  device signature against it?  The guarantee also rests on issuance for what
+  a device key is bound to (C-03), on the content of the mdoc profile's
+  transcript (C-65), and on the entropy of the nonce (C-72).
 
   Source:
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §4.2.
@@ -102,7 +108,7 @@
 
   It is proven for the mdoc profile, where the guide says the clause it cites
   covers time validity.  It is open for the OpenID4VP profile and for
-  proximity.  Within the guide's rules a credential from a trusted issuer
+  proximity, each a reading of its own.  Within the guide's rules a credential from a trusted issuer
   ends only by expiry, since revocation is out of scope (C-02).
 
   Counterexample: a boarding pass whose validity ended at 10:00 is presented
@@ -112,10 +118,11 @@
 
   Open point: the OpenID4VP and proximity profiles cite a different clause of
   ISO/IEC 18013-5 from the mdoc profile, with must, and do not say whether it
-  covers time validity (C-101).  Is a relying party required to refuse an
-  expired credential in all three profiles?
-
-  Lookup: ISO/IEC 18013-5:2021 §9.1.2 and §9.3.1.
+  covers time validity; reading that clause would settle the OpenID4VP profile
+  (C-101).  Proximity also cites the mdoc profile's clause with should, and
+  its list of checks opens by saying they include the validity of what is
+  received.  If the first clause has no validity check, is the should enough
+  to require a reader in proximity to refuse an expired credential?
 
   Source:
   \href{https://standards.atlassian.net/wiki/spaces/OneID/pages/2947416082/Technical+Implementation+Guide}{One ID guide} §4.1.2, §4.2.
