@@ -135,12 +135,46 @@ def readingFree (ds : List Decision) : Except String Unit := do
 def firstRepeat (xs : List String) : Option String :=
   (xs.zipIdx.find? fun (x, i) => (xs.take i).contains x).map (·.1)
 
+/-- The rule of a decision. -/
+def Decision.rule (d : Decision) : String := (d.request.getObjValAs? String "rule").toOption.getD ""
+
+/-- The reading of a decision as a list of points and settings. -/
+def Decision.points (d : Decision) : List (String × Json) :=
+  ((d.request.getObjVal? "reading" >>= Json.getObj?).toOption.map (·.toList)).getD []
+
+/-- Runs of consecutive decisions of one case. -/
+def byCase (ds : List Decision) : List (List Decision) :=
+  (ds.foldl (fun (acc : Array (List Decision)) d =>
+    match acc.back? with
+    | some g@(e :: _) => if e.case == d.case then acc.pop.push (g ++ [d]) else acc.push [d]
+    | _ => acc.push [d]) #[]).toList
+
+/-- For each credential reading point, the scenarios in which it changes the
+answer of some rule: two decisions of one case whose readings differ in that
+point alone and whose responses differ. -/
+def pointCoverage : List (String × List String) :=
+  let changes : List (String × String) := (byCase (decisions.filter (·.scenario.isSome))).flatMap fun g =>
+    g.flatMap fun a => g.filterMap fun b =>
+      let differ := a.points.filter fun (k, v) => b.points.lookup k != some v
+      match differ, a.scenario with
+      | [(k, _)], some sc => if a.points.length == b.points.length && a.response != b.response then some (k, sc) else none
+      | _, _ => none
+  points.map fun p => (p.id, (changes.filterMap fun (k, sc) => if k == p.id then some sc else none).eraseDups)
+
+/-- The rules a scenario's decisions evaluate, by scenario id. -/
+def scenarioRules : List (String × List String) :=
+  scenarios.map fun s => (s.id, ((decisionsOf s).map (·.rule)).eraseDups)
+
 /-- The decisions as JSON lines, once every check passes. -/
 def decisionLines : Except String (List String) := do
   match scenarios.filter (·.isDefault) with
   | [s] => readingFree (decisionsOf s)
   | ss => throw s!"there must be one default scenario, and there are {ss.length}"
   for s in scenarios do exampleAgrees s
+  -- Every reading point changes some answer, so no switch on a site does nothing.
+  let uncovered := pointCoverage.filterMap fun (id, scs) => if scs.isEmpty then some id else none
+  unless uncovered.isEmpty do
+    throw s!"these credential reading points change no answer of any rule in any scenario: {uncovered}"
   if let some id := firstRepeat (scenarios.map (·.id)) then throw s!"two scenarios have the id {id}"
   if let some n := firstRepeat (decisions.map (·.name)) then throw s!"two decisions have the name {n}"
   for d in decisions do

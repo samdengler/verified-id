@@ -366,6 +366,21 @@ def checkAndDescribe : MetaM (Except (List String) Described) := do
   -- The credential readings.
   let (es, readings) ← readingsOf "credential" rules pointTable structures ["OID-1"]
   errors := errors ++ es
+  -- A site stops a trip at a reading whose open question lists the trip's
+  -- example, so each scenario's example is listed under a question of a point
+  -- one of its rules reads.  The defaults have no example.
+  let .ok scenarioRules ← get (α := List (String × List String)) `Exports.scenarioRules
+    | return .error ["cannot read Exports.scenarioRules"]
+  for (id, n) in examples do
+    let ruleSet := (scenarioRules.lookup id).getD []
+    let listed := readings.toList.any fun r =>
+      let checks := ((r.getObjValAs? (List String) "checks").toOption).getD []
+      let qs := ((r.getObjVal? "questions" >>= Json.getArr?).toOption.map (·.toList)).getD []
+      checks.any ruleSet.contains &&
+        qs.any fun q => (((q.getObjValAs? (List String) "examples").toOption).getD []).contains n.toString
+    unless listed do
+      errors := errors ++ [s!"scenario {id} reproduces {n}, which no open question of a reading point its rules \
+        read lists among its examples"]
   -- The presentation readings.  A relying party reads an acceptance reading
   -- only through the four functions that pick a point by profile, and the
   -- points each of them reads in a profile are the ones the oracle lists.
@@ -427,6 +442,9 @@ def main : IO UInt32 := do
   IO.FS.writeFile "build/one-id-data/presentation/decisions.jsonl" ("\n".intercalate pLines ++ "\n")
   IO.FS.writeFile "build/one-id-identifiers.json" (d.identifiers.pretty ++ "\n")
   let count (j : Json) (key : String) := ((j.getObjVal? key >>= Json.getArr?).toOption.map (·.size)).getD 0
+  let coverage ← IO.ofExcept <| unsafe env.evalConst (List (String × List String)) {} `Exports.pointCoverage
+  IO.println s!"each of the {coverage.length} credential reading points changes an answer: \
+    {", ".intercalate (coverage.map fun (p, scs) => s!"{p} in {" and ".intercalate scs}")}"
   IO.println s!"wrote build/one-id-data/: {count scenarios "scenarios"} scenarios, {count d.readings "readings"} \
     reading points, {lines.length} decisions"
   IO.println s!"wrote build/one-id-data/presentation/: {count pScenarios "scenarios"} scenarios, \

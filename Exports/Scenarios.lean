@@ -171,10 +171,44 @@ def twoStrings : Scenario :=
     journey := some onTime, checkedAt := beforeBoarding,
     reproduces := some ``twoBoardingPassStrings }
 
+/-- A photoid of John Smith with the given namespaces, derived from a passport
+and checked before boarding, as the photoid examples are. -/
+def photoidWith (id title : String) (nameSpaces : List NameSpace) (case : Name) : Scenario :=
+  { id, title, photoid := some ⟨{ photoidOf "SMITH" "JOHN" with nameSpaces }, ⟨"traveler 1"⟩⟩,
+    checkedAt := beforeBoarding, derivedFrom := some passport, reproduces := some case }
+
+def unlistedData : Scenario :=
+  let base := baseOf "SMITH" "JOHN" faceA
+  photoidWith "unlisted-data" "The photoid carries a loyalty namespace and a data element that no table lists"
+    [{ base with elements := base.elements ++ [⟨"example_shoe_size", .other "43"⟩] },
+     { name := "org.example.loyalty.1", elements := [⟨"frequent_flyer_number", .text "EX123456"⟩] }]
+    ``photoidWithUnlistedData
+
+def portraitDiffers : Scenario :=
+  photoidWith "portrait-differs" "The photoid's portrait is a different image from the one in data group 2"
+    [baseOf "SMITH" "JOHN" faceA, { name := dataGroupsNameSpace, elements := [⟨dg2Id, faceB⟩, ⟨"sod", .bytes [7]⟩] }]
+    ``portraitDiffersFromDataGroup
+
+def photoidNameSpaceIncompleteScenario : Scenario :=
+  photoidWith "photoid-namespace-incomplete" "The photoid namespace holds the enrolment image and no document number"
+    [baseOf "SMITH" "JOHN" faceA, { name := photoidNameSpace, elements := [⟨enrolmentPortraitId, faceB⟩] }]
+    ``photoidNameSpaceIncomplete
+
+def dataGroupsIncomplete : Scenario :=
+  photoidWith "data-groups-incomplete" "The data groups namespace holds data group 2 and no security object"
+    [baseOf "SMITH" "JOHN" faceA, { name := dataGroupsNameSpace, elements := [⟨dg2Id, faceA⟩] }]
+    ``dataGroupsNameSpaceIncomplete
+
+def repeatedFamilyName : Scenario :=
+  let base := baseOf "SMITH" "JOHN" faceA
+  photoidWith "repeated-family-name" "The photoid holds two family names, SMITH and then JONES"
+    [{ base with elements := base.elements ++ [⟨familyNameId, .text "JONES"⟩] }] ``repeatedIdentifier
+
 /-- Every scenario, the default first. -/
 def scenarios : List Scenario :=
   [defaultTrip, accentedName, twoJohnSmiths, anotherTravelersPass, delayedFlight, endOfValidity,
-   validAfterJourney, noPortrait, identityCard, outlivesPassport, extraNameSpace, twoStrings]
+   validAfterJourney, noPortrait, identityCard, outlivesPassport, extraNameSpace, twoStrings,
+   unlistedData, portraitDiffers, photoidNameSpaceIncompleteScenario, dataGroupsIncomplete, repeatedFamilyName]
 
 /-! ## Agreement with the examples -/
 
@@ -185,6 +219,11 @@ example needs. -/
 def exampleChecks : List (Name × (Scenario → Option Bool)) :=
   let pair (r : MatchReading) (expected : PairCheck) (s : Scenario) : Option Bool := do
     return checkPair r (← s.photoid) (← s.boardingPass) == expected
+  let byReading (expected : ByReading) (s : Scenario) : Option Bool := do
+    let p := (← s.photoid).mdoc
+    return expected ==
+      { strictReading := Photoid.violations strictPhotoid exampleTables p,
+        looseReading := Photoid.violations loosePhotoid exampleTables p }
   let validity (v : ValidityReading) (expected : ValidityCheck) (s : Scenario) : Option Bool := do
     let b := (← s.boardingPass).mdoc
     let j ← s.journey
@@ -204,11 +243,18 @@ def exampleChecks : List (Name × (Scenario → Option Bool)) :=
        { validityEnds := b.validUntil, checkedAt := s.checkedAt,
          expiredIfStillValidAtTheEnd := expired ⟨true⟩ b s.checkedAt,
          expiredIfNoLongerValidAtTheEnd := expired ⟨false⟩ b s.checkedAt }),
-   (``photoidWithoutPortrait, fun s => do
+   (``photoidWithoutPortrait, byReading photoidWithoutPortrait),
+   (``photoidWithUnlistedData, byReading photoidWithUnlistedData),
+   (``portraitDiffersFromDataGroup, byReading portraitDiffersFromDataGroup),
+   (``photoidNameSpaceIncomplete, byReading photoidNameSpaceIncomplete),
+   (``dataGroupsNameSpaceIncomplete, byReading dataGroupsNameSpaceIncomplete),
+   (``repeatedIdentifier, fun s => do
      let p := (← s.photoid).mdoc
-     return photoidWithoutPortrait ==
-       { strictReading := Photoid.violations strictPhotoid exampleTables p,
-         looseReading := Photoid.violations loosePhotoid exampleTables p }),
+     return repeatedIdentifier ==
+       { namesAreUnique := p.wellFormed, valueReturned := p.element? baseNameSpace familyNameId,
+         brokenIfRepeatedNamesAreRefused :=
+           Photoid.violations { loosePhotoid with repeatedNamesRefused := true } exampleTables p,
+         brokenIfRepeatedNamesAreAllowed := Photoid.violations loosePhotoid exampleTables p }),
    (``photoidFromAnIdentityCard, fun s => do
      let p := (← s.photoid).mdoc
      let d ← s.derivedFrom
