@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """The bar at the top of every page: the site name and links to its parts.
 
-The progress page, which is the site's home page, builds its bar from
-`topbar()`.  Run as a script, this adds the same bar to the blueprint's pages
+The home page and the progress page build their bar from `topbar()`.  The
+site name leads to the home page (scripts/render_home.py).  Run as a script, this adds the same bar to the blueprint's pages
 after leanblueprint has written them:
 
   python3 scripts/site_nav.py site/blueprint
@@ -31,12 +31,13 @@ FAVICON = ('<link rel="icon" href="data:image/svg+xml,'
            + f"%3Cpath fill='%232a78d6' fill-rule='evenodd' d='{MARK_PATH}'/%3E%3C/svg%3E"
            + '">')
 
-# Each link's path from the site root.  The progress page is the home page.
-# The repository is private, so the bar has no link to it.
+# Each link's path from the site root.  The site name leads home.  The
+# blueprint is for the people who work on the Lean, so it is linked from the
+# home page and the review document and has no place in the bar, as in
+# verified-air.  The repository is private, so the bar has no link to it.
 LINKS = [
-    ("Progress", ""),
+    ("Progress", "progress/"),
     ("Review document", "review/"),
-    ("Blueprint", "blueprint/"),
 ]
 
 # The colors fall back to the light theme, so the bar is light on pages that

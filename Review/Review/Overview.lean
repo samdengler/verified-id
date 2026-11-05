@@ -47,7 +47,7 @@ A requirement chapter gives:
 
 After the requirements, *Open questions* lists what the guide does not settle, *Objects* describes the credentials, findings and readings the rules talk about, *Assumptions about external specifications* lists what the model takes on trust, and *EARS requirements* lists every requirement statement in one table.
 
-Two other pages show the same model, and the bar at the top of every page links both: the [progress page](../) gives the status of every rule and every candidate rule from the survey of the guide, and ranks the open questions by how much of the model each answer affects.
+Two other pages show the same model, and the bar at the top of every page links both: the [progress page](../progress/) gives the status of every rule and every candidate rule from the survey of the guide, and ranks the open questions by how much of the model each answer affects.
 The [blueprint](../blueprint/index.html), written for the people who work on the Lean, restates the model as numbered definitions and theorems, with a [PDF](../blueprint/print.pdf) for printing.
 
 # What is authored and what is computed

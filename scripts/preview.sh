@@ -21,6 +21,7 @@ rm -rf build/review
 lake exe review-doc --output build/review
 leanblueprint web
 python3 scripts/render_progress.py
+python3 scripts/render_home.py
 ALLOW_MISSING=1 scripts/assemble-site.sh
 
 echo "serving site/ at http://localhost:$port/ (Ctrl-C to stop)"

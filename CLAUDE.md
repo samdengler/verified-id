@@ -33,14 +33,15 @@ IATA's One ID Technical Implementation Guide as a Lean model, with a survey of i
 | --- | --- |
 | `Rules/**/*.lean`: rule docstrings carry `EARS:`, `Story:` and `* OID-10n.m:` criteria; each rule names its sources and its external assumptions; examples state Given, When and Then and return records whose fields label each part | `Review/Review/Generated/` (`scripts/render_status.py`): a chapter per requirement, the open questions, the assumptions, the front page cards, the EARS table |
 | `docs/one-id-survey.md`, the survey | `.kiro/specs/` (committed), `blueprint/src/*.generated.tex` |
-| `blueprint/src/content.tex` and `blueprint/src/areas/*.tex`, without `\leanok`; nodes use `Counterexample:`, `Case to check:`, `Open point:`, `Blocks:`, `External:` and `Source:` paragraphs, which the progress page reads; a candidate carries its survey ID at the end of its title | `build/progress/index.html`, the site's home page, and `build/ranking.json` (`scripts/render_progress.py`, reading the graph through `scripts/graph_model.py`) |
+| `blueprint/src/content.tex` and `blueprint/src/areas/*.tex`, without `\leanok`; nodes use `Counterexample:`, `Case to check:`, `Open point:`, `Blocks:`, `External:` and `Source:` paragraphs, which the progress page reads; a candidate carries its survey ID at the end of its title | `build/home/index.html` (`scripts/render_home.py`), the site root; `build/progress/index.html`, at `/progress/`, and `build/ranking.json` (`scripts/render_progress.py`, reading the graph through `scripts/graph_model.py`) |
 | `Review/Review/{Overview,Objects}.lean`, `Review/Review.lean`, `Review/Review/Status.lean`, `Review/review.css`, `Review/review.js` | `build/status.json`, `ears.csv`, `ears-criteria.csv`, `provenance.csv`, `assumptions.csv` (`lake exe status`) |
 | `docs/source-crosscheck.md`, `sources/README.md`, `scripts/` | `sources/outline.json` (committed) and `sources/one-id-tig-26.3.md` (ignored), both by `scripts/convert-source.sh` |
 
 - The survey and the blueprint are both written by hand. `scripts/check_survey.py` keeps them together: it fails on a survey entry with no node and no requirement, a node with no entry, a grade that disagrees with `\notready`, a count that disagrees with the rows, or a citation of a section the guide does not have.
 - A new requirement needs `{include 1 Review.Generated.<ID without the dash>}` (such as `OID201`) and its import in `Review/Review.lean`; `render_status.py` fails until it is there.
 - A new blueprint section must be added to `AREA_ORDER` in `scripts/graph_model.py`; the build stops until it is.
-- The bar at the top of every page is defined in `scripts/site_nav.py`. `Review/review.js` repeats its links for the review document, so change both together.
+- The bar at the top of every page is defined in `scripts/site_nav.py`: the site name, which leads to the home page, then Progress and Review document. `Review/review.js` repeats its links for the review document, so change both together. The blueprint is not in the bar; the home page and the review document link it.
+- The home page works through one open guarantee, `QUESTION` in `scripts/render_home.py`. If it is proven, the build stops until another open question with an example is picked there. A new part of the site needs a card on the home page.
 
 ## Working on the site
 

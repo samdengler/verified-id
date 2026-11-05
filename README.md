@@ -10,8 +10,9 @@ The method and the tooling come from [verified-air](https://github.com/samdengle
 
 | You want to | Read |
 | --- | --- |
-| See what is proven, what is open, and which questions to decide first | The progress page: run `scripts/preview.sh` and open <http://localhost:8000/> |
-| Read the rules and the open questions without reading code | The review document, at `/review/` on the same site: one chapter per requirement, then Open questions |
+| Get the project explained, with one open question worked through | The home page: run `scripts/preview.sh` and open <http://localhost:8000/> |
+| See what is proven, what is open, and which questions to decide first | The progress page, at `/progress/` on the same site |
+| Read the rules and the open questions without reading code | The review document, at `/review/`: one chapter per requirement, then Open questions |
 | See every rule of the guide and how clearly the guide states it | [`docs/one-id-survey.md`](docs/one-id-survey.md) |
 | See what the model takes on trust from ISO, OpenID and IATA specifications | The review document's chapter on assumptions, or [`Rules/Core/Assumptions.lean`](Rules/Core/Assumptions.lean) |
 | Check the approved guide against the public copy | [`docs/source-crosscheck.md`](docs/source-crosscheck.md) |
@@ -82,6 +83,7 @@ People write the Lean files, the survey, the blueprint statements and the prose 
 | `lake exe review-doc` | Renders the Verso review document | A chapter names a declaration that does not exist |
 | `leanblueprint web`, `checkdecls`, `pdf` | Renders the blueprint and its dependency graph | The blueprint names a Lean declaration that does not exist |
 | `scripts/render_progress.py` | Writes the progress page and `build/ranking.json` | A `\uses` names a label that does not exist, or a blueprint section is not in `AREA_ORDER` |
+| `scripts/render_home.py` | Writes the home page | The open question the page works through has been proven, or lost its example |
 
 `scripts/build-site.sh` runs all of them and assembles `site/`. It must pass before anything lands on `main`: the pre-push hook in `.githooks/` runs it, and `.github/workflows/ci.yml` runs the same steps.
 
@@ -89,7 +91,8 @@ People write the Lean files, the survey, the blueprint statements and the prose 
 
 | Part | Source | At |
 | --- | --- | --- |
-| Progress page: counts by status, the ranked questions, every rule and candidate as a card | `scripts/render_progress.py` | `/` |
+| Home page: what the project is, one open question worked through, where each kind of reader should go | `scripts/render_home.py` | `/` |
+| Progress page: counts by status, the ranked questions, every rule and candidate as a card | `scripts/render_progress.py` | `/progress/` |
 | Review document, in Verso: prose with checked Lean inside it | `Review/` | `/review/` |
 | Blueprint, in leanblueprint: numbered statements, a dependency graph, a PDF | `blueprint/src/` | `/blueprint/` |
 | Requirement specs, criteria in EARS, in Kiro's layout | `.kiro/specs/` | `/specs/` |
@@ -135,7 +138,7 @@ The model builds without the converted guide: only the conversion and the cross-
 Choices made where the request left room, in the order they came up.
 
 1. **The tooling comes from verified-air's `provenance-tags` branch.** The `@[source]` and `@[confirmed]` attributes and the build-time source check are on that branch, one commit ahead of verified-air's `main` and not merged there. It was fetched on 2026-11-05 and ported from: the attributes, the list of sources, the status executable, `render_status.py`, the progress page with its ranking, the Verso review document and the blueprint.
-2. **What was left behind.** verified-air's Java and Rust implementation checks, its test oracle, the airline demo, the motion piece, and its Explore, area, tour and home pages are not ported. The progress page is the site's home page, as it first was in verified-air. Open questions list the cards that depend on them on the progress page itself, since there is no Explore page to link to.
+2. **What was left behind.** verified-air's Java and Rust implementation checks, its test oracle, the airline demo, the motion piece, and its Explore, area, tour and home pages are not ported. Open questions list the cards that depend on them on the progress page itself, since there is no Explore page to link to.
 3. **Same Lean, Mathlib and Verso versions as verified-air.** The compiled packages were copied from verified-air's checkout, so nothing was downloaded. The model needs little of Mathlib; it stays so that the two projects build alike.
 4. **External specifications are parameters and recorded assumptions.** verified-air had no specification it could not read. Here the guide defers to many. `Rules/Core/Assumptions.lean` and the `@[assumes]` attribute are new: they work like the list of sources and `@[source]`, and the status executable exports them. A theorem that relies on an external table is stated for every table.
 5. **Sources are sections of the guide.** A source key is `tig-` and a section number. The link is the public Confluence page, whose text is the same as the approved document.
@@ -164,3 +167,4 @@ Choices made where the request left room, in the order they came up.
     - Eleven paraphrases that followed the guide's wording too closely were rewritten.
 
     The reviewer confirmed that every open theorem is false as stated and that each example computes what its text says. The same reviewer then checked the fixes and found one new problem they had introduced: once a repeated name could be allowed, the checks looked only at the first copy of a name, so a second copy in the wrong encoding passed. The checks now look at every copy, and the theorems say so (`photoid_base_encoding`, `boardingPass_strings_follow`). Five smaller points from that pass were also fixed: a theorem about a helper where the criterion was about the whole check (OID-102.4), a sentence that overstated what no content check can do, the meaning of "accepted" when the source document is checked by its own rule, one leftover paraphrase, and a missing example for the boarding pass half of OID-106.3.
+19. **A home page for a reader with no context, and no Blueprint link in the bar** (added at Sam's request). The site first opened on the progress page, which drops a reader into tiles and rankings. The root is now a home page ported from verified-air's: what One ID and the project are in plain words, one open guarantee worked through from the model (the rule, the guarantee, the example's Given and When, what Lean computes, and the open point), four links by kind of reader, what is in Lean, surveyed and left out by the guide, the status tiles, the top three of "Decide these first", and what the model takes on trust. The worked guarantee is `QUESTION` in `scripts/render_home.py`; the build stops when it is proven. The progress page moved to `/progress/`. The bar now has Progress and Review document only, as in verified-air: the blueprint is for people who work on the Lean, and is linked from the home page and the review document.

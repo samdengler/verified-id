@@ -685,7 +685,7 @@ def render_questions(decls, titles):
         "Each is a place where the One ID guide is vague or silent, so the rule as written allows a case "
         "the guarantee forbids. An example the build computes shows that case, and the question under it is "
         "for the business to answer. The model does not decide it. "
-        "The [progress page](../) ranks these questions, and the candidate rules that still need a decision, "
+        "The [progress page](../progress/) ranks these questions, and the candidate rules that still need a decision, "
         "by how much of the model each answer affects.",
         "",
     ]

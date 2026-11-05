@@ -1,6 +1,7 @@
 // The site's bar: the site name and links between the parts of the site, added
 // to the header of every page of the review document.  The page's <base> is
-// the document root, so "../" is the site root, where the progress page is.
+// the document root, so "../" is the site root, where the home page is; the
+// progress page is at ../progress/.
 // scripts/site_nav.py defines the same bar for the other pages; change both
 // together.
 document.addEventListener("DOMContentLoaded", () => {
@@ -10,9 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
   nav.className = "site-nav";
   nav.setAttribute("aria-label", "Site");
   const links = [
-    ["../", "Progress"],
+    ["../progress/", "Progress"],
     ["./", "Review document", true],
-    ["../blueprint/", "Blueprint"],
   ];
   for (const [href, text, current] of links) {
     const a = document.createElement("a");

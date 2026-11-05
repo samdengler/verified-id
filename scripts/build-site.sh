@@ -25,6 +25,7 @@ leanblueprint web
 leanblueprint checkdecls
 leanblueprint pdf
 python3 scripts/render_progress.py
+python3 scripts/render_home.py
 
 scripts/assemble-site.sh
 echo "site/ is ready; preview with: python3 scripts/serve_site.py"

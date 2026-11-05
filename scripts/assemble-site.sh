@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Assemble site/ from the build outputs, in the layout a static host serves:
-# the progress page at the root, the review document under review/, the
-# blueprint under blueprint/, and the specs and exports beside them.
+# the home page at the root, the progress page under progress/, the review
+# document under review/, the blueprint under blueprint/, and the specs and
+# exports beside them.
 #
 #   scripts/assemble-site.sh
 #
@@ -22,7 +23,9 @@ optional() {
 
 rm -rf site
 mkdir -p site/blueprint site/review
-cp build/progress/index.html site/index.html
+cp build/home/index.html site/index.html
+mkdir -p site/progress
+cp build/progress/index.html site/progress/
 cp -r build/review/html-multi/. site/review/
 # pages/ holds the redirect that takes the blueprint's links to a Lean name
 # into the review document.
