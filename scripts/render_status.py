@@ -895,7 +895,10 @@ def checked_by_text(c, decls):
         d = decls[n]
         short = d["name"].rsplit(".", 1)[-1]
         if d["kind"] == "case":
-            label = "counterexample" if c["status"] == "open" else "example"
+            # An example on an open criterion shows the case; it is not always
+            # one that breaks the criterion (signedAgainAfterADelay satisfies
+            # OID-104.5 and shows the other side of the question).
+            label = "example"
         else:
             label = f"{d['status']} theorem"
         parts.append(f"{label} `{short}`")

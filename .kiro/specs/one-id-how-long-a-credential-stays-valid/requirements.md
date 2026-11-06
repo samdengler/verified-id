@@ -36,9 +36,9 @@ These requirements are generated from the Lean model in [`Rules/OneId/Validity.l
 3. WHILE the current time is before the departure of the last leg of the journey THE SYSTEM SHALL treat the boarding pass as not expired.
    - OID-104.3, proven: proven theorem `valid_before_departure`
 4. WHEN the journey is completed THE SYSTEM SHALL treat the boarding pass as expired.
-   - OID-104.4, open: open theorem `expired_once_journey_completed`; counterexample `validAfterTheJourney`
+   - OID-104.4, open: open theorem `expired_once_journey_completed`; example `validAfterTheJourney`
 5. WHILE the last leg of the journey has not actually departed THE SYSTEM SHALL treat the boarding pass as not expired.
-   - OID-104.5, open: open theorem `valid_until_actual_departure`; counterexample `expiredBeforeADelayedDeparture`; counterexample `signedAgainAfterADelay`
+   - OID-104.5, open: open theorem `valid_until_actual_departure`; example `expiredBeforeADelayedDeparture`; example `signedAgainAfterADelay`
 
 #### Open question on OID-104.4
 
@@ -94,7 +94,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/Validity.l
 3. WHEN a credential has expired THE SYSTEM SHALL treat it as expired at every later time.
    - OID-105.3, proven: proven theorem `expired_stays_expired`
 4. WHILE the current time is no later than the end of a credential's validity THE SYSTEM SHALL treat the credential as not expired.
-   - OID-105.4, open: open theorem `valid_at_validUntil`; counterexample `atTheEndOfValidity`
+   - OID-105.4, open: open theorem `valid_at_validUntil`; example `atTheEndOfValidity`
 
 #### Open question on OID-105.4
 
@@ -122,7 +122,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/Validity.l
 #### Acceptance Criteria
 
 1. WHEN the document a photoid was derived from has expired THE SYSTEM SHALL treat the photoid as expired.
-   - OID-108.1, open: open theorem `photoid_expires_with_document`; counterexample `photoidOutlivesItsPassport`
+   - OID-108.1, open: open theorem `photoid_expires_with_document`; example `photoidOutlivesItsPassport`
 
 #### Open question on OID-108.1
 

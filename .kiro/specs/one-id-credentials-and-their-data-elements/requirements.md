@@ -33,7 +33,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/Mdoc.lean`
 2. IF a credential has no data element with a given namespace name and identifier THEN THE SYSTEM SHALL return no value for them.
    - OID-106.2, proven: proven theorem `element_absent`
 3. IF two namespaces of a credential have the same name, or two data elements of one namespace have the same identifier THEN THE SYSTEM SHALL reject the credential.
-   - OID-106.3, open: open theorem `boardingPass_names_unique`; open theorem `photoid_names_unique`; counterexample `repeatedIdentifier`; counterexample `twoBoardingPassStrings`
+   - OID-106.3, open: open theorem `boardingPass_names_unique`; open theorem `photoid_names_unique`; example `repeatedIdentifier`; example `twoBoardingPassStrings`
 
 #### Open question on OID-106.3
 

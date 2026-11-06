@@ -31,9 +31,9 @@ These requirements are generated from the Lean model in [`Rules/OneId/Traveler.l
 #### Acceptance Criteria
 
 1. IF a photoid and a boarding pass presented together are about different travelers THEN THE SYSTEM SHALL reject the pair.
-   - OID-107.1, open: open theorem `matched_pair_same_traveler`; counterexample `anotherTravelersBoardingPass`; counterexample `twoTravelersWithOneName`
+   - OID-107.1, open: open theorem `matched_pair_same_traveler`; example `anotherTravelersBoardingPass`; example `twoTravelersWithOneName`
 2. WHEN a photoid and a boarding pass presented together are about the same traveler THE SYSTEM SHALL accept the pair.
-   - OID-107.2, open: open theorem `same_traveler_matches`; counterexample `ownBoardingPassRefused`
+   - OID-107.2, open: open theorem `same_traveler_matches`; example `ownBoardingPassRefused`
 
 #### Open question on OID-107.1
 

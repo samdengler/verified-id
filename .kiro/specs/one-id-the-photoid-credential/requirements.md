@@ -38,15 +38,15 @@ These requirements are generated from the Lean model in [`Rules/OneId/Photoid.le
 4. IF a data element of the base identity namespace does not have the encoding Table C.1 gives it THEN THE SYSTEM SHALL reject the photoid.
    - OID-101.4, proven: proven theorem `photoid_base_encoding`; example `portraitInTheWrongEncoding`
 5. IF a photoid has no portrait THEN THE SYSTEM SHALL reject it.
-   - OID-101.5, open: open theorem `photoid_has_portrait`; counterexample `photoidWithoutPortrait`
+   - OID-101.5, open: open theorem `photoid_has_portrait`; example `photoidWithoutPortrait`
 6. IF a photoid carries a namespace other than the three the guide lists, or a data element its table does not list THEN THE SYSTEM SHALL reject it.
-   - OID-101.6, open: open theorem `photoid_only_listed`; counterexample `photoidWithUnlistedData`
+   - OID-101.6, open: open theorem `photoid_only_listed`; example `photoidWithUnlistedData`
 7. IF a photoid carries a portrait and a data group 2 that differ THEN THE SYSTEM SHALL reject it.
-   - OID-101.7, open: open theorem `portrait_is_dg2`; counterexample `portraitDiffersFromDataGroup`
+   - OID-101.7, open: open theorem `portrait_is_dg2`; example `portraitDiffersFromDataGroup`
 8. IF a photoid carries the photoid namespace without a data element that Table C.2 marks mandatory THEN THE SYSTEM SHALL reject it.
-   - OID-101.8, open: open theorem `photoid_nameSpace_complete`; counterexample `photoidNameSpaceIncomplete`
+   - OID-101.8, open: open theorem `photoid_nameSpace_complete`; example `photoidNameSpaceIncomplete`
 9. IF a photoid carries the data groups namespace without a data element that Table C.3 marks mandatory THEN THE SYSTEM SHALL reject it.
-   - OID-101.9, open: open theorem `dataGroups_nameSpace_complete`; counterexample `dataGroupsNameSpaceIncomplete`
+   - OID-101.9, open: open theorem `dataGroups_nameSpace_complete`; example `dataGroupsNameSpaceIncomplete`
 
 #### Open question on OID-101.5
 
@@ -151,7 +151,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/Photoid.le
 #### Acceptance Criteria
 
 1. IF a photoid was derived from a document other than a passport THEN THE SYSTEM SHALL reject it.
-   - OID-109.1, open: open theorem `photoid_from_passport`; counterexample `photoidFromAnIdentityCard`
+   - OID-109.1, open: open theorem `photoid_from_passport`; example `photoidFromAnIdentityCard`
 
 #### Open question on OID-109.1
 

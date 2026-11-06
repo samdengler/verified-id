@@ -37,7 +37,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/Presentati
 4. THE SYSTEM SHALL sign each credential it presents with that credential's device key, over the session transcript of the request as the wallet received it.
    - OID-201.4, proven: proven theorem `wallet_signs_with_device_key`; example `checkInPresentation`
 5. IF the holder approves only some of the data elements requested from a credential THEN THE SYSTEM SHALL not present that credential.
-   - OID-201.5, open: open theorem `partial_consent_withholds_credential`; counterexample `partialConsent`
+   - OID-201.5, open: open theorem `partial_consent_withholds_credential`; example `partialConsent`
 
 #### Open question on OID-201.5
 
@@ -79,13 +79,13 @@ These requirements are generated from the Lean model in [`Rules/OneId/Presentati
 3. IF a presented credential has no device signature made with the device key its issuer signed THEN THE SYSTEM SHALL reject the response.
    - OID-202.3, proven: proven theorem `accepted_signed_by_device_key`; example `checkInPresentation`
 4. IF a presented credential's device signature was made for another request THEN THE SYSTEM SHALL reject the response.
-   - OID-202.4, open: open theorem `accepted_answers_this_request`; counterexample `replayedInProximity`
+   - OID-202.4, open: open theorem `accepted_answers_this_request`; example `replayedInProximity`
 5. IF the validity of a presented credential has ended THEN THE SYSTEM SHALL reject the response.
-   - OID-202.5, open: open theorem `accepted_not_expired`; counterexample `expiredBoardingPassAccepted`
+   - OID-202.5, open: open theorem `accepted_not_expired`; example `expiredBoardingPassAccepted`
 6. IF a response holds a data element the request did not name THEN THE SYSTEM SHALL reject the response.
-   - OID-202.6, open: open theorem `accepted_holds_only_requested`; counterexample `extraElementAccepted`
+   - OID-202.6, open: open theorem `accepted_holds_only_requested`; example `extraElementAccepted`
 7. IF a response lacks a data element the request named THEN THE SYSTEM SHALL reject the response.
-   - OID-202.7, open: open theorem `accepted_holds_every_requested`; counterexample `partialResponse`
+   - OID-202.7, open: open theorem `accepted_holds_every_requested`; example `partialResponse`
 
 #### Open question on OID-202.4
 
@@ -179,11 +179,11 @@ These requirements are generated from the Lean model in [`Rules/OneId/Presentati
 #### Acceptance Criteria
 
 1. IF a photoid and a boarding pass presented together are about different travelers THEN THE SYSTEM SHALL reject the pair.
-   - OID-207.1, open: open theorem `accepted_pair_same_traveler`; counterexample `twoTravelersOneDevice`
+   - OID-207.1, open: open theorem `accepted_pair_same_traveler`; example `twoTravelersOneDevice`
 2. IF either credential is refused on its own THEN THE SYSTEM SHALL reject the pair.
    - OID-207.2, proven: proven theorem `accepted_pair_each_accepted`
 3. WHEN a photoid and a boarding pass presented together are about the same traveler and each is accepted on its own THE SYSTEM SHALL accept the pair.
-   - OID-207.3, open: open theorem `same_traveler_pair_accepted`; counterexample `twoDevicesOneTraveler`
+   - OID-207.3, open: open theorem `same_traveler_pair_accepted`; example `twoDevicesOneTraveler`
 
 #### Open question on OID-207.1
 

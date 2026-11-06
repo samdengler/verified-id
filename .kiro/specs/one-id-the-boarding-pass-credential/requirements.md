@@ -38,7 +38,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/BoardingPa
 5. IF the boarding pass string does not follow IATA Resolution 792 THEN THE SYSTEM SHALL reject the boarding pass.
    - OID-103.5, proven: proven theorem `boardingPass_has_string`; proven theorem `boardingPass_strings_follow`; example `boardingPassStrings`
 6. IF a boarding pass carries a namespace or a data element the guide does not list THEN THE SYSTEM SHALL reject it.
-   - OID-103.6, open: open theorem `boardingPass_only_listed`; counterexample `boardingPassWithExtraNameSpace`
+   - OID-103.6, open: open theorem `boardingPass_only_listed`; example `boardingPassWithExtraNameSpace`
 
 #### Open question on OID-103.6
 

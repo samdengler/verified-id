@@ -43,7 +43,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/OpenId4Vp.
 5. IF a credential query asks for a format other than mdoc THEN THE SYSTEM SHALL reject the request.
    - OID-203.5, proven: proven theorem `accepted_request_parts`
 6. IF a request carries no state value THEN THE SYSTEM SHALL reject it.
-   - OID-203.6, open: open theorem `accepted_request_has_state`; counterexample `requestWithoutState`
+   - OID-203.6, open: open theorem `accepted_request_has_state`; example `requestWithoutState`
 7. IF two requests of a relying party carry the same nonce THEN THE SYSTEM SHALL reject them.
    - OID-203.7, proven: proven theorem `accepted_requests_fresh`
 8. IF two requests of a relying party carry the same encryption key THEN THE SYSTEM SHALL reject them.
@@ -84,9 +84,9 @@ These requirements are generated from the Lean model in [`Rules/OneId/OpenId4Vp.
 1. IF a request comes from an origin that is not among its expected origins THEN THE SYSTEM SHALL refuse it.
    - OID-204.1, proven: proven theorem `answered_from_expected_origin`; example `requestFromAnotherOrigin`
 2. IF a request is not signed with the key of the certificate its client identifier names THEN THE SYSTEM SHALL refuse it.
-   - OID-204.2, open: open theorem `answered_request_signed`; counterexample `wronglySignedRequestAnswered`
+   - OID-204.2, open: open theorem `answered_request_signed`; example `wronglySignedRequestAnswered`
 3. IF the certificate a request's client identifier names is not a trusted relying party's THEN THE SYSTEM SHALL refuse it.
-   - OID-204.3, open: open theorem `answered_by_trusted_verifier`; counterexample `untrustedVerifierAnswered`
+   - OID-204.3, open: open theorem `answered_by_trusted_verifier`; example `untrustedVerifierAnswered`
 
 #### Open question on OID-204.2
 
