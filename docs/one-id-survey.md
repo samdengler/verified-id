@@ -31,7 +31,7 @@ The column "Answered by reading" names a clause of a specification the guide cit
 
 The level is the guide's own requirement word. An entry can be clear and still depend on an external specification: the guide clearly says which clause applies, whether or not this project has read the clause.
 
-Several requirement words of the guide can share one entry when they state one rule, such as the parameters of a request. IDs never renumber: C-97 to C-100 were added after an independent review of the first survey, C-101 to C-103 when lookups were separated from decisions, C-104 when the public specifications were read, C-105 to C-107 when the presentation flows were written in Lean, and C-108 after the independent critique of those flows, so they sit out of order in their areas. The Model column gives the requirement in Lean for an entry that is modelled, and "candidate" for one that is a blueprint node with no Lean yet.
+Several requirement words of the guide can share one entry when they state one rule, such as the parameters of a request. IDs never renumber: C-97 to C-100 were added after an independent review of the first survey, C-101 to C-103 when lookups were separated from decisions, C-104 when the public specifications were read, C-105 to C-107 when the presentation flows were written in Lean, C-108 after the independent critique of those flows, and C-109 when a second example of a delayed flight showed that the departure reading changes no check a relying party makes, so they sit out of order in their areas. The Model column gives the requirement in Lean for an entry that is modelled, and "candidate" for one that is a blueprint node with no Lean yet.
 
 ## Counts
 
@@ -39,8 +39,8 @@ Several requirement words of the guide can share one entry when they state one r
 | --- | --- |
 | Clear | 43 |
 | Vague | 45 |
-| Silent | 20 |
-| Total | 108 |
+| Silent | 21 |
+| Total | 109 |
 
 The four candidate guarantees G-01 to G-04 are listed after the rules and are not counted in the table.
 
@@ -115,6 +115,7 @@ From §4.1.
 | C-102 | The guide refers the format of the boarding pass string, and which of its elements are mandatory, to IATA Resolution 792. It reproduces none of it. IATA's public guide to the resolution was read. It says one string holds one flight leg or several, that its items are mandatory, conditional or for an airline's own use, and that the passenger name is a mandatory item (BCBP guide §2.2.1). It leaves the list of items, their sizes and their values to the resolution's Attachments A and C (BCBP guide §2.2.1, §2.2.2). |  | Structure | Silent | The model takes what the resolution decides as a parameter. With the resolution read, the passenger name, the legs and the mandatory elements of a string become definitions. | Which items of a boarding pass string are mandatory, how long is the passenger name item and how is a longer name cut, and how are the legs of a journey and their dates given? | IATA Resolution 792, Attachments A and C | candidate | §4.1.2 |
 | C-103 | The guide refers the identifier, description, presence and encoding of every photoid data element to three tables of ISO/IEC TS 23220-4. It reproduces none of them. |  | Structure | Silent | The model takes the tables as a parameter. With the tables read, they become one definition, and each guarantee proven for every table holds for it. | Which data elements do the three tables list, which do they mark mandatory, and in which encoding? | ISO/IEC TS 23220-4:2026 Annex C, Tables C.1 to C.3 | candidate | §4.1.1 |
 | C-104 | IATA's public guide to the bar code says some airlines issue one boarding pass for an adult travelling with an infant (BCBP guide §2.3.5). The One ID guide does not say whether a boarding pass credential may cover two travelers. |  | Structure | Silent | The model gives a credential one subject. If one boarding pass covers two travelers, 'the same traveler' is not defined for it. | May a boarding pass credential cover an adult and an infant? If it may, which of the two does it refer to when it is matched with a photoid, and what does the infant present? |  | candidate | §4.1.2 |
+| C-109 | The rule that a boarding pass's validity ends on or soon after the departure of the last leg is a duty of the issuer (C-38). No rule tells a relying party to check that the validity fits the journey. The only time check the guide gives a relying party is that a credential is within its validity (C-44). |  | Check | Silent | OID-104 is stated for an issuer. The check a relying party makes, `expired`, does not read which departure is meant, so for one credential its answer is the same under both readings. The example `signedAgainAfterADelay` shows a boarding pass that is wrongly issued under one reading and not expired under both. In the model the departure is an input of the issuer's rule and is not in the credential, so a relying party's check has nothing to compare the validity with. | Must a relying party refuse a boarding pass whose validity does not fit the journey, or is expiry the only check? |  | candidate | §4.1.2, consideration 1 |
 
 ### Remote presentation
 

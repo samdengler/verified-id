@@ -107,6 +107,13 @@ def delayedFlight : Scenario :=
     journey := some ⟨departure, ⟨1803906000⟩, ⟨1803913200⟩⟩, checkedAt := ⟨1803904200⟩,
     reproduces := some ``expiredBeforeADelayedDeparture }
 
+def signedAgain : Scenario :=
+  { id := "signed-again-after-delay",
+    title := "The airline signed the boarding pass again after the delay, and it ends an hour after the new departure",
+    boardingPass := some ⟨{ boardingPassOf "SMITH/JOHN" with validUntil := ⟨1803909600⟩ }, ⟨"traveler 1"⟩⟩,
+    journey := some ⟨departure, ⟨1803906000⟩, ⟨1803913200⟩⟩, checkedAt := ⟨1803904200⟩,
+    reproduces := some ``signedAgainAfterADelay }
+
 def endOfValidity : Scenario :=
   { id := "end-of-validity",
     title := "The boarding pass is read at the exact instant its validity ends, the scheduled departure",
@@ -206,7 +213,7 @@ def repeatedFamilyName : Scenario :=
 
 /-- Every scenario, the default first. -/
 def scenarios : List Scenario :=
-  [defaultTrip, accentedName, twoJohnSmiths, anotherTravelersPass, delayedFlight, endOfValidity,
+  [defaultTrip, accentedName, twoJohnSmiths, anotherTravelersPass, delayedFlight, signedAgain, endOfValidity,
    validAfterJourney, noPortrait, identityCard, outlivesPassport, extraNameSpace, twoStrings,
    unlistedData, portraitDiffers, photoidNameSpaceIncompleteScenario, dataGroupsIncomplete, repeatedFamilyName]
 
@@ -237,6 +244,15 @@ def exampleChecks : List (Name × (Scenario → Option Bool)) :=
    (``anotherTravelersBoardingPass, pair .notChecked anotherTravelersBoardingPass),
    (``expiredBeforeADelayedDeparture, validity ⟨.scheduled, 3600⟩ expiredBeforeADelayedDeparture),
    (``validAfterTheJourney, validity ⟨.scheduled, 86400⟩ validAfterTheJourney),
+   (``signedAgainAfterADelay, fun s => do
+     let b := (← s.boardingPass).mdoc
+     let j ← s.journey
+     return signedAgainAfterADelay ==
+       { scheduledDeparture := j.scheduledDeparture, actualDeparture := j.actualDeparture,
+         journeyCompleted := j.completed, validityEnds := b.validUntil,
+         brokenIfTheActualDepartureIsMeant := BoardingPass.validityFindings ⟨.actual, 3600⟩ j b,
+         brokenIfTheScheduledDepartureIsMeant := BoardingPass.validityFindings ⟨.scheduled, 3600⟩ j b,
+         checkedAt := s.checkedAt, expired := expired ⟨true⟩ b s.checkedAt }),
    (``atTheEndOfValidity, fun s => do
      let b := (← s.boardingPass).mdoc
      return atTheEndOfValidity ==

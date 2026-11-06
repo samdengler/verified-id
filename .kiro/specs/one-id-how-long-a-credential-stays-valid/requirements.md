@@ -38,7 +38,7 @@ These requirements are generated from the Lean model in [`Rules/OneId/Validity.l
 4. WHEN the journey is completed THE SYSTEM SHALL treat the boarding pass as expired.
    - OID-104.4, open: open theorem `expired_once_journey_completed`; counterexample `validAfterTheJourney`
 5. WHILE the last leg of the journey has not actually departed THE SYSTEM SHALL treat the boarding pass as not expired.
-   - OID-104.5, open: open theorem `valid_until_actual_departure`; counterexample `expiredBeforeADelayedDeparture`
+   - OID-104.5, open: open theorem `valid_until_actual_departure`; counterexample `expiredBeforeADelayedDeparture`; counterexample `signedAgainAfterADelay`
 
 #### Open question on OID-104.4
 
@@ -64,7 +64,12 @@ These requirements are generated from the Lean model in [`Rules/OneId/Validity.l
 > departure is meant, the validity may end at any instant from that departure
 > on, so a boarding pass can expire before a delayed flight boards, and the
 > guide does not say whether the airline issues a new one.  The example
-> `expiredBeforeADelayedDeparture` shows it.  Which departure is meant, and
+> `expiredBeforeADelayedDeparture` shows it.  If the airline signs the
+> boarding pass again to end soon after the actual departure, that boarding pass
+> is correctly issued under the reading that the actual departure is meant and
+> wrongly issued under the other, and expiry, the time check a relying party
+> makes, gives the same answer under both.  The example
+> `signedAgainAfterADelay` shows it.  Which departure is meant, and
 > what happens to a boarding pass credential when its flight is delayed past the
 > end of its validity?
 

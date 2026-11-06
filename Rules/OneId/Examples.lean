@@ -491,6 +491,61 @@ def expiredBeforeADelayedDeparture : ValidityCheck :=
 #guard expiredBeforeADelayedDeparture.requirementsBroken == [] &&
   expiredBeforeADelayedDeparture.expired == true
 
+/-- One boarding pass checked under both readings of which departure is
+meant, with "soon after" an hour in each. -/
+structure DepartureCheck where
+  /-- The scheduled departure of the last leg. -/
+  scheduledDeparture : Instant
+  /-- When the last leg actually departs. -/
+  actualDeparture : Instant
+  /-- When the journey is completed. -/
+  journeyCompleted : Instant
+  /-- The end of the boarding pass's validity. -/
+  validityEnds : Instant
+  /-- The requirements the validity breaks if the actual departure is
+  meant. -/
+  brokenIfTheActualDepartureIsMeant : List Finding
+  /-- The requirements the validity breaks if the scheduled departure is
+  meant. -/
+  brokenIfTheScheduledDepartureIsMeant : List Finding
+  /-- The instant the boarding pass is checked. -/
+  checkedAt : Instant
+  /-- Whether the boarding pass is expired at that instant.  The expiry check
+  does not read which departure is meant, so the answer is the same under both
+  readings. -/
+  expired : Bool
+  deriving DecidableEq, Repr
+
+/-- *Given* the same flight, scheduled to depart at 10:00 UTC on 1 March 2027
+and delayed to 13:00, and a boarding pass the airline signed again after the
+delay, whose validity ends at 14:00, an hour after the actual departure.
+
+*When* its validity is checked with "soon after" read as an hour, once under
+the reading that the actual departure is meant and once under the reading that
+the scheduled departure is meant, and the boarding pass is checked at 12:30,
+half an hour before the flight actually departs.
+
+*Then* under the first reading its validity breaks no requirement.  Under the
+second it breaks the requirement that the validity end no later than soon after
+the departure, since 14:00 is four hours after the scheduled 10:00.  Under both
+readings it is not expired at 12:30.  The same boarding pass is correctly
+issued under one reading and wrongly issued under the other, and a relying
+party that checks only expiry accepts it either way. -/
+@[case, checks "OID-104.5"]
+def signedAgainAfterADelay : DepartureCheck :=
+  let j : Journey := ⟨departure, ⟨1803906000⟩, ⟨1803913200⟩⟩
+  let m : Mdoc := { boardingPassOf "SMITH/JOHN" with validUntil := ⟨1803909600⟩ }
+  let checkedAt : Instant := ⟨1803904200⟩
+  { scheduledDeparture := j.scheduledDeparture, actualDeparture := j.actualDeparture,
+    journeyCompleted := j.completed, validityEnds := m.validUntil,
+    brokenIfTheActualDepartureIsMeant := BoardingPass.validityFindings ⟨.actual, 3600⟩ j m,
+    brokenIfTheScheduledDepartureIsMeant := BoardingPass.validityFindings ⟨.scheduled, 3600⟩ j m,
+    checkedAt, expired := expired ⟨true⟩ m checkedAt }
+
+#guard signedAgainAfterADelay.brokenIfTheActualDepartureIsMeant == [] &&
+  signedAgainAfterADelay.brokenIfTheScheduledDepartureIsMeant == [.endsLongAfterLastDeparture] &&
+  signedAgainAfterADelay.expired == false
+
 /-- A credential checked at the instant its validity ends. -/
 structure BoundaryCheck where
   /-- The end of the credential's validity. -/

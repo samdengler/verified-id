@@ -56,7 +56,7 @@ Each folder is a requirement spec with one `requirements.md`, generated from the
 | OID-104.2 | IF the validity of a boarding pass ends later than soon after the departure of the last leg of its journey THEN THE SYSTEM SHALL reject it. | proven | proven theorem `validity_ends_soon_after` |
 | OID-104.3 | WHILE the current time is before the departure of the last leg of the journey THE SYSTEM SHALL treat the boarding pass as not expired. | proven | proven theorem `valid_before_departure` |
 | OID-104.4 | WHEN the journey is completed THE SYSTEM SHALL treat the boarding pass as expired. | open | open theorem `expired_once_journey_completed`; counterexample `validAfterTheJourney` |
-| OID-104.5 | WHILE the last leg of the journey has not actually departed THE SYSTEM SHALL treat the boarding pass as not expired. | open | open theorem `valid_until_actual_departure`; counterexample `expiredBeforeADelayedDeparture` |
+| OID-104.5 | WHILE the last leg of the journey has not actually departed THE SYSTEM SHALL treat the boarding pass as not expired. | open | open theorem `valid_until_actual_departure`; counterexample `expiredBeforeADelayedDeparture`; counterexample `signedAgainAfterADelay` |
 | OID-105.1 | WHEN the current time is after the end of a credential's validity THE SYSTEM SHALL treat the credential as expired. | proven | proven theorem `expired_after_validUntil` |
 | OID-105.2 | WHILE the current time is before the end of a credential's validity THE SYSTEM SHALL treat the credential as not expired. | proven | proven theorem `valid_before_validUntil` |
 | OID-105.3 | WHEN a credential has expired THE SYSTEM SHALL treat it as expired at every later time. | proven | proven theorem `expired_stays_expired` |
