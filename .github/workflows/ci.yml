@@ -15,6 +15,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # The runner's disk fills up: lean-action restores and saves all of
+      # .lake with Mathlib, and TinyTeX and the review build add more.  With
+      # 27 MB left, the two caches below could not write their archives.  This
+      # removes preinstalled toolchains the build does not use.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          df -h /
       - uses: actions/checkout@v4
       # This repository's compiled Lean from the last run.  Lake rebuilds only
       # the modules whose sources changed.
