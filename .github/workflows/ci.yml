@@ -1,7 +1,8 @@
 name: CI
-# The same steps as scripts/build-site.sh, in the same order.  The repository
-# is private and has no site: the build uploads site/ as an artifact, and the
-# deploy job runs only once the repository variable PAGES_ENABLED is true.
+# The same steps as scripts/build-site.sh, in the same order.  The build
+# uploads site/ as an artifact, and on main the deploy job publishes it to
+# https://samdengler.github.io/verified-id/ while the repository variable
+# PAGES_ENABLED is true.  Set it to false to stop publishing.
 on:
   # A push that changes only the README or CLAUDE.md leaves the site unchanged.
   push: { branches: [main], paths-ignore: ["README.md", "CLAUDE.md"] }
@@ -98,8 +99,8 @@ jobs:
       - run: scripts/assemble-site.sh
       - uses: actions/upload-pages-artifact@v3
         with: { path: site }
-  # Deploys only once Pages is available for the repository and Sam has
-  # decided to publish: set the repository variable PAGES_ENABLED to true.
+  # Publishes site/ through GitHub Pages while the repository variable
+  # PAGES_ENABLED is true.
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED == 'true'
     needs: build

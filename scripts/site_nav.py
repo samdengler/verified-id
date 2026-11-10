@@ -34,7 +34,7 @@ FAVICON = ('<link rel="icon" href="data:image/svg+xml,'
 # Each link's path from the site root.  The site name leads home.  The
 # blueprint is for the people who work on the Lean, so it is linked from the
 # home page and the review document and has no place in the bar, as in
-# verified-air.  The repository is private, so the bar has no link to it.
+# verified-air.
 LINKS = [
     ("Progress", "progress/"),
     ("Review document", "review/"),

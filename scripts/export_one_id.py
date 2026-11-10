@@ -13,10 +13,9 @@ shows that model's requirements can show these the same way:
   * openQuestions: for each criterion an open theorem checks, those theorems,
     each with the start of its question and its example.
 
-It differs from verified-air's in six ways.  The repository is private and
-has no remote, and the review document is not published, so source.repository,
-source.site and every "review" are null.  source.dirty says whether the
-working tree had changes at build time.  Each open question also names its
+It differs from verified-air's in five ways.  Every "review" is null, since
+the export does not yet compute addresses in the review document.
+source.dirty says whether the working tree had changes at build time.  Each open question also names its
 example, the first @[case] its docstring quotes.  identifiers holds the
 document types, namespaces and data element identifiers with their values,
 from build/one-id-identifiers.json (lake exe oneid-facts), so no identifier is
@@ -40,6 +39,9 @@ ROOT = Path(__file__).resolve().parent.parent
 STATUS = ROOT / "build" / "status.json"
 IDENTIFIERS = ROOT / "build" / "one-id-identifiers.json"
 OUT = ROOT / "build" / "one-id-data"
+REPO = "https://github.com/samdengler/verified-id"
+# CI publishes site/ here through GitHub Pages (.github/workflows/ci.yml).
+SITE = "https://samdengler.github.io/verified-id/"
 
 
 def plain(s):
@@ -120,7 +122,7 @@ def main():
             if not q["question"]:
                 sys.exit(f"export_one_id: {q['theorem']} is open and its docstring has no 'Open question for' paragraph")
     model = {
-        "source": {"repository": None, "commit": commit(), "dirty": dirty(), "site": None},
+        "source": {"repository": REPO, "commit": commit(), "dirty": dirty(), "site": SITE},
         "identifiers": json.loads(IDENTIFIERS.read_text())["identifiers"],
         "requirements": requirements,
         "openQuestions": dict(sorted(questions.items())),
